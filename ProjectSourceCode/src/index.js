@@ -66,8 +66,40 @@ app.use(
   })
 );
 
+// Home routes
+
 app.get("/", (req, res) => {
-  res.render("pages/splash"); //this will call the /anotherRoute route in the API
+  res.render("pages/home");
+});
+
+// Guides routes 
+
+app.get("/guides", (req, res) => {
+  res.render("pages/guides");
+});
+
+// Login routes
+
+app.get('/login', (req, res) => {
+  res.render('pages/login');
+});
+
+// Quiz routes
+
+app.get('/quiz', (req, res) => {
+  res.render('pages/quiz');
+});
+
+// Register routes
+
+app.get('/register', (req, res) => {
+  res.render('pages/register');
+});
+
+// Shop routes
+
+app.get('/shop', (req, res) => {
+  res.render('pages/shop');
 });
 
 // *****************************************************
