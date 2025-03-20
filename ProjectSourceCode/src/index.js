@@ -84,6 +84,34 @@ app.get('/login', (req, res) => {
   res.render('pages/login');
 });
 
+// Post atempt
+app.post('/login', async (req, res) => { 
+  let username = req.body.username;
+  let password = req.body.password;
+
+  let user_query = `SELECT * FROM users WHERE email = $1;`;
+  let response = await db.any(user_query, [email]);
+
+  if (response.length > 0) {
+    let user = response[0];
+    let hash = user.password;
+
+    if (await bcrypt.compare(password, hash)) {
+      req.session.user = user;
+      res.redirect('/discover');
+    } else {
+      console.log("Password incorrect");
+      res.redirect('/login');
+      console.log("Password incorrect")
+    }
+  } else {
+    console.log("User not found");
+    res.redirect('/login');
+    console.log("User not found");
+
+  }
+});
+
 // Quiz routes
 
 app.get('/quiz', (req, res) => {
