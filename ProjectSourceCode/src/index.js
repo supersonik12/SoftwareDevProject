@@ -120,10 +120,8 @@ app.get("/home", async (req, res) => {
         return {
           name: pet.name,
           photo: pet.primary_photo_cropped.small,
+          description: pet.description,
         };
-      });
-      petsWithPhotos.forEach((pet) => {
-        console.log(pet.tags);
       });
 
       //results.data._embedded?.animals

@@ -1,10 +1,16 @@
 .pet-container {
-  width: 300px;
-  height: 300px;
+  width: 430px;
+  height: 600px;
+}
+.pet-container img {
+  object-fit: cover;
+}
+.pet-container .card-img-top {
+  height: 320px;
 }
 .pet-grid {
   display: flex;
-}
-h1 {
-  color: pink;
+  gap: 100px;
+  flex-flow: wrap;
+  justify-content: center;
 }
