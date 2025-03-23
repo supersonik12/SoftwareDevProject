@@ -14,6 +14,35 @@ const axios = require("axios"); // To make HTTP requests from our server. We'll 
 // *****************************************************
 
 // create `ExpressHandlebars` instance and configure the layouts and partials dir.
+let accessToken;
+async function fetchAccessToken() {
+  const clientId = `${process.env.API_KEY}`;
+  const clientSecret = `${process.env.API_SECRET}`;
+  const url = "https://api.petfinder.com/v2/oauth2/token";
+  try {
+    const response = await axios.post(
+      url,
+      `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      }
+    );
+
+    accessToken = response.data.access_token;
+    tokenExpiresAt = Date.now() + response.data.expires_in * 1000; // Store expiration time
+    console.log("New access token fetched!");
+  } catch (error) {
+    console.error("Error fetching access token:", error.response.data);
+  }
+}
+
+app.use(async (req, res, next) => {
+  if (!accessToken || Date.now() >= tokenExpiresAt) {
+    await fetchAccessToken();
+  }
+  next();
+});
+
 const hbs = handlebars.create({
   extname: "hbs",
   layoutsDir: __dirname + "/views/layouts",
