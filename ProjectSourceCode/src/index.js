@@ -37,7 +37,7 @@ async function fetchAccessToken() {
 }
 
 app.use(async (req, res, next) => {
-  if (!accessToken || Date.now() >= tokenExpiresAt) {
+  if (!accessTokenPetFinder || Date.now() >= tokenExpiresAt) {
     await fetchAccessToken();
   }
   next();
@@ -57,9 +57,19 @@ app.get("/home", async (req, res) => {
     },
   })
     .then((results) => {
-      console.log(results.data);
+      const petsWithPhotos = results.data.animals.filter(
+        (pet) => pet.primary_photo_cropped
+      );
+      const animalData = petsWithPhotos.map((pet) => {
+        return {
+          name: pet.name,
+          photo: pet.primary_photo_cropped.small,
+        };
+      });
+      console.log(petsWithPhotos);
+      //results.data._embedded?.animals
       res.render("pages/home", {
-        animals: results.data._embedded?.animals || [],
+        animals: animalData || [],
       });
     })
     .catch((error) => {
