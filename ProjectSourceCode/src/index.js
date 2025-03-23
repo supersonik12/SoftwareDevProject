@@ -14,7 +14,7 @@ const axios = require("axios"); // To make HTTP requests from our server. We'll 
 // *****************************************************
 
 // create `ExpressHandlebars` instance and configure the layouts and partials dir.
-let accessToken;
+let accessTokenPetFinder;
 async function fetchAccessToken() {
   const clientId = `${process.env.API_KEY}`;
   const clientSecret = `${process.env.API_SECRET}`;
@@ -28,7 +28,7 @@ async function fetchAccessToken() {
       }
     );
 
-    accessToken = response.data.access_token;
+    accessTokenPetFinder = response.data.access_token;
     tokenExpiresAt = Date.now() + response.data.expires_in * 1000; // Store expiration time
     console.log("New access token fetched!");
   } catch (error) {
@@ -41,6 +41,31 @@ app.use(async (req, res, next) => {
     await fetchAccessToken();
   }
   next();
+});
+
+app.get("/home", async (req, res) => {
+  axios({
+    url: `https://api.petfinder.com/v2/animals`,
+    method: "GET",
+    dataType: "json",
+    headers: {
+      // "Accept-Encoding": "application/json",
+      Authorization: `Bearer ${accessTokenPetFinder}`,
+    },
+    params: {
+      page: 1,
+    },
+  })
+    .then((results) => {
+      console.log(results.data);
+      res.render("pages/home", {
+        animals: results.data._embedded?.animals || [],
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+      //res.status(500).render("error", { message: "Failed to fetch animals." });
+    });
 });
 
 const hbs = handlebars.create({
