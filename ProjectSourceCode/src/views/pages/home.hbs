@@ -1,7 +1,8 @@
-{{#each animals}}
-  <div>
-    <h1>{{this.name}}</h1>
-    <p>{{this.photo}}</p>
-    <img src={{this.photo}} alt="" />
-  </div>
-{{/each}}
+<div class="pet-grid">
+  {{#each animals}}
+    <div class="pet-container">
+      <h1>{{this.name}}</h1>
+      <img src={{this.photo}} alt="" />
+    </div>
+  {{/each}}
+</div>

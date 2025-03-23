@@ -1,0 +1,10 @@
+.pet-container {
+  width: 300px;
+  height: 300px;
+}
+.pet-grid {
+  display: flex;
+}
+h1 {
+  color: pink;
+}

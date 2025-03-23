@@ -8,16 +8,17 @@ const bodyParser = require("body-parser");
 const session = require("express-session"); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
 const bcrypt = require("bcryptjs"); //  To hash passwords
 const axios = require("axios"); // To make HTTP requests from our server. We'll learn more about it in Part C.
+const mime = require("mime");
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
-
+app.use(express.static(path.join(__dirname, "resources")));
 // create `ExpressHandlebars` instance and configure the layouts and partials dir.
 let accessTokenPetFinder;
 async function fetchAccessToken() {
-  const clientId = `${process.env.API_KEY}`;
-  const clientSecret = `${process.env.API_SECRET}`;
+  const clientId = `${process.env.API_KEY_PETS}`;
+  const clientSecret = `${process.env.API_SECRET_PETS}`;
   const url = "https://api.petfinder.com/v2/oauth2/token";
   try {
     const response = await axios.post(
@@ -41,41 +42,6 @@ app.use(async (req, res, next) => {
     await fetchAccessToken();
   }
   next();
-});
-
-app.get("/home", async (req, res) => {
-  axios({
-    url: `https://api.petfinder.com/v2/animals`,
-    method: "GET",
-    dataType: "json",
-    headers: {
-      // "Accept-Encoding": "application/json",
-      Authorization: `Bearer ${accessTokenPetFinder}`,
-    },
-    params: {
-      page: 1,
-    },
-  })
-    .then((results) => {
-      const petsWithPhotos = results.data.animals.filter(
-        (pet) => pet.primary_photo_cropped
-      );
-      const animalData = petsWithPhotos.map((pet) => {
-        return {
-          name: pet.name,
-          photo: pet.primary_photo_cropped.small,
-        };
-      });
-      console.log(petsWithPhotos);
-      //results.data._embedded?.animals
-      res.render("pages/home", {
-        animals: animalData || [],
-      });
-    })
-    .catch((error) => {
-      console.log(error);
-      //res.status(500).render("error", { message: "Failed to fetch animals." });
-    });
 });
 
 const hbs = handlebars.create({
@@ -133,7 +99,43 @@ app.use(
 app.get("/", (req, res) => {
   res.render("pages/splash"); //this will call the /anotherRoute route in the API
 });
+app.get("/home", async (req, res) => {
+  axios({
+    url: `https://api.petfinder.com/v2/animals`,
+    method: "GET",
+    dataType: "json",
+    headers: {
+      // "Accept-Encoding": "application/json",
+      Authorization: `Bearer ${accessTokenPetFinder}`,
+    },
+    params: {
+      page: 1,
+    },
+  })
+    .then((results) => {
+      const petsWithPhotos = results.data.animals.filter(
+        (pet) => pet.primary_photo_cropped
+      );
+      const animalData = petsWithPhotos.map((pet) => {
+        return {
+          name: pet.name,
+          photo: pet.primary_photo_cropped.small,
+        };
+      });
+      petsWithPhotos.forEach((pet) => {
+        console.log(pet.tags);
+      });
 
+      //results.data._embedded?.animals
+      res.render("pages/home", {
+        animals: animalData || [],
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+      //res.status(500).render("error", { message: "Failed to fetch animals." });
+    });
+});
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
