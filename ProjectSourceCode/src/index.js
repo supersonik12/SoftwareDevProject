@@ -14,6 +14,70 @@ const axios = require("axios"); // To make HTTP requests from our server. We'll 
 // *****************************************************
 
 // create `ExpressHandlebars` instance and configure the layouts and partials dir.
+let accessTokenPetFinder;
+async function fetchAccessToken() {
+  const clientId = `${process.env.API_KEY}`;
+  const clientSecret = `${process.env.API_SECRET}`;
+  const url = "https://api.petfinder.com/v2/oauth2/token";
+  try {
+    const response = await axios.post(
+      url,
+      `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      }
+    );
+
+    accessTokenPetFinder = response.data.access_token;
+    tokenExpiresAt = Date.now() + response.data.expires_in * 1000; // Store expiration time
+    console.log("New access token fetched!");
+  } catch (error) {
+    console.error("Error fetching access token:", error.response.data);
+  }
+}
+
+app.use(async (req, res, next) => {
+  if (!accessTokenPetFinder || Date.now() >= tokenExpiresAt) {
+    await fetchAccessToken();
+  }
+  next();
+});
+
+app.get("/home", async (req, res) => {
+  axios({
+    url: `https://api.petfinder.com/v2/animals`,
+    method: "GET",
+    dataType: "json",
+    headers: {
+      // "Accept-Encoding": "application/json",
+      Authorization: `Bearer ${accessTokenPetFinder}`,
+    },
+    params: {
+      page: 1,
+    },
+  })
+    .then((results) => {
+      const petsWithPhotos = results.data.animals.filter(
+        (pet) => pet.primary_photo_cropped
+      );
+      const animalData = petsWithPhotos.map((pet) => {
+        return {
+          name: pet.name,
+          photo: pet.primary_photo_cropped.small,
+        };
+      });
+      console.log(petsWithPhotos);
+      //results.data._embedded?.animals
+      res.render("pages/home", {
+        animals: animalData || [],
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+      //res.status(500).render("error", { message: "Failed to fetch animals." });
+    });
+});
+
 const hbs = handlebars.create({
   extname: "hbs",
   layoutsDir: __dirname + "/views/layouts",
