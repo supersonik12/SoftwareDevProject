@@ -1,7 +1,7 @@
 /*Home page*/
 .pet-container {
   width: 430px;
-  height: 600px;
+  height: 600px !important;
 }
 .pet-container img {
   object-fit: cover;
