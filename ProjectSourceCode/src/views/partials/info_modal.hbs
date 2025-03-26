@@ -20,11 +20,17 @@
         ></button>
       </div>
       <div class="modal-body">
-        {{#if this.breeds.unknown}}{{else}}
+        <div class="basic-info">
+
           <p>{{this.breeds.primary}}
             {{#if this.breeds.secondary}} / {{this.breeds.secondary}} {{/if}}
+            |
+            {{this.age}}
+            |
+            {{this.size}}
           </p>
-        {{/if}}
+
+        </div>
 
       </div>
       <div class="modal-footer">

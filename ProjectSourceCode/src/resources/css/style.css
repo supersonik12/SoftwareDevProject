@@ -32,4 +32,9 @@
 .gender-icon {
   height: 20px;
   margin-left: 10px;
+  color: rgb(102, 189, 255);
+}
+.basic-info p {
+  margin-bottom: 0px;
+  color: gray;
 }
