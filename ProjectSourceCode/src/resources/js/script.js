@@ -1,4 +1,4 @@
-ts = document.querySelectorAll(".pet");
+const pets = document.querySelectorAll(".pet");
 pets.forEach((pet) => {
   const infoBtn = pet.querySelector(".infoBtn");
   const modal = pet.querySelector(`.infoModal`);

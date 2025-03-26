@@ -119,12 +119,13 @@ app.get("/home", async (req, res) => {
 
       const animalData = petsWithPhotos.map((pet) => {
         return {
-          name: pet.name,
           photo: pet.primary_photo_cropped.small,
-          description: pet.description,
+
           index: petsWithPhotos.indexOf(pet),
+          ...pet,
         };
       });
+      console.log(animalData);
 
       //results.data._embedded?.animals
       res.render("pages/home", {
