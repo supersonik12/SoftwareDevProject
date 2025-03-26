@@ -1,12 +1,8 @@
-//refactor this
-
-const infoBtns = document.querySelectorAll(".infoBtn");
-infoBtns.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const modal = document.querySelector(
-      `.infoModal[index = '${btn.getAttribute("index")}']`
-    );
-
+ts = document.querySelectorAll(".pet");
+pets.forEach((pet) => {
+  const infoBtn = pet.querySelector(".infoBtn");
+  const modal = pet.querySelector(`.infoModal`);
+  infoBtn.addEventListener("click", () => {
     $(modal).modal("show");
   });
 });
