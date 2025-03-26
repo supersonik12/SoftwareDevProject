@@ -1,3 +1,4 @@
+/*Home page*/
 .pet-container {
   width: 430px;
   height: 600px;
@@ -13,4 +14,18 @@
   gap: 100px;
   flex-flow: wrap;
   justify-content: center;
+}
+.pet-container .btn-container button {
+  border: 0;
+  background: white;
+  height: 50px;
+}
+.pet-container button img {
+  height: 50px;
+}
+.pet-container .btn-container {
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
 }
