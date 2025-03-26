@@ -1,4 +1,6 @@
-const modalBtn = document.querySelector(".modalBtn");
-modalBtn.addEventListener("click", () => {
-  $("#infoModal").modal("show");
+const infoBtns = document.querySelectorAll(".infoBtn");
+infoBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    $("#infoModal").modal("show");
+  });
 });

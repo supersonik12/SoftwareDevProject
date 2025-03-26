@@ -116,11 +116,13 @@ app.get("/home", async (req, res) => {
       const petsWithPhotos = results.data.animals.filter(
         (pet) => pet.primary_photo_cropped
       );
+
       const animalData = petsWithPhotos.map((pet) => {
         return {
           name: pet.name,
           photo: pet.primary_photo_cropped.small,
           description: pet.description,
+          index: petsWithPhotos.indexOf(pet),
         };
       });
 
