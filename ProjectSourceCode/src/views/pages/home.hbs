@@ -1,7 +1,7 @@
 
-
 <div class="pet-grid .container-lg">
   {{#each animals}}
+    {{>info_modal}}
     <div class="card pet-container">
       <img class="card-img-top" src={{this.photo}} alt="" />
 
@@ -10,8 +10,8 @@
         <p class="card-text">{{this.description}}</p>
       </div>
         <div class = "btn-container">
-          <button  data-bs-toggle="modal"><img src="/images/contact.svg" alt="contact"></img></button>
-           <button><img class = "infoBtn {{this.index}}" src="/images/pet_info.svg" alt="info"></img></button>
+          <button><img src="/images/contact.svg" alt="contact"></img></button>
+           <button class = "infoBtn" index = "{{this.index}}"><img  src="/images/pet_info.svg" alt="info"></img></button>
         </div>
       
     </div>
