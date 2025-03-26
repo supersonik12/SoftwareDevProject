@@ -122,6 +122,7 @@ app.get("/home", async (req, res) => {
           photo: pet.primary_photo_cropped.small,
 
           index: petsWithPhotos.indexOf(pet),
+          isMale: pet.gender == "Male",
           ...pet,
         };
       });
