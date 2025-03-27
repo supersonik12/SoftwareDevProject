@@ -118,37 +118,23 @@ app.get("/home", async (req, res) => {
       );
 
       const animalData = petsWithPhotos.map((pet) => {
+        function getAttributeData(name, data) {
+          return {
+            isTrue: data,
+            name: name,
+            isFalse: data === false,
+            isNull: data === null,
+          };
+        }
         const attributesObj = [
-          {
-            isTrue: pet.attributes.spayed_neutered,
-            name: "spayed/neutered",
-            isFalse: pet.attributes.spayed_neutered === false,
-            isNull: pet.attributes.spayed_neutered === null,
-          },
-          {
-            isTrue: pet.attributes.house_trained,
-            name: "house trained",
-            isFalse: pet.attributes.house_trained === false,
-            isNull: pet.attributes.house_trained === null,
-          },
-          {
-            isTrue: pet.attributes.declawed,
-            name: "declawed",
-            isFalse: pet.attributes.declawed === false,
-            isNull: pet.attributes.declawed === null,
-          },
-          {
-            isTrue: pet.attributes.special_needs,
-            name: "special needs",
-            isFalse: pet.attributes.special_needs === false,
-            isNull: pet.attributes.special_needs === null,
-          },
-          {
-            isTrue: pet.attributes.shots_current,
-            name: "shots are current",
-            isFalse: pet.attributes.shots_current === false,
-            isNull: pet.attributes.shots_current === null,
-          },
+          getAttributeData("spayed/neutered", pet.attributes.spayed_neutered),
+          getAttributeData("house trained", pet.attributes.house_trained),
+          getAttributeData("declawed", pet.attributes.declawed),
+          getAttributeData("special needs", pet.attributes.special_needs),
+          getAttributeData("shots are current", pet.attributes.shots_current),
+          getAttributeData("children", pet.environment.children),
+          getAttributeData("cats", pet.environment.cats),
+          getAttributeData("dogs", pet.environment.dogs),
         ];
         return {
           photo: pet.primary_photo_cropped.small,
