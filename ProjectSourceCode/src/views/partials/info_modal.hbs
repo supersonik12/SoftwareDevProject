@@ -33,6 +33,7 @@
         </div>
         <ul class = 'attributes'>
           {{#each this.attributesObj}}
+            {{#unless this.isNull}}
             <li
             {{#if this.isTrue}}
             class = "has-prop"
@@ -41,9 +42,10 @@
             class = 'not-has-prop'
            {{/if}}
             >
-            {{#unless this.isNull}}
+          
             {{this.name}}
-            {{/unless}}</li>
+           </li>
+            {{/unless}}
           {{/each}}
 
         </ul>
