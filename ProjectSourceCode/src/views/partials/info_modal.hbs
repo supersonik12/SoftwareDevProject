@@ -31,6 +31,22 @@
           </p>
 
         </div>
+        <ul class = 'attributes'>
+          {{#each this.attributesObj}}
+            <li
+            {{#if this.isTrue}}
+            class = "has-prop"
+            {{/if}}
+            {{#if this.isFalse}}
+            class = 'not-has-prop'
+           {{/if}}
+            >
+            {{#unless this.isNull}}
+            {{this.name}}
+            {{/unless}}</li>
+          {{/each}}
+
+        </ul>
 
       </div>
       <div class="modal-footer">

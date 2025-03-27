@@ -34,7 +34,39 @@
   margin-left: 10px;
   color: rgb(102, 189, 255);
 }
-.basic-info p {
-  margin-bottom: 0px;
+.infoModal .basic-info p {
+  margin-bottom: 10px;
   color: gray;
+  text-align: center;
+}
+.infoModal ul {
+  list-style: none;
+  font-size: 1.2rem;
+}
+.infoModal li::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  width: 20px;
+  height: 20px;
+  background-image: url("/images/paw.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin-top: 3px;
+}
+.has-prop::after {
+  content: "";
+  height: 20px;
+  width: 20px;
+  background-image: url("/images/check.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  margin-left: 5px;
+  margin-top: 2px;
+}
+.not-has-prop::after {
+  margin-left: 5px;
+  content: "x";
+  color: rgb(255, 128, 128);
 }

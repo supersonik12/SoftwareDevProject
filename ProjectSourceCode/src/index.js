@@ -109,7 +109,7 @@ app.get("/home", async (req, res) => {
       Authorization: `Bearer ${accessTokenPetFinder}`,
     },
     params: {
-      page: 1,
+      page: 3,
     },
   })
     .then((results) => {
@@ -118,24 +118,54 @@ app.get("/home", async (req, res) => {
       );
 
       const animalData = petsWithPhotos.map((pet) => {
+        const attributesObj = [
+          {
+            isTrue: pet.attributes.spayed_neutered,
+            name: "spayed/neutered",
+            isFalse: pet.attributes.spayed_neutered === false,
+            isNull: pet.attributes.spayed_neutered === null,
+          },
+          {
+            isTrue: pet.attributes.house_trained,
+            name: "house trained",
+            isFalse: pet.attributes.house_trained === false,
+            isNull: pet.attributes.house_trained === null,
+          },
+          {
+            isTrue: pet.attributes.declawed,
+            name: "declawed",
+            isFalse: pet.attributes.declawed === false,
+            isNull: pet.attributes.declawed === null,
+          },
+          {
+            isTrue: pet.attributes.special_needs,
+            name: "special needs",
+            isFalse: pet.attributes.special_needs === false,
+            isNull: pet.attributes.special_needs === null,
+          },
+          {
+            isTrue: pet.attributes.shots_current,
+            name: "shots are current",
+            isFalse: pet.attributes.shots_current === false,
+            isNull: pet.attributes.shots_current === null,
+          },
+        ];
         return {
           photo: pet.primary_photo_cropped.small,
 
           index: petsWithPhotos.indexOf(pet),
           isMale: pet.gender == "Male",
           ...pet,
+          attributesObj,
         };
       });
       console.log(animalData);
-
-      //results.data._embedded?.animals
       res.render("pages/home", {
         animals: animalData || [],
       });
     })
     .catch((error) => {
       console.log(error);
-      //res.status(500).render("error", { message: "Failed to fetch animals." });
     });
 });
 // *****************************************************
