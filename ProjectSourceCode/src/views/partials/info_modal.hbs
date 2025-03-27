@@ -1,0 +1,59 @@
+<div
+  class="modal fade infoModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">{{this.name}}</h5>
+        {{#if this.isMale}}
+          <img class="gender-icon" src="/images/male.svg" alt="male" />
+        {{else}}
+          <img class="gender-icon" src="/images/female.svg" alt="female" />
+        {{/if}}
+        <button
+          type="button"
+          class="btn-close closeModal"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="basic-info">
+
+          <p>{{this.breeds.primary}}
+            {{#if this.breeds.secondary}} / {{this.breeds.secondary}} {{/if}}
+            |
+            {{this.age}}
+            |
+            {{this.size}}
+          </p>
+
+        </div>
+        <ul class = 'attributes'>
+          {{#each this.attributesObj}}
+            {{#unless this.isNull}}
+            <li
+            {{#if this.isTrue}}
+            class = "has-prop"
+            {{/if}}
+            {{#if this.isFalse}}
+            class = 'not-has-prop'
+           {{/if}}
+            >
+          
+            {{this.name}}
+           </li>
+            {{/unless}}
+          {{/each}}
+
+        </ul>
+
+      </div>
+      <div class="modal-footer">
+
+      </div>
+    </div>
+  </div>
+</div>
