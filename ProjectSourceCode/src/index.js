@@ -138,14 +138,12 @@ app.get("/home", async (req, res) => {
         ];
         return {
           photo: pet.primary_photo_cropped.small,
-
-          index: petsWithPhotos.indexOf(pet),
           isMale: pet.gender == "Male",
           ...pet,
           attributesObj,
         };
       });
-      console.log(animalData);
+
       res.render("pages/home", {
         animals: animalData || [],
       });

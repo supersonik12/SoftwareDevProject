@@ -70,3 +70,12 @@
   content: "x";
   color: rgb(255, 128, 128);
 }
+.contactModal .contact {
+  text-align: center;
+  font-size: 1.4rem;
+}
+.contactModal p,
+.contactModal a {
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
