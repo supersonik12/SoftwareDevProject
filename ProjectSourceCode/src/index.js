@@ -66,9 +66,42 @@ app.use(
   })
 );
 
+
+//Helper Functions
+
+//TODO: implement function to display individual matches based on matching results
+//Currently just prints to prevent errors when testing quiz endpoint
+function getMatches(matchList) {
+	console.log(matchList);
+}
+
 app.get("/", (req, res) => {
   res.render("pages/splash"); //this will call the /anotherRoute route in the API
 });
+
+app.post("/purrsonality-quiz", (req, res) => {
+	/*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
+	 * using Python for better libraries for performing numerical computation
+	*/
+	userVals = [req.body.aff_val, req.body.play_val, req.body.vigilang_val, req.body.train_val, req.body.enegry_val, req.body.bored_val];
+
+	for (i in userVals) {
+		if (userVals[i] <= 0 || userVals[i] > 1) {
+			res.status(423).json({
+				error: "Values outside expected range",
+			});
+			res.send;
+			return;
+		}
+	}
+
+	var pythonChild = require("child_process").spawn('python', userVals.preprend('./resources/python/Matching_Algo.py'));
+
+	pythonChild.stdout.on('matchList', matchList => {
+		getMatches(matchList);
+	});
+});
+
 
 // *****************************************************
 // <!-- Section 5 : Start Server-->
