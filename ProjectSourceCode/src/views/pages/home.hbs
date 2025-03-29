@@ -1,0 +1,21 @@
+
+<div class="pet-grid .container-lg">
+  {{#each animals}}
+    <div class="pet">
+      {{>info_modal}}
+      {{>contact_modal}}
+      <div class="card pet-container">
+        <img class="card-img-top" src={{this.photo}} alt="" />
+        <div class="card-body">
+          <h5 class="card-title">{{this.name}}</h5>
+          <p class="card-text">{{this.description}}</p>
+        </div>
+          <div class = "btn-container">
+            <button class = 'contactBtn'><img src="/images/contact.svg" alt="contact"></img></button>
+             <button class = "infoBtn" ><img  src="/images/pet_info.svg" alt="info"></img></button>
+          </div>
+      
+      </div>
+    </div>
+  {{/each}}
+</div>

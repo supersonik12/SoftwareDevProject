@@ -8,12 +8,42 @@ const bodyParser = require("body-parser");
 const session = require("express-session"); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
 const bcrypt = require("bcryptjs"); //  To hash passwords
 const axios = require("axios"); // To make HTTP requests from our server. We'll learn more about it in Part C.
+const mime = require("mime");
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
-
+app.use(express.static(path.join(__dirname, "resources")));
 // create `ExpressHandlebars` instance and configure the layouts and partials dir.
+let accessTokenPetFinder;
+async function fetchAccessToken() {
+  const clientId = `${process.env.API_KEY_PETS}`;
+  const clientSecret = `${process.env.API_SECRET_PETS}`;
+  const url = "https://api.petfinder.com/v2/oauth2/token";
+  try {
+    const response = await axios.post(
+      url,
+      `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      }
+    );
+
+    accessTokenPetFinder = response.data.access_token;
+    tokenExpiresAt = Date.now() + response.data.expires_in * 1000; // Store expiration time
+    console.log("New access token fetched!");
+  } catch (error) {
+    console.error("Error fetching access token:", error.response.data);
+  }
+}
+
+app.use(async (req, res, next) => {
+  if (!accessTokenPetFinder || Date.now() >= tokenExpiresAt) {
+    await fetchAccessToken();
+  }
+  next();
+});
+
 const hbs = handlebars.create({
   extname: "hbs",
   layoutsDir: __dirname + "/views/layouts",
@@ -78,6 +108,23 @@ function getMatches(matchList) {
 app.get("/", (req, res) => {
   res.render("pages/splash"); //this will call the /anotherRoute route in the API
 });
+app.get("/home", async (req, res) => {
+  axios({
+    url: `https://api.petfinder.com/v2/animals`,
+    method: "GET",
+    dataType: "json",
+    headers: {
+      // "Accept-Encoding": "application/json",
+      Authorization: `Bearer ${accessTokenPetFinder}`,
+    },
+    params: {
+      page: 3,
+    },
+  })
+    .then((results) => {
+      const petsWithPhotos = results.data.animals.filter(
+        (pet) => pet.primary_photo_cropped
+      );
 
 app.post("/purrsonality-quiz", (req, res) => {
 	/*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
@@ -114,6 +161,41 @@ app.post("/purrsonality-quiz", (req, res) => {
 });
 
 
+      const animalData = petsWithPhotos.map((pet) => {
+        function getAttributeData(name, data) {
+          return {
+            isTrue: data,
+            name: name,
+            isFalse: data === false,
+            isNull: data === null,
+          };
+        }
+        const attributesObj = [
+          getAttributeData("spayed/neutered", pet.attributes.spayed_neutered),
+          getAttributeData("house trained", pet.attributes.house_trained),
+          getAttributeData("declawed", pet.attributes.declawed),
+          getAttributeData("special needs", pet.attributes.special_needs),
+          getAttributeData("shots are current", pet.attributes.shots_current),
+          getAttributeData("children", pet.environment.children),
+          getAttributeData("cats", pet.environment.cats),
+          getAttributeData("dogs", pet.environment.dogs),
+        ];
+        return {
+          photo: pet.primary_photo_cropped.small,
+          isMale: pet.gender == "Male",
+          ...pet,
+          attributesObj,
+        };
+      });
+
+      res.render("pages/home", {
+        animals: animalData || [],
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
