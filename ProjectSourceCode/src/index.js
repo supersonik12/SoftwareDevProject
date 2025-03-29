@@ -96,6 +96,15 @@ app.use(
   })
 );
 
+
+//Helper Functions
+
+//TODO: implement function to display individual matches based on matching results
+//Currently just prints to prevent errors when testing quiz endpoint
+function getMatches(matchList) {
+	console.log(matchList);
+}
+
 app.get("/", (req, res) => {
   res.render("pages/splash"); //this will call the /anotherRoute route in the API
 });
@@ -116,6 +125,41 @@ app.get("/home", async (req, res) => {
       const petsWithPhotos = results.data.animals.filter(
         (pet) => pet.primary_photo_cropped
       );
+
+app.post("/purrsonality-quiz", (req, res) => {
+	/*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
+	 * using Python for better libraries for performing numerical computation
+	*/
+	userVals = [req.body.aff_val, req.body.play_val, req.body.vigilant_val, req.body.train_val, req.body.energy_val, req.body.bored_val];
+	console.log(userVals);
+	for (i in userVals) {
+		if (userVals[i] <= 0 || userVals[i] > 1) {
+			res.status(423).json({
+				error: "Values outside expected range",
+			});
+			res.send;
+			return;
+		}
+	}
+
+	var spawn = require("child_process").spawn;
+	var pythonChild = spawn("python3", ["src/resources/python/Matching_Algo.py", req.body.species, req.body.aff_val, req.body.play_val, req.body.vigilant_val, req.body.train_val, req.body.energy_val, req.body.bored_val]);
+	
+	console.log("Python process spawned");
+	pythonChild.stderr.on("data", (err) => {
+		console.log(err.toString());	
+		res.send(err.toString());
+		return;
+	});
+
+	pythonChild.stdout.on("data", (data) => {
+		res.send(data.toString());
+		return;
+	});
+
+	pythonChild.on("close", (code) => console.log(code));
+});
+
 
       const animalData = petsWithPhotos.map((pet) => {
         function getAttributeData(name, data) {
