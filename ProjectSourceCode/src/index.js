@@ -86,7 +86,7 @@ app.get('/login', (req, res) => {
 
 // Post atempt
 app.post('/login', async (req, res) => { 
-  let username = req.body.username;
+  let email = req.body.email;
   let password = req.body.password;
 
   let user_query = `SELECT * FROM users WHERE email = $1;`;
@@ -98,17 +98,14 @@ app.post('/login', async (req, res) => {
 
     if (await bcrypt.compare(password, hash)) {
       req.session.user = user;
-      res.redirect('/discover');
+      res.redirect('/home');
     } else {
       console.log("Password incorrect");
-      res.redirect('/login');
-      console.log("Password incorrect")
+      res.render('pages/login', {message:"Your password was incorrect, try again."});
     }
   } else {
     console.log("User not found");
-    res.redirect('/login');
-    console.log("User not found");
-
+    res.render('pages/login', {message:"Account not found."});
   }
 });
 
