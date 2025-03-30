@@ -85,12 +85,14 @@ app.get('/login', (req, res) => {
 });
 
 // Post atempt
-app.post('/login', async (req, res) => { 
+app.post('/login', async (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
 
   let user_query = `SELECT * FROM users WHERE email = $1;`;
   let response = await db.any(user_query, [email]);
+
+  console.log("login POST");
 
   if (response.length > 0) {
     let user = response[0];
@@ -98,14 +100,14 @@ app.post('/login', async (req, res) => {
 
     if (await bcrypt.compare(password, hash)) {
       req.session.user = user;
-      res.redirect('/home');
+      res.redirect('/');
     } else {
       console.log("Password incorrect");
-      res.render('pages/login', {message:"Your password was incorrect, try again."});
+      res.render('pages/login', { message: "Your password was incorrect, try again." });
     }
   } else {
     console.log("User not found");
-    res.render('pages/login', {message:"Account not found."});
+    res.render('pages/login', { message: "Account not found." });
   }
 });
 
@@ -119,6 +121,35 @@ app.get('/quiz', (req, res) => {
 
 app.get('/register', (req, res) => {
   res.render('pages/register');
+});
+
+app.post('/register', async (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+  let name = req.body.name;
+
+  if (email == undefined || password == undefined || name == undefined) {
+      console.log(req);
+      res.redirect("/register");
+  }
+
+  const hash = await bcrypt.hash(password, 10);
+
+  console.log("/register POST");
+
+  try {    
+      let add_user_query = `INSERT INTO users (email, password, name) VALUES ($1, $2, $3);`;
+
+      let response = await db.any(add_user_query, [email, hash, name]);
+
+      console.log("Registration successful, added user " +  name + " with email " + email);
+      res.redirect('/login');
+
+  } catch (err) {
+      console.log("Failed to add user " + name);
+      console.log(err);
+      res.redirect('/register');
+  }
 });
 
 // Shop routes
