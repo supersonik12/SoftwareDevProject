@@ -108,11 +108,11 @@ app.post('/login', async (req, res) => {
       res.redirect('/');
     } else {
       console.log("Password incorrect");
-      res.render('pages/login', { message: "Your password was incorrect, try again." });
+      res.render('pages/login', { message: "Your password was incorrect, try again.", error: true });
     }
   } else {
     console.log("User not found");
-    res.render('pages/login', { message: "Account not found." });
+    res.render('pages/login', { message: "Account not found.", error: true });
   }
 });
 
