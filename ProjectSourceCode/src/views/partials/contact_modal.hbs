@@ -1,0 +1,34 @@
+<div
+  class="modal fade infoModal contactModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">{{this.name}}</h5>
+        <button
+          type="button"
+          class="btn-close closeModal"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+
+      </div>
+      <div class="modal-body contact">
+        <a href="{{this.url}}">Link to profile</a>
+        {{#if this.contact.email}}
+          <p>{{this.contact.email}}</p>
+        {{/if}}
+        {{#if this.contact.phone}}
+          <p>{{this.contact.phone}}</p>
+        {{/if}}
+        <p>{{this.contact.address.city}}, {{this.contact.address.state}}</p>
+
+      </div>
+      <div class="modal-footer">
+
+      </div>
+    </div>
+  </div>
+</div>

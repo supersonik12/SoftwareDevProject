@@ -1,0 +1,81 @@
+/*Home page*/
+.pet-container {
+  width: 430px;
+  height: 600px !important;
+}
+.pet-container img {
+  object-fit: cover;
+}
+.pet-container .card-img-top {
+  height: 320px;
+}
+.pet-grid {
+  display: flex;
+  gap: 100px;
+  flex-flow: wrap;
+  justify-content: center;
+}
+.pet-container .btn-container button {
+  border: 0;
+  background: white;
+  height: 50px;
+}
+.pet-container button img {
+  height: 50px;
+}
+.pet-container .btn-container {
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+.gender-icon {
+  height: 20px;
+  margin-left: 10px;
+  color: rgb(102, 189, 255);
+}
+.infoModal .basic-info p {
+  margin-bottom: 10px;
+  color: gray;
+  text-align: center;
+}
+.infoModal ul {
+  list-style: none;
+  font-size: 1.2rem;
+}
+.infoModal li::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  width: 20px;
+  height: 20px;
+  background-image: url("/images/paw.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin-top: 3px;
+}
+.has-prop::after {
+  content: "";
+  height: 20px;
+  width: 20px;
+  background-image: url("/images/check.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  margin-left: 5px;
+  margin-top: 2px;
+}
+.not-has-prop::after {
+  margin-left: 5px;
+  content: "x";
+  color: rgb(255, 128, 128);
+}
+.contactModal .contact {
+  text-align: center;
+  font-size: 1.4rem;
+}
+.contactModal p,
+.contactModal a {
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
