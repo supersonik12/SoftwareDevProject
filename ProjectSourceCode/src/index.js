@@ -96,7 +96,6 @@ app.use(
   })
 );
 
-
 //Helper Functions
 
 //TODO: implement function to display individual matches based on matching results
@@ -105,8 +104,62 @@ function getMatches(matchList) {
 	console.log(matchList);
 }
 
+// Home routes
+
 app.get("/", (req, res) => {
-  res.render("pages/splash"); //this will call the /anotherRoute route in the API
+  if (req.session.user == undefined){
+    res.redirect("/splash");
+  } else {
+    console.log("Welcome user " + req.session.user.name);
+    res.render("pages/home");
+  }
+});
+
+app.get("/home", (req, res) => {
+  res.redirect('/');
+});
+
+// Guides routes
+app.get("/guides", (req, res) => {
+  res.render("pages/guides");
+});
+
+// Login routes
+
+app.get('/login', (req, res) => {
+  res.render('pages/login');
+});
+
+app.post('/login', async (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+
+  let user_query = `SELECT * FROM users WHERE email = $1;`;
+  let response = await db.any(user_query, [email]);
+
+  console.log("login POST");
+
+  if (response.length > 0) {
+    let user = response[0];
+    let hash = user.password;
+
+    if (await bcrypt.compare(password, hash)) {
+      req.session.user = user;
+      res.redirect('/');
+    } else {
+      console.log("Password incorrect");
+      res.render('pages/login', { message: "Your password was incorrect, try again.", error: true });
+    }
+  } else {
+    console.log("User not found");
+    res.render('pages/login', { message: "Account not found.", error: true });
+  }
+});
+
+// Register routes
+
+app.get('/register', (req, res) => {
+  res.render('pages/register');
 });
 app.get("/home", async (req, res) => {
   axios({
@@ -125,6 +178,68 @@ app.get("/home", async (req, res) => {
       const petsWithPhotos = results.data.animals.filter(
         (pet) => pet.primary_photo_cropped
       );
+
+
+app.post('/register', async (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+  let name = req.body.name;
+
+  if (email == undefined || password == undefined || name == undefined) {
+      console.log(req);
+      res.redirect("/register");
+  }
+
+  const hash = await bcrypt.hash(password, 10);
+
+  console.log("/register POST");
+
+  try {    
+      let add_user_query = `INSERT INTO users (email, password, name) VALUES ($1, $2, $3);`;
+
+      let add_response = await db.any(add_user_query, [email, hash, name]);
+
+      console.log("Registration successful, added user " +  name + " with email " + email);
+
+      // Signs in the new user and redirects to quiz page
+      let get_user_query = `SELECT * FROM users WHERE email = $1;`;
+      let user_response = await db.any(get_user_query, [email]);
+      req.session.user = user_response[0];
+      res.redirect('/purrsonality-quiz');
+
+  } catch (err) {
+      console.log("Failed to add user " + name);
+      console.log(err);
+      res.redirect('/register');
+  }
+});
+
+// Shop routes
+
+app.get('/shop', (req, res) => {
+  res.render('pages/shop');
+});
+
+// Splash routes
+
+app.get('/splash', (req, res) => {
+  res.render('pages/splash');
+});
+
+// Logout routes
+
+app.get('/logout', (req, res) => {
+  console.log("Logged out user " + req.session.user.name);
+  req.session.destroy();
+  res.render("pages/splash");
+});
+
+    
+// Quiz routes
+
+app.get('/purrsonality-quiz', (req, res) => {
+  res.render('pages/quiz');
+});
 
 app.post("/purrsonality-quiz", (req, res) => {
 	/*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
