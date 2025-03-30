@@ -69,7 +69,12 @@ app.use(
 // Home routes
 
 app.get("/", (req, res) => {
-  res.render("pages/home");
+  if (req.session.user == undefined){
+    res.redirect("/splash");
+  } else {
+    console.log("Welcome user " + req.session.user.name);
+    res.render("pages/home");
+  }
 });
 
 // Guides routes 
@@ -157,6 +162,21 @@ app.post('/register', async (req, res) => {
 app.get('/shop', (req, res) => {
   res.render('pages/shop');
 });
+
+// Splash routes
+
+app.get('/splash', (req, res) => {
+  res.render('pages/splash');
+});
+
+// Logout routes
+
+app.get('/logout', (req, res) => {
+  console.log("Logged out user " + req.session.user.name);
+  req.session.destroy();
+  res.render("pages/splash");
+});
+
 
 // *****************************************************
 // <!-- Section 5 : Start Server-->
