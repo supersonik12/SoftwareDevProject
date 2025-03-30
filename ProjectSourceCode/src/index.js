@@ -77,8 +77,11 @@ app.get("/", (req, res) => {
   }
 });
 
-// Guides routes 
+app.get("/home", (req, res) => {
+  res.redirect('/');
+});
 
+// Guides routes
 app.get("/guides", (req, res) => {
   res.render("pages/guides");
 });
@@ -145,10 +148,15 @@ app.post('/register', async (req, res) => {
   try {    
       let add_user_query = `INSERT INTO users (email, password, name) VALUES ($1, $2, $3);`;
 
-      let response = await db.any(add_user_query, [email, hash, name]);
+      let add_response = await db.any(add_user_query, [email, hash, name]);
 
       console.log("Registration successful, added user " +  name + " with email " + email);
-      res.redirect('/login');
+
+      // Signs in the new user and redirects to quiz page
+      let get_user_query = `SELECT * FROM users WHERE email = $1;`;
+      let user_response = await db.any(get_user_query, [email]);
+      req.session.user = user_response[0];
+      res.redirect('/quiz');
 
   } catch (err) {
       console.log("Failed to add user " + name);
