@@ -15,7 +15,7 @@ const mime = require("mime");
 // *****************************************************
 app.use(express.static(path.join(__dirname, "resources")));
 // create `ExpressHandlebars` instance and configure the layouts and partials dir.
-/*let accessTokenPetFinder;
+let accessTokenPetFinder;
 async function fetchAccessToken() {
   const clientId = `${process.env.API_KEY_PETS}`;
   const clientSecret = `${process.env.API_SECRET_PETS}`;
@@ -35,14 +35,14 @@ async function fetchAccessToken() {
   } catch (error) {
     console.error("Error fetching access token:", error.response.data);
   }
-}*/
+}
 
-/*app.use(async (req, res, next) => {
+app.use(async (req, res, next) => {
   if (!accessTokenPetFinder || Date.now() >= tokenExpiresAt) {
     await fetchAccessToken();
   }
   next();
-});*/
+});
 
 const hbs = handlebars.create({
   extname: "hbs",
@@ -97,13 +97,6 @@ app.use(
 );
 
 app.get('/purrsonality-quiz', (_, res) => {
-	const query = `SELECT DISTINCT
-	trait_id,
-	trait_name,
-	min_extreme,
-	max_extreme
-	FROM traits`;
-
 	db.any('SELECT * FROM traits').then(traits => {
 		console.log(traits);
 		res.render('pages/quiz', {
