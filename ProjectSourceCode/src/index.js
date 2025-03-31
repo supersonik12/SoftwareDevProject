@@ -106,28 +106,21 @@ function getMatches(matchList) {
 
 // Home routes
 
-app.get("/home", async (req, res) => {
-  let data = await callPetApi();
-  res.render("pages/home", {
-    animals: getFormattedAnimalData(data) || [],
-  });
-});
-
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
   if (req.session.user == undefined) {
     res.redirect("/splash");
   } else {
     console.log("Welcome user " + req.session.user.name);
-    let data = callPetApi();
+    let data = await callPetApi();
     res.render("pages/home", {
       animals: getFormattedAnimalData(data) || [],
     });
   }
 });
 
-/*app.get("/home", (req, res) => {
+app.get("/home", (req, res) => {
   res.redirect("/");
-});*/
+});
 
 // Guides routes
 app.get("/guides", (req, res) => {
