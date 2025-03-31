@@ -15,7 +15,7 @@ const mime = require("mime");
 // *****************************************************
 app.use(express.static(path.join(__dirname, "resources")));
 // create `ExpressHandlebars` instance and configure the layouts and partials dir.
-let accessTokenPetFinder;
+/*let accessTokenPetFinder;
 async function fetchAccessToken() {
   const clientId = `${process.env.API_KEY_PETS}`;
   const clientSecret = `${process.env.API_SECRET_PETS}`;
@@ -35,14 +35,14 @@ async function fetchAccessToken() {
   } catch (error) {
     console.error("Error fetching access token:", error.response.data);
   }
-}
+}*/
 
-app.use(async (req, res, next) => {
+/*app.use(async (req, res, next) => {
   if (!accessTokenPetFinder || Date.now() >= tokenExpiresAt) {
     await fetchAccessToken();
   }
   next();
-});
+});*/
 
 const hbs = handlebars.create({
   extname: "hbs",
@@ -95,6 +95,61 @@ app.use(
     extended: true,
   })
 );
+
+app.get('/purrsonality-quiz', (_, res) => {
+	const query = `SELECT DISTINCT
+	trait_id,
+	trait_name,
+	min_extreme,
+	max_extreme
+	FROM traits`;
+
+	db.any('SELECT * FROM traits').then(traits => {
+		console.log(traits);
+		res.render('pages/quiz', {
+			test: 'test',
+			traits
+		})
+	}).catch(err => {
+		console.log(err);
+		res.status(404);
+		res.send;
+	});
+});
+
+app.post("/purrsonality-quiz", (req, res) => {
+	/*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
+	 * using Python for better libraries for performing numerical computation
+	*/
+	userVals = [req.body.aff_val, req.body.play_val, req.body.vigilant_val, req.body.train_val, req.body.energy_val, req.body.bored_val];
+	console.log(userVals);
+	for (i in userVals) {
+		if (userVals[i] <= 0 || userVals[i] > 1) {
+			res.status(423).json({
+				error: "Values outside expected range",
+			});
+			res.send;
+			return;
+		}
+	}
+
+	var spawn = require("child_process").spawn;
+	var pythonChild = spawn("python3", ["src/resources/python/Matching_Algo.py", req.body.species, req.body.aff_val, req.body.play_val, req.body.vigilant_val, req.body.train_val, req.body.energy_val, req.body.bored_val]);
+	
+	console.log("Python process spawned");
+	pythonChild.stderr.on("data", (err) => {
+		console.log(err.toString());	
+		res.send(err.toString());
+		return;
+	});
+
+	pythonChild.stdout.on("data", (data) => {
+		res.send(data.toString());
+		return;
+	});
+
+	pythonChild.on("close", (code) => console.log(code));
+});
 
 //Helper Functions
 
@@ -236,44 +291,6 @@ app.get('/logout', (req, res) => {
 
     
 // Quiz routes
-
-app.get('/purrsonality-quiz', (req, res) => {
-  res.render('pages/quiz');
-});
-
-app.post("/purrsonality-quiz", (req, res) => {
-	/*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
-	 * using Python for better libraries for performing numerical computation
-	*/
-	userVals = [req.body.aff_val, req.body.play_val, req.body.vigilant_val, req.body.train_val, req.body.energy_val, req.body.bored_val];
-	console.log(userVals);
-	for (i in userVals) {
-		if (userVals[i] <= 0 || userVals[i] > 1) {
-			res.status(423).json({
-				error: "Values outside expected range",
-			});
-			res.send;
-			return;
-		}
-	}
-
-	var spawn = require("child_process").spawn;
-	var pythonChild = spawn("python3", ["src/resources/python/Matching_Algo.py", req.body.species, req.body.aff_val, req.body.play_val, req.body.vigilant_val, req.body.train_val, req.body.energy_val, req.body.bored_val]);
-	
-	console.log("Python process spawned");
-	pythonChild.stderr.on("data", (err) => {
-		console.log(err.toString());	
-		res.send(err.toString());
-		return;
-	});
-
-	pythonChild.stdout.on("data", (data) => {
-		res.send(data.toString());
-		return;
-	});
-
-	pythonChild.on("close", (code) => console.log(code));
-});
 
 
       const animalData = petsWithPhotos.map((pet) => {
