@@ -156,22 +156,25 @@ app.post("/purrsonality-quiz", (req, res) => {
 //TODO: implement function to display individual matches based on matching results
 //Currently just prints to prevent errors when testing quiz endpoint
 function getMatches(matchList) {
-	console.log(matchList);
+  console.log(matchList);
 }
 
 // Home routes
 
-app.get("/", (req, res) => {
-  if (req.session.user == undefined){
+app.get("/", async (req, res) => {
+  if (req.session.user == undefined) {
     res.redirect("/splash");
   } else {
     console.log("Welcome user " + req.session.user.name);
-    res.render("pages/home");
+    let data = await callPetApi();
+    res.render("pages/home", {
+      animals: getFormattedAnimalData(data) || [],
+    });
   }
 });
 
 app.get("/home", (req, res) => {
-  res.redirect('/');
+  res.redirect("/");
 });
 
 // Guides routes
@@ -181,11 +184,11 @@ app.get("/guides", (req, res) => {
 
 // Login routes
 
-app.get('/login', (req, res) => {
-  res.render('pages/login');
+app.get("/login", (req, res) => {
+  res.render("pages/login");
 });
 
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
 
@@ -200,24 +203,170 @@ app.post('/login', async (req, res) => {
 
     if (await bcrypt.compare(password, hash)) {
       req.session.user = user;
-      res.redirect('/');
+      res.redirect("/");
     } else {
       console.log("Password incorrect");
-      res.render('pages/login', { message: "Your password was incorrect, try again.", error: true });
+      res.render("pages/login", {
+        message: "Your password was incorrect, try again.",
+        error: true,
+      });
     }
   } else {
     console.log("User not found");
-    res.render('pages/login', { message: "Account not found.", error: true });
+    res.render("pages/login", { message: "Account not found.", error: true });
   }
 });
 
 // Register routes
 
-app.get('/register', (req, res) => {
-  res.render('pages/register');
+app.get("/register", (req, res) => {
+  res.render("pages/register");
 });
-app.get("/home", async (req, res) => {
-  axios({
+
+app.post("/register", async (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+  let name = req.body.name;
+
+  if (email == undefined || password == undefined || name == undefined) {
+    console.log(req);
+    res.redirect("/register");
+  }
+
+  const hash = await bcrypt.hash(password, 10);
+
+  console.log("/register POST");
+
+  try {
+    let add_user_query = `INSERT INTO users (email, password, name) VALUES ($1, $2, $3);`;
+
+    let add_response = await db.any(add_user_query, [email, hash, name]);
+
+    console.log(
+      "Registration successful, added user " + name + " with email " + email
+    );
+
+    // Signs in the new user and redirects to quiz page
+    let get_user_query = `SELECT * FROM users WHERE email = $1;`;
+    let user_response = await db.any(get_user_query, [email]);
+    req.session.user = user_response[0];
+    res.redirect("/purrsonality-quiz");
+  } catch (err) {
+    console.log("Failed to add user " + name);
+    console.log(err);
+    res.redirect("/register");
+  }
+});
+
+// Shop routes
+
+app.get("/shop", (req, res) => {
+  res.render("pages/shop");
+});
+
+// Splash routes
+
+app.get("/splash", (req, res) => {
+  res.render("pages/splash");
+});
+
+// Logout routes
+
+app.get("/logout", (req, res) => {
+  console.log("Logged out user " + req.session.user.name);
+  req.session.destroy();
+  res.render("pages/splash");
+});
+
+// Quiz routes
+
+app.get("/purrsonality-quiz", (req, res) => {
+  res.render("pages/quiz");
+});
+
+app.post("/purrsonality-quiz", (req, res) => {
+  /*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
+   * using Python for better libraries for performing numerical computation
+   */
+  userVals = [
+    req.body.aff_val,
+    req.body.play_val,
+    req.body.vigilant_val,
+    req.body.train_val,
+    req.body.energy_val,
+    req.body.bored_val,
+  ];
+  console.log(userVals);
+  for (i in userVals) {
+    if (userVals[i] <= 0 || userVals[i] > 1) {
+      res.status(423).json({
+        error: "Values outside expected range",
+      });
+      res.send;
+      return;
+    }
+  }
+
+  var spawn = require("child_process").spawn;
+  var pythonChild = spawn("python3", [
+    "src/resources/python/Matching_Algo.py",
+    req.body.species,
+    req.body.aff_val,
+    req.body.play_val,
+    req.body.vigilant_val,
+    req.body.train_val,
+    req.body.energy_val,
+    req.body.bored_val,
+  ]);
+
+  console.log("Python process spawned");
+  pythonChild.stderr.on("data", (err) => {
+    console.log(err.toString());
+    res.send(err.toString());
+    return;
+  });
+
+  pythonChild.stdout.on("data", (data) => {
+    res.send(data.toString());
+    return;
+  });
+
+  pythonChild.on("close", (code) => console.log(code));
+});
+
+function getAttributeData(name, data) {
+  return {
+    isTrue: data,
+    name: name,
+    isFalse: data === false,
+    isNull: data === null,
+  };
+}
+
+function getFormattedAnimalData(data) {
+  return data.map((pet) => {
+    const attributesObj = [
+      getAttributeData("spayed/neutered", pet.attributes.spayed_neutered),
+      getAttributeData("house trained", pet.attributes.house_trained),
+      getAttributeData("declawed", pet.attributes.declawed),
+      getAttributeData("special needs", pet.attributes.special_needs),
+      getAttributeData("shots are current", pet.attributes.shots_current),
+      getAttributeData("children", pet.environment.children),
+      getAttributeData("cats", pet.environment.cats),
+      getAttributeData("dogs", pet.environment.dogs),
+    ];
+    return {
+      photo: pet.primary_photo_cropped.small,
+      isMale: pet.gender == "Male",
+      ...pet,
+      attributesObj,
+    };
+  });
+}
+
+async function callPetApi() {
+  let data;
+  await axios({
     url: `https://api.petfinder.com/v2/animals`,
     method: "GET",
     dataType: "json",
@@ -228,106 +377,13 @@ app.get("/home", async (req, res) => {
     params: {
       page: 3,
     },
-  })
-    .then((results) => {
-      const petsWithPhotos = results.data.animals.filter(
-        (pet) => pet.primary_photo_cropped
-      );
+  }).then((results) => {
+    data = results.data.animals.filter((pet) => pet.primary_photo_cropped);
+  });
 
+  return data;
+}
 
-app.post('/register', async (req, res) => {
-  let email = req.body.email;
-  let password = req.body.password;
-  let name = req.body.name;
-
-  if (email == undefined || password == undefined || name == undefined) {
-      console.log(req);
-      res.redirect("/register");
-  }
-
-  const hash = await bcrypt.hash(password, 10);
-
-  console.log("/register POST");
-
-  try {    
-      let add_user_query = `INSERT INTO users (email, password, name) VALUES ($1, $2, $3);`;
-
-      let add_response = await db.any(add_user_query, [email, hash, name]);
-
-      console.log("Registration successful, added user " +  name + " with email " + email);
-
-      // Signs in the new user and redirects to quiz page
-      let get_user_query = `SELECT * FROM users WHERE email = $1;`;
-      let user_response = await db.any(get_user_query, [email]);
-      req.session.user = user_response[0];
-      res.redirect('/purrsonality-quiz');
-
-  } catch (err) {
-      console.log("Failed to add user " + name);
-      console.log(err);
-      res.redirect('/register');
-  }
-});
-
-// Shop routes
-
-app.get('/shop', (req, res) => {
-  res.render('pages/shop');
-});
-
-// Splash routes
-
-app.get('/splash', (req, res) => {
-  res.render('pages/splash');
-});
-
-// Logout routes
-
-app.get('/logout', (req, res) => {
-  console.log("Logged out user " + req.session.user.name);
-  req.session.destroy();
-  res.render("pages/splash");
-});
-
-    
-// Quiz routes
-
-
-      const animalData = petsWithPhotos.map((pet) => {
-        function getAttributeData(name, data) {
-          return {
-            isTrue: data,
-            name: name,
-            isFalse: data === false,
-            isNull: data === null,
-          };
-        }
-        const attributesObj = [
-          getAttributeData("spayed/neutered", pet.attributes.spayed_neutered),
-          getAttributeData("house trained", pet.attributes.house_trained),
-          getAttributeData("declawed", pet.attributes.declawed),
-          getAttributeData("special needs", pet.attributes.special_needs),
-          getAttributeData("shots are current", pet.attributes.shots_current),
-          getAttributeData("children", pet.environment.children),
-          getAttributeData("cats", pet.environment.cats),
-          getAttributeData("dogs", pet.environment.dogs),
-        ];
-        return {
-          photo: pet.primary_photo_cropped.small,
-          isMale: pet.gender == "Male",
-          ...pet,
-          attributesObj,
-        };
-      });
-
-      res.render("pages/home", {
-        animals: animalData || [],
-      });
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-});
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
