@@ -3,3 +3,10 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(60) NOT NULL,
     name VARCHAR(100) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS traits (
+	trait_id SERIAL PRIMARY KEY,
+	trait_name VARCHAR(20) NOT NULL,
+	min_extreme VARCHAR(200) NOT NULL,
+	max_extreme VARCHAR(200) NOT NULL
+);

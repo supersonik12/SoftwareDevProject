@@ -96,6 +96,54 @@ app.use(
   })
 );
 
+app.get('/purrsonality-quiz', (_, res) => {
+	db.any('SELECT * FROM traits').then(traits => {
+		console.log(traits);
+		res.render('pages/quiz', {
+			test: 'test',
+			traits
+		})
+	}).catch(err => {
+		console.log(err);
+		res.status(404);
+		res.send;
+	});
+});
+
+app.post("/purrsonality-quiz", (req, res) => {
+	/*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
+	 * using Python for better libraries for performing numerical computation
+	*/
+	userVals = [req.body.aff_val, req.body.play_val, req.body.vigilant_val, req.body.train_val, req.body.energy_val, req.body.bored_val];
+	console.log(userVals);
+	for (i in userVals) {
+		if (userVals[i] <= 0 || userVals[i] > 1) {
+			res.status(423).json({
+				error: "Values outside expected range",
+			});
+			res.send;
+			return;
+		}
+	}
+
+	var spawn = require("child_process").spawn;
+	var pythonChild = spawn("python3", ["src/resources/python/Matching_Algo.py", req.body.species, req.body.aff_val, req.body.play_val, req.body.vigilant_val, req.body.train_val, req.body.energy_val, req.body.bored_val]);
+	
+	console.log("Python process spawned");
+	pythonChild.stderr.on("data", (err) => {
+		console.log(err.toString());	
+		res.send(err.toString());
+		return;
+	});
+
+	pythonChild.stdout.on("data", (data) => {
+		res.send(data.toString());
+		return;
+	});
+
+	pythonChild.on("close", (code) => console.log(code));
+});
+
 //Helper Functions
 
 //TODO: implement function to display individual matches based on matching results
