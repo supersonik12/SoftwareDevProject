@@ -1,0 +1,39 @@
+
+<head>
+    {{> message}}
+    <title>Welcome, Future Pet Owner!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Account Information</h1>
+        <div class="user-details">
+            <p><strong>Username: {{username}}</p>
+        </div>
+
+
+        <h2>My Quiz Results</h2>
+        <!--Figure this out, ask teammates(probably declan) for help/how the quiz works-->
+
+
+        <h3>Update Account Information</h3>
+        <!-- clarify with teammates about a better way to do this, this needs work-->
+        <form action="/update" method="POST">
+            <label for="username">New Username:</label>
+            <input type="text" id="username" name="username" placeholder="Enter new username" required>
+           
+            <label for="password">New Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter new password" required>
+           
+            <button type="submit">Update</button>
+        </form>
+
+
+    </div>
+</body>
+
+
+
+
+
+
+

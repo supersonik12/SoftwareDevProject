@@ -263,6 +263,15 @@ app.get("/splash", (req, res) => {
   res.render("pages/splash");
 });
 
+//Account routes
+app.get("/account", (req, res) => {
+  res.render("pages/account");
+});
+
+// app.post("/update", (req, res) => {
+// TO DO
+// });
+
 // Logout routes
 
 app.get("/logout", (req, res) => {
