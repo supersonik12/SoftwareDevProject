@@ -333,5 +333,16 @@ async function callPetApi() {
 // <!-- Section 5 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
-app.listen(3000);
+
+
+// ***********************************************************
+// added for testing a dummy API
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+// ***********************************************************
+
+
+
+module.exports = app.listen(3000); // changed for testing
 console.log("Server is listening on port 3000");
