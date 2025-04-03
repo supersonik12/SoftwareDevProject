@@ -290,7 +290,7 @@ app.get("/shop", async (req, res) => {
 });
 
 
-app.post("/shop/fetch", async (req, res) => {
+app.post("/shop", async (req, res) => {
   try {
     // Replace with actual Amazon API call
     const response = await axios.get("https://api.example.com/items", {

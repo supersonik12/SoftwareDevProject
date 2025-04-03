@@ -1,33 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop</title>
-    <link rel="stylesheet" href="/css/shop.css">
-</head>
-<body>
-    <div id="shop-container"></div>
 
-    <script id="Shop" type="text/x-handlebars-template">
-        <div class="shop">
-            {{#each sections}}
-                <div class="section">
-                    <h2>{{title}}</h2>
-                    <div class="cards">
-                        {{#each items}}
-                            <div class="card">
-                                <img src="{{image}}" alt="{{title}}" />
-                                <h3>{{title}}</h3>
-                                <p>{{description}}</p>
-                            </div>
-                        {{/each}}
-                    </div>
+<div id="shop-container"></div>
+
+<script id="Shop" type="text/x-handlebars-template">
+    <div class="shop">
+        {{#each sections}}
+            <div class="section">
+                <h2>{{title}}</h2>
+                <div class="cards">
+                    {{#each items}}
+                        <div class="card">
+                            <img src="{{image}}" alt="{{title}}" />
+                            <h3>{{title}}</h3>
+                            <p>{{description}}</p>
+                        </div>
+                    {{/each}}
                 </div>
-            {{/each}}
-        </div>
-    </script>
+            </div>
+        {{/each}}
+    </div>
+</script>
 
-    <script src="/js/shop.js"></script>
-</body>
-</html>
+    {{!-- <script src="../../index.js"></script> --}}
