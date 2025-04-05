@@ -13,7 +13,8 @@ const mime = require("mime");
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
-app.use(express.static(path.join(__dirname, "resources")));
+app.use(express.static(path.join(__dirname, ".")));
+
 // create `ExpressHandlebars` instance and configure the layouts and partials dir.
 let accessTokenPetFinder;
 async function fetchAccessToken() {
@@ -96,52 +97,70 @@ app.use(
   })
 );
 
-app.get('/purrsonality-quiz', (_, res) => {
-	db.any('SELECT * FROM traits').then(traits => {
-		console.log(traits);
-		res.render('pages/quiz', {
-			test: 'test',
-			traits
-		})
-	}).catch(err => {
-		console.log(err);
-		res.status(404);
-		res.send;
-	});
+app.get("/purrsonality-quiz", (_, res) => {
+  db.any("SELECT * FROM traits")
+    .then((traits) => {
+      console.log(traits);
+      res.render("pages/quiz", {
+        test: "test",
+        traits,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404);
+      res.send;
+    });
 });
 
 app.post("/purrsonality-quiz", (req, res) => {
-	/*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
-	 * using Python for better libraries for performing numerical computation
-	*/
-	userVals = [req.body.aff_val, req.body.play_val, req.body.vigilant_val, req.body.train_val, req.body.energy_val, req.body.bored_val];
-	console.log(userVals);
-	for (i in userVals) {
-		if (userVals[i] <= 0 || userVals[i] > 1) {
-			res.status(423).json({
-				error: "Values outside expected range",
-			});
-			res.send;
-			return;
-		}
-	}
+  /*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
+   * using Python for better libraries for performing numerical computation
+   */
+  userVals = [
+    req.body.aff_val,
+    req.body.play_val,
+    req.body.vigilant_val,
+    req.body.train_val,
+    req.body.energy_val,
+    req.body.bored_val,
+  ];
+  console.log(userVals);
+  for (i in userVals) {
+    if (userVals[i] <= 0 || userVals[i] > 1) {
+      res.status(423).json({
+        error: "Values outside expected range",
+      });
+      res.send;
+      return;
+    }
+  }
 
-	var spawn = require("child_process").spawn;
-	var pythonChild = spawn("python3", ["src/resources/python/Matching_Algo.py", req.body.species, req.body.aff_val, req.body.play_val, req.body.vigilant_val, req.body.train_val, req.body.energy_val, req.body.bored_val]);
-	
-	console.log("Python process spawned");
-	pythonChild.stderr.on("data", (err) => {
-		console.log(err.toString());	
-		res.send(err.toString());
-		return;
-	});
+  var spawn = require("child_process").spawn;
+  var pythonChild = spawn("python3", [
+    "src/resources/python/Matching_Algo.py",
+    req.body.species,
+    req.body.aff_val,
+    req.body.play_val,
+    req.body.vigilant_val,
+    req.body.train_val,
+    req.body.energy_val,
+    req.body.bored_val,
+  ]);
 
-	pythonChild.stdout.on("data", (data) => {
-		res.send(data.toString());
-		return;
-	});
+  console.log("Python process spawned");
+  pythonChild.stderr.on("data", (err) => {
+    console.log(err.toString());
+    res.send(err.toString());
+    return;
+  });
 
-	pythonChild.on("close", (code) => console.log(code));
+  pythonChild.stdout.on("data", (data) => {
+    res.send(data.toString());
+    return;
+  });
+
+  pythonChild.on("close", (code) => console.log(code));
 });
 
 //Helper Functions
@@ -158,15 +177,12 @@ app.get("/", async (req, res) => {
   if (req.session.user == undefined) {
     res.redirect("/splash");
   } else {
+    renderHomePage(res);
     console.log("Welcome user " + req.session.user.name);
-    let data = await callPetApi();
-    res.render("pages/home", {
-      animals: getFormattedAnimalData(data) || [],
-    });
   }
 });
 
-app.get("/home", (req, res) => {
+app.get("/home", async (req, res) => {
   res.redirect("/");
 });
 
@@ -263,15 +279,6 @@ app.get("/splash", (req, res) => {
   res.render("pages/splash");
 });
 
-//Account routes
-app.get("/account", (req, res) => {
-  res.render("pages/account");
-});
-
-// app.post("/update", (req, res) => {
-// TO DO
-// });
-
 // Logout routes
 
 app.get("/logout", (req, res) => {
@@ -336,6 +343,24 @@ app.post("/purrsonality-quiz", (req, res) => {
   pythonChild.on("close", (code) => console.log(code));
 });
 
+//render home helpers
+
+async function renderHomePage(res) {
+  let data = await callPetApi();
+  let pages = getPageData(getFormattedAnimalData(data), 12);
+
+  let sendingData = {
+    pages: pages,
+    pageCount: pages.length,
+    selectedPage: 0,
+  };
+
+  res.render("pages/home", {
+    ...sendingData,
+    data: JSON.stringify(sendingData),
+  });
+}
+
 function getAttributeData(name, data) {
   return {
     isTrue: data,
@@ -366,6 +391,30 @@ function getFormattedAnimalData(data) {
   });
 }
 
+function getPageData(data, elePerPage) {
+  let pages = [];
+  let pageCount = Math.ceil(data.length / elePerPage);
+
+  for (let i = 0; i < pageCount; i++) {
+    pages[i] = [];
+    for (let j = 0; j < elePerPage; j++) {
+      if (data[i * elePerPage + j]) {
+        pages[i].push(data[i * elePerPage + j]);
+      }
+    }
+  }
+
+  return pages;
+}
+
+Handlebars.registerHelper("ifEquals", function (a, b, options) {
+  if (a == b) {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+});
+
 async function callPetApi() {
   let data;
   await axios({
@@ -377,7 +426,8 @@ async function callPetApi() {
       Authorization: `Bearer ${accessTokenPetFinder}`,
     },
     params: {
-      page: 3,
+      page: 1,
+      limit: 50,
     },
   }).then((results) => {
     data = results.data.animals.filter((pet) => pet.primary_photo_cropped);
