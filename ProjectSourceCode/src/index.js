@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, ".")));
 
 // create `ExpressHandlebars` instance and configure the layouts and partials dir.
 let accessTokenPetFinder;
-async function fetchAccessToken() {
+/*async function fetchAccessToken() {
   const clientId = `${process.env.API_KEY_PETS}`;
   const clientSecret = `${process.env.API_SECRET_PETS}`;
   const url = "https://api.petfinder.com/v2/oauth2/token";
@@ -36,14 +36,14 @@ async function fetchAccessToken() {
   } catch (error) {
     console.error("Error fetching access token:", error.response.data);
   }
-}
+}*/
 
-app.use(async (req, res, next) => {
+/*app.use(async (req, res, next) => {
   if (!accessTokenPetFinder || Date.now() >= tokenExpiresAt) {
     await fetchAccessToken();
   }
   next();
-});
+});*/
 
 const hbs = handlebars.create({
   extname: "hbs",
@@ -117,14 +117,43 @@ app.post("/purrsonality-quiz", (req, res) => {
   /*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
    * using Python for better libraries for performing numerical computation
    */
-  userVals = [
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
-  ];
+  switch (req.body.species) {
+	  case "dog": {
+  		userVals = [
+    			req.body.aff_val,
+			req.body.open_val,
+    			req.body.play_val,
+    			req.body.vigilant_val,
+    			req.body.train_val,
+    			req.body.energy_val,
+    			req.body.bored_val,
+  		];
+		break;
+	  };
+	  case "cat": {
+		  userVals = [
+			req.body.aff_val,
+			req.body.open_val,
+    			req.body.play_val,
+    			req.body.train_val,
+    			req.body.energy_val,
+    			req.body.bored_val,
+		  ];
+		  break;
+	  };
+	  case "small": {
+		  res.send("Coming soon!");
+		  break;
+	  };
+	  default: {
+		  res.status(400).json({
+			  error: "Unknown option",
+		  });
+		  res.send;
+		  return;
+	  };
+  	}
+
   console.log(userVals);
   for (i in userVals) {
     if (userVals[i] < -1 || userVals[i] > 1) {
@@ -135,18 +164,8 @@ app.post("/purrsonality-quiz", (req, res) => {
       return;
     }
   }
-
   var spawn = require("child_process").spawn;
-  var pythonChild = spawn("python3", [
-    "src/resources/python/Matching_Algo.py",
-    req.body.species,
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
-  ]);
+  var pythonChild = spawn("python3", ["src/resources/python/Matching_Algo.py", req.body.species, userVals]);
 
   console.log("Python process spawned");
   pythonChild.stderr.on("data", (err) => {
@@ -317,16 +336,7 @@ app.post("/purrsonality-quiz", (req, res) => {
   }
 
   var spawn = require("child_process").spawn;
-  var pythonChild = spawn("python3", [
-    "src/resources/python/Matching_Algo.py",
-    req.body.species,
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
-  ]);
+  var pythonChild = spawn("python3", userVals.unshift(["src/resources/python/Matching_Algo.py", req.body.species]));
 
   console.log("Python process spawned");
   pythonChild.stderr.on("data", (err) => {
@@ -342,6 +352,7 @@ app.post("/purrsonality-quiz", (req, res) => {
 
   pythonChild.on("close", (code) => console.log(code));
 });
+
 
 //render home helpers
 

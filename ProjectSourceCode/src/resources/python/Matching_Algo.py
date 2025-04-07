@@ -9,23 +9,24 @@ def getFromCsv(csv):
     with open('src/resources/python/' + csv) as dataFile:
         numCols = len(dataFile.readline().split(','))
         dataFile.seek(0)
-        return np.genfromtxt(dataFile, dtype=float, skip_header = 1, delimiter = ',', usecols = range(2, numCols-1)) 
+        return np.genfromtxt(dataFile, dtype=float, skip_header = 1, delimiter = ',', usecols = range(2, numCols)) 
 
 def parse():
-    parser = argparse.ArgumentParser(prog='prototype')
+    parser = argparse.ArgumentParser(prog='Matching Algorithm')
     parser.add_argument('species', type=str)
-    parser.add_argument('inputVec', nargs = '*', type=float)
-    
+    parser.add_argument('inputVec')
+   
     args = parser.parse_args()
-    return args
+    args.inputVec = [float(value) for value in args.inputVec.split(',')] #Need some extra parsing due to how nodeJs handles arrays of arguments with spawn
+    return args 
 
-'''Cosine similarity vector compairison algorithm'''
+'''Takes the values the user input represented as a vector and calculates the angle between it and the vectors representing breed traits'''
 def compareVec(inputVec, vectors):
     similarities = {} 
     i=0
     for vec in vectors:
         i+=1
-        similarity = (np.dot(inputVec, vec)) / (LA.norm(inputVec) * LA.norm(vec))
+        similarity = (np.dot(inputVec, vec)) / (LA.norm(inputVec) * LA.norm(vec))  
         similarities[i] = similarity
     return similarities
 
