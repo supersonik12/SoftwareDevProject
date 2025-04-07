@@ -104,3 +104,56 @@ li button.selected-page {
   font-size: 1.1 rem;
   background-color: rgb(223, 223, 223);
 }
+.home-page-container {
+  display: flex;
+}
+.pages-container {
+  width: 80%;
+}
+.filter-form li button {
+  background: none;
+  border: 0;
+  font-size: 2rem;
+  border-radius: 7px;
+  padding: 5px;
+}
+.filter-form li button:hover {
+  background: rgb(244, 244, 244);
+}
+.filter-form ul {
+  list-style-type: none;
+  padding: 0;
+}
+.filter-form label {
+  font-size: 1.4rem;
+}
+
+.close-filter-btn::after {
+  background-image: url("/resources/images/arrow-down.svg");
+  content: "";
+  height: 40px;
+  width: 40px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  margin-left: 5px;
+  margin-top: 8px;
+}
+
+.open-filter-btn::after {
+  background-image: url("/resources/images/arrow-up.svg");
+  content: "";
+  height: 40px;
+  width: 40px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  margin-left: 5px;
+  margin-top: 8px;
+}
+
+.filter-form {
+  margin-left: 50px;
+  border-left: 1px solid rgb(219, 219, 219);
+  padding: 30px;
+}

@@ -75,6 +75,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const filterBtns = document.querySelectorAll(".filter-form li button");
+  if (filterBtns) {
+    filterBtns.forEach((btn) => {
+      btn.classList.add("close-filter-btn");
+      btn.addEventListener("click", () => {
+        if (btn.classList.contains("close-filter-btn")) {
+          btn.classList.remove("close-filter-btn");
+          btn.classList.add("open-filter-btn");
+        } else {
+          btn.classList.remove("open-filter-btn");
+          btn.classList.add("close-filter-btn");
+        }
+      });
+    });
+  }
+});
+
 function selectPageBtn(btn) {
   selectedPageBtn = btn;
   btn.classList.add("selected-page");

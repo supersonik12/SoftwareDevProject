@@ -183,7 +183,8 @@ app.get("/", async (req, res) => {
 });
 
 app.get("/home", async (req, res) => {
-  res.redirect("/");
+  //res.redirect("/");
+  renderHomePage(res);
 });
 
 // Guides routes
@@ -414,7 +415,7 @@ Handlebars.registerHelper("ifEquals", function (a, b, options) {
     return options.inverse(this);
   }
 });
-
+//query only adoptable dogs
 async function callPetApi() {
   let data;
   await axios({
