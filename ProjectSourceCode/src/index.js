@@ -117,14 +117,43 @@ app.post("/purrsonality-quiz", (req, res) => {
   /*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
    * using Python for better libraries for performing numerical computation
    */
-  userVals = [
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
-  ];
+  switch (req.body.species) {
+	  case "dog": {
+  		userVals = [
+    			req.body.aff_val,
+			req.body.open_val,
+    			req.body.play_val,
+    			req.body.vigilant_val,
+    			req.body.train_val,
+    			req.body.energy_val,
+    			req.body.bored_val,
+  		];
+		break;
+	  };
+	  case "cat": {
+		  userVals = [
+			req.body.aff_val,
+			req.body.open_val,
+    			req.body.play_val,
+    			req.body.train_val,
+    			req.body.energy_val,
+    			req.body.bored_val,
+		  ];
+		  break;
+	  };
+	  case "small": {
+		  res.send("Coming soon!");
+		  break;
+	  };
+	  default: {
+		  res.status(400).json({
+			  error: "Unknown option",
+		  });
+		  res.send;
+		  return;
+	  };
+  	}
+
   console.log(userVals);
   for (i in userVals) {
     if (userVals[i] < -1 || userVals[i] > 1) {
@@ -135,18 +164,8 @@ app.post("/purrsonality-quiz", (req, res) => {
       return;
     }
   }
-
   var spawn = require("child_process").spawn;
-  var pythonChild = spawn("python3", [
-    "src/resources/python/Matching_Algo.py",
-    req.body.species,
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
-  ]);
+  var pythonChild = spawn("python3", ["src/resources/python/Matching_Algo.py", req.body.species, userVals]);
 
   console.log("Python process spawned");
   pythonChild.stderr.on("data", (err) => {
@@ -291,56 +310,6 @@ app.get("/logout", (req, res) => {
 
 app.get("/purrsonality-quiz", (req, res) => {
   res.render("pages/quiz");
-});
-
-app.post("/purrsonality-quiz", (req, res) => {
-  /*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
-   * using Python for better libraries for performing numerical computation
-   */
-  userVals = [
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
-  ];
-  console.log(userVals);
-  for (i in userVals) {
-    if (userVals[i] < -1 || userVals[i] > 1) {
-      res.status(423).json({
-        error: "Values outside expected range",
-      });
-      res.send;
-      return;
-    }
-  }
-
-  var spawn = require("child_process").spawn;
-  var pythonChild = spawn("python3", [
-    "src/resources/python/Matching_Algo.py",
-    req.body.species,
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
-  ]);
-
-  console.log("Python process spawned");
-  pythonChild.stderr.on("data", (err) => {
-    console.log(err.toString());
-    res.send(err.toString());
-    return;
-  });
-
-  pythonChild.stdout.on("data", (data) => {
-    res.send(data.toString());
-    return;
-  });
-
-  pythonChild.on("close", (code) => console.log(code));
 });
 
 //render home helpers
