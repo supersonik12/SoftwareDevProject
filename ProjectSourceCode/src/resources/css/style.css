@@ -3,14 +3,14 @@ body {
   padding-bottom: 10px;
 }
 .pet-container {
-  width: 430px;
-  height: 600px !important;
+  width: 360px;
+  height: 500px !important;
 }
 .pet-container img {
   object-fit: cover;
 }
 .pet-container .card-img-top {
-  height: 320px;
+  height: 250px;
 }
 .pet-grid {
   display: flex;
@@ -28,7 +28,7 @@ body {
 }
 .pet-container .btn-container {
   width: 100%;
-  padding: 20px;
+  padding: 0px 20px 10px;
   display: flex;
   justify-content: space-between;
 }

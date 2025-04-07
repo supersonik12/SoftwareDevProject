@@ -416,6 +416,7 @@ Handlebars.registerHelper("ifEquals", function (a, b, options) {
   }
 });
 //query only adoptable dogs
+//add cats vss dogs filter
 async function callPetApi() {
   let data;
   await axios({
@@ -429,9 +430,13 @@ async function callPetApi() {
     params: {
       page: 1,
       limit: 50,
+      type: "cat",
+
+      status: "adoptable",
     },
   }).then((results) => {
     data = results.data.animals.filter((pet) => pet.primary_photo_cropped);
+    console.log(data.map((pet) => pet.type));
   });
 
   return data;
