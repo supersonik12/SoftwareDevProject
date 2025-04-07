@@ -127,7 +127,7 @@ app.post("/purrsonality-quiz", (req, res) => {
   ];
   console.log(userVals);
   for (i in userVals) {
-    if (userVals[i] <= 0 || userVals[i] > 1) {
+    if (userVals[i] <= -1 || userVals[i] > 1) {
       res.status(423).json({
         error: "Values outside expected range",
       });
