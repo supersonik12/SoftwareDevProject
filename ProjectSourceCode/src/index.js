@@ -427,10 +427,10 @@ async function callPetApi() {
       // "Accept-Encoding": "application/json",
       Authorization: `Bearer ${accessTokenPetFinder}`,
     },
+
     params: {
       page: 1,
       limit: 50,
-      type: "cat",
 
       status: "adoptable",
     },
