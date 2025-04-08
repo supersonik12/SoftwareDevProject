@@ -301,7 +301,21 @@ app.post("/purrsonality-quiz", (req, res) => {
   });
 
   pythonChild.stdout.on("data", (data) => {
-    res.send(data.toString());
+    const values = data.toString().split(", ").map(Number).filter(val => {
+	    return !isNaN(val) });
+	
+    const query = `UPDATE users SET species_preference = '${req.body.species}', 
+		  quiz_results = '{${values}}' WHERE email = '${req.session.user.email}';` 
+    db.none(query).then( () => {
+	    console.log("Database successfully updated");
+	    res.redirect("/home");
+    }).catch( err => {
+	    console.log(err);
+	    res.status(500).json({
+		    error: "Unexpected error occured",
+	    });
+	    res.send;
+    });
     return;
   });
 
