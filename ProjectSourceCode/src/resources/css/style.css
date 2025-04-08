@@ -171,16 +171,35 @@ li button.selected-page {
 .search-input {
   height: 50px;
   border-radius: 30px;
-  padding-left: 35px !important;
+  padding-left: 40px !important;
   border: none;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.search-icon {
+.search-button {
   position: absolute;
-  height: 23px;
+  display: flex;
+  justify-content: center;
   top: 50%;
-  left: 10px;
+  left: 5px;
   transform: translateY(-50%);
   color: #888;
+}
+.search-icon {
+  height: 23px;
+}
+
+.search-button {
+  background: none;
+  border: none;
+  border-radius: 50%;
+}
+.search-button:hover {
+  background: rgb(233, 233, 233);
+  height: 30px;
+  width: 30px;
+}
+.no-pets-error {
+  text-align: center;
+  margin: auto;
 }

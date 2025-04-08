@@ -344,21 +344,45 @@ app.post("/purrsonality-quiz", (req, res) => {
 });
 
 //render home helpers
-
+let filters;
+let breed;
 async function renderHomePage(query, res) {
-  let data = await callPetApi(query);
+  if ("breed" in query) {
+    breed = query.breed;
+  } else {
+    filters = query;
+  }
+
+  let paramObj = {};
+  if (filters) {
+    paramObj = { ...filters };
+  }
+  if (breed) {
+    paramObj.breed = breed;
+  }
+  let data = await callPetApi(paramObj);
+  if (!data) {
+    res.render("pages/home", {
+      error: true,
+      filters: filters,
+      breed: breed,
+    });
+    return;
+  }
   let pages = getPageData(getFormattedAnimalData(data), 12);
 
   let sendingData = {
     pages: pages,
     pageCount: pages.length,
     selectedPage: 0,
-    filters: query,
+    filters: filters,
+    breed: breed,
   };
 
   res.render("pages/home", {
     ...sendingData,
     data: JSON.stringify(sendingData),
+    error: false,
   });
 }
 
@@ -417,7 +441,7 @@ Handlebars.registerHelper("ifEquals", function (a, b, options) {
 });
 
 Handlebars.registerHelper("ifContains", function (ele, arr, options) {
-  if (arr && arr.includes(ele)) {
+  if (arr && arr.includes(ele) && !(arr == "female" && ele == "male")) {
     return options.fn(this);
   } else {
     return options.inverse(this);
@@ -442,9 +466,13 @@ async function callPetApi(query) {
 
       status: "adoptable",
     },
-  }).then((results) => {
-    data = results.data.animals.filter((pet) => pet.primary_photo_cropped);
-  });
+  })
+    .then((results) => {
+      data = results.data.animals.filter((pet) => pet.primary_photo_cropped);
+    })
+    .catch((error) => {
+      return false;
+    });
 
   return data;
 }
