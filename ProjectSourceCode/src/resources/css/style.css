@@ -82,6 +82,9 @@ body {
   margin-bottom: 15px;
   margin-top: 15px;
 }
+.home-main {
+  width: 80%;
+}
 ul.page-nav {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -108,7 +111,7 @@ li button.selected-page {
   display: flex;
 }
 .pages-container {
-  width: 80%;
+  width: 100%;
 }
 .filter-form li button {
   background: none;
@@ -156,4 +159,28 @@ li button.selected-page {
   margin-left: 50px;
   border-left: 1px solid rgb(219, 219, 219);
   padding: 30px;
+}
+.home-main .container {
+  margin: 30px auto;
+  padding-top: 0px;
+}
+.search-container {
+  position: relative;
+}
+
+.search-input {
+  height: 50px;
+  border-radius: 30px;
+  padding-left: 35px !important;
+  border: none;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  height: 23px;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #888;
 }
