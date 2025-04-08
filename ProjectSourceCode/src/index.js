@@ -353,6 +353,7 @@ async function renderHomePage(query, res) {
     pages: pages,
     pageCount: pages.length,
     selectedPage: 0,
+    filters: query,
   };
 
   res.render("pages/home", {
@@ -415,6 +416,14 @@ Handlebars.registerHelper("ifEquals", function (a, b, options) {
   }
 });
 
+Handlebars.registerHelper("ifContains", function (ele, arr, options) {
+  if (arr && arr.includes(ele)) {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+});
+
 async function callPetApi(query) {
   let data;
   await axios({
@@ -435,7 +444,6 @@ async function callPetApi(query) {
     },
   }).then((results) => {
     data = results.data.animals.filter((pet) => pet.primary_photo_cropped);
-    console.log(data.map((pet) => pet.type));
   });
 
   return data;
