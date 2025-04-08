@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, ".")));
 
 // create `ExpressHandlebars` instance and configure the layouts and partials dir.
 let accessTokenPetFinder;
-/*async function fetchAccessToken() {
+async function fetchAccessToken() {
   const clientId = `${process.env.API_KEY_PETS}`;
   const clientSecret = `${process.env.API_SECRET_PETS}`;
   const url = "https://api.petfinder.com/v2/oauth2/token";
@@ -36,7 +36,7 @@ let accessTokenPetFinder;
   } catch (error) {
     console.error("Error fetching access token:", error.response.data);
   }
-}*/
+}
 
 /*app.use(async (req, res, next) => {
   if (!accessTokenPetFinder || Date.now() >= tokenExpiresAt) {
