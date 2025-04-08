@@ -183,8 +183,7 @@ app.get("/", async (req, res) => {
 });
 
 app.get("/home", async (req, res) => {
-  //res.redirect("/");
-  renderHomePage(res);
+  renderHomePage(req.query, res);
 });
 
 // Guides routes
@@ -346,8 +345,8 @@ app.post("/purrsonality-quiz", (req, res) => {
 
 //render home helpers
 
-async function renderHomePage(res) {
-  let data = await callPetApi();
+async function renderHomePage(query, res) {
+  let data = await callPetApi(query);
   let pages = getPageData(getFormattedAnimalData(data), 12);
 
   let sendingData = {
@@ -415,9 +414,8 @@ Handlebars.registerHelper("ifEquals", function (a, b, options) {
     return options.inverse(this);
   }
 });
-//query only adoptable dogs
-//add cats vss dogs filter
-async function callPetApi() {
+
+async function callPetApi(query) {
   let data;
   await axios({
     url: `https://api.petfinder.com/v2/animals`,
@@ -429,6 +427,7 @@ async function callPetApi() {
     },
 
     params: {
+      ...query,
       page: 1,
       limit: 50,
 
