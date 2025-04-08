@@ -312,48 +312,6 @@ app.get("/purrsonality-quiz", (req, res) => {
   res.render("pages/quiz");
 });
 
-app.post("/purrsonality-quiz", (req, res) => {
-  /*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
-   * using Python for better libraries for performing numerical computation
-   */
-  userVals = [
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
-  ];
-  console.log(userVals);
-  for (i in userVals) {
-    if (userVals[i] < -1 || userVals[i] > 1) {
-      res.status(423).json({
-        error: "Values outside expected range",
-      });
-      res.send;
-      return;
-    }
-  }
-
-  var spawn = require("child_process").spawn;
-  var pythonChild = spawn("python3", userVals.unshift(["src/resources/python/Matching_Algo.py", req.body.species]));
-
-  console.log("Python process spawned");
-  pythonChild.stderr.on("data", (err) => {
-    console.log(err.toString());
-    res.send(err.toString());
-    return;
-  });
-
-  pythonChild.stdout.on("data", (data) => {
-    res.send(data.toString());
-    return;
-  });
-
-  pythonChild.on("close", (code) => console.log(code));
-});
-
-
 //render home helpers
 
 async function renderHomePage(res) {
