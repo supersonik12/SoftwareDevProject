@@ -76,16 +76,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-let selectedFilters = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   const filterBtns = document.querySelectorAll(".filter-form li button");
   const filterForm = document.querySelector(".filter-form");
-  const filterSubmit = document.querySelector(".filter-submit");
 
   if (filterForm) {
-    selectFilters();
-
     filterBtns.forEach((btn) => {
       btn.classList.add("close-filter-btn");
       btn.addEventListener("click", () => {
@@ -98,30 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     });
-    filterSubmit.addEventListener("click", () => {
-      const selectedFilterInputs = document.querySelectorAll(
-        ".form-check-input:checked"
-      );
-
-      if (selectedFilterInputs.length) {
-        selectedFilterInputs.forEach((input) => {
-          selectedFilters.push(input.value);
-        });
-      }
-      console.log(selectedFilters);
-    });
   }
 });
-
-function selectFilters() {
-  console.log(selectedFilters);
-  selectedFilters.forEach((filter) => {
-    const filterInput = document.querySelector(`[value=${filter}]`);
-    filter.selected = true;
-    console.log(filter);
-  });
-  selectedFilters = [];
-}
 
 function selectPageBtn(btn) {
   selectedPageBtn = btn;
