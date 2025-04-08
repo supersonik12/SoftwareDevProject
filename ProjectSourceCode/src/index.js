@@ -177,13 +177,15 @@ app.get("/", async (req, res) => {
   if (req.session.user == undefined) {
     res.redirect("/splash");
   } else {
-    renderHomePage(res);
+    renderHomePage(req.query, res);
     console.log("Welcome user " + req.session.user.name);
   }
 });
 
 app.get("/home", async (req, res) => {
-  renderHomePage(req.query, res);
+  if (req.session.user == undefined) {
+    res.redirect("/");
+  } else renderHomePage(req.query, res);
 });
 
 // Guides routes
@@ -343,15 +345,19 @@ app.post("/purrsonality-quiz", (req, res) => {
   pythonChild.on("close", (code) => console.log(code));
 });
 
-//render home helpers
+//x button for search bar
 let filters;
 let breed;
 async function renderHomePage(query, res) {
-  if ("breed" in query) {
-    breed = query.breed;
-  } else {
-    filters = query;
+  if (query) {
+    if ("breed" in query) {
+      breed = query.breed;
+    } else {
+      filters = query;
+    }
   }
+  console.log(query);
+  console.log(filters);
 
   let paramObj = {};
   if (filters) {
