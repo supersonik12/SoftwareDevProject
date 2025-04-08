@@ -38,12 +38,12 @@ async function fetchAccessToken() {
   }
 }
 
-/*app.use(async (req, res, next) => {
+app.use(async (req, res, next) => {
   if (!accessTokenPetFinder || Date.now() >= tokenExpiresAt) {
     await fetchAccessToken();
   }
   next();
-});*/
+});
 
 const hbs = handlebars.create({
   extname: "hbs",
