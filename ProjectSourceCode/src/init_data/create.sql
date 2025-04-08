@@ -1,7 +1,9 @@
 CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(50) PRIMARY KEY,
     password VARCHAR(60) NOT NULL,
-    name VARCHAR(100) NOT NULL
+    name VARCHAR(100) NOT NULL,
+    species_preference VARCHAR(20),
+    quiz_results INT[300]
 );
 
 CREATE TABLE IF NOT EXISTS traits (

@@ -97,72 +97,6 @@ app.use(
   })
 );
 
-app.get("/purrsonality-quiz", (_, res) => {
-  db.any("SELECT * FROM traits")
-    .then((traits) => {
-      console.log(traits);
-      res.render("pages/quiz", {
-        test: "test",
-        traits,
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(404);
-      res.send;
-    });
-});
-
-app.post("/purrsonality-quiz", (req, res) => {
-  /*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
-   * using Python for better libraries for performing numerical computation
-   */
-  userVals = [
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
-  ];
-  console.log(userVals);
-  for (i in userVals) {
-    if (userVals[i] <= 0 || userVals[i] > 1) {
-      res.status(423).json({
-        error: "Values outside expected range",
-      });
-      res.send;
-      return;
-    }
-  }
-
-  var spawn = require("child_process").spawn;
-  var pythonChild = spawn("python3", [
-    "src/resources/python/Matching_Algo.py",
-    req.body.species,
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
-  ]);
-
-  console.log("Python process spawned");
-  pythonChild.stderr.on("data", (err) => {
-    console.log(err.toString());
-    res.send(err.toString());
-    return;
-  });
-
-  pythonChild.stdout.on("data", (data) => {
-    res.send(data.toString());
-    return;
-  });
-
-  pythonChild.on("close", (code) => console.log(code));
-});
-
 //Helper Functions
 
 //TODO: implement function to display individual matches based on matching results
@@ -290,23 +224,63 @@ app.get("/logout", (req, res) => {
 });
 
 // Quiz routes
-
-app.get("/purrsonality-quiz", (req, res) => {
-  res.render("pages/quiz");
+app.get("/purrsonality-quiz", (_, res) => {
+  db.any("SELECT * FROM traits")
+    .then((traits) => {
+      console.log(traits);
+      res.render("pages/quiz", {
+        test: "test",
+        traits,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404);
+      res.send;
+    });
 });
 
 app.post("/purrsonality-quiz", (req, res) => {
   /*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
    * using Python for better libraries for performing numerical computation
    */
-  userVals = [
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
-  ];
+  switch (req.body.species) {
+    case "dog": {
+      userVals = [
+        req.body.aff_val,
+        req.body.open_val,
+        req.body.play_val,
+        req.body.vigilant_val,
+        req.body.train_val,
+        req.body.energy_val,
+        req.body.bored_val,
+      ];
+      break;
+    }
+    case "cat": {
+      userVals = [
+        req.body.aff_val,
+        req.body.open_val,
+        req.body.play_val,
+        req.body.train_val,
+        req.body.energy_val,
+        req.body.bored_val,
+      ];
+      break;
+    }
+    case "small": {
+      res.send("Coming soon!");
+      return;
+    }
+    default: {
+      res.status(400).json({
+        error: "Unknown option",
+      });
+      res.send;
+      return;
+    }
+  }
+
   console.log(userVals);
   for (i in userVals) {
     if (userVals[i] < -1 || userVals[i] > 1) {
@@ -317,34 +291,49 @@ app.post("/purrsonality-quiz", (req, res) => {
       return;
     }
   }
-
+  console.log(req.body);
   var spawn = require("child_process").spawn;
   var pythonChild = spawn("python3", [
     "src/resources/python/Matching_Algo.py",
     req.body.species,
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
+    userVals,
   ]);
 
   console.log("Python process spawned");
   pythonChild.stderr.on("data", (err) => {
     console.log(err.toString());
-    res.send(err.toString());
     return;
   });
 
   pythonChild.stdout.on("data", (data) => {
-    res.send(data.toString());
+    const values = data
+      .toString()
+      .split(", ")
+      .map(Number)
+      .filter((val) => {
+        return !isNaN(val);
+      });
+
+    const query = `UPDATE users SET species_preference = '${req.body.species}', 
+		  quiz_results = '{${values}}' WHERE email = '${req.session.user.email}';`;
+    db.none(query)
+      .then(() => {
+        console.log("Database successfully updated");
+        res.redirect("/home");
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          error: "Unexpected error occured",
+        });
+        res.send;
+      });
     return;
   });
 
   pythonChild.on("close", (code) => console.log(code));
 });
-
+//render home helpers
 //x button for search bar
 let filters;
 let breed;
@@ -356,8 +345,6 @@ async function renderHomePage(query, res) {
       filters = query;
     }
   }
-  console.log(query);
-  console.log(filters);
 
   let paramObj = {};
   if (filters) {
