@@ -19,7 +19,7 @@ def getFromDb(species):
             cursor.execute(query)
             raw_vectors = cursor.fetchall()
     
-    return {vec[0][0]: tuple([float(val) for val in vec[0][1:]]) for vec in raw_vectors}
+    return {int(vec[0][0]): tuple([float(val) for val in vec[0][1:]]) for vec in raw_vectors}
 
 def parse():
     parser = argparse.ArgumentParser(prog='Matching Algorithm')
