@@ -97,7 +97,6 @@ app.use(
   })
 );
 
-
 //Helper Functions
 
 //TODO: implement function to display individual matches based on matching results
@@ -112,13 +111,15 @@ app.get("/", async (req, res) => {
   if (req.session.user == undefined) {
     res.redirect("/splash");
   } else {
-    renderHomePage(res);
+    renderHomePage(req.query, res);
     console.log("Welcome user " + req.session.user.name);
   }
 });
 
 app.get("/home", async (req, res) => {
-  res.redirect("/");
+  if (req.session.user == undefined) {
+    res.redirect("/");
+  } else renderHomePage(req.query, res);
 });
 
 // Guides routes
@@ -244,41 +245,41 @@ app.post("/purrsonality-quiz", (req, res) => {
    * using Python for better libraries for performing numerical computation
    */
   switch (req.body.species) {
-	  case "dog": {
-  		userVals = [
-    			req.body.aff_val,
-			req.body.open_val,
-    			req.body.play_val,
-    			req.body.vigilant_val,
-    			req.body.train_val,
-    			req.body.energy_val,
-    			req.body.bored_val,
-  		];
-		break;
-	  };
-	  case "cat": {
-		  userVals = [
-			req.body.aff_val,
-			req.body.open_val,
-    			req.body.play_val,
-    			req.body.train_val,
-    			req.body.energy_val,
-    			req.body.bored_val,
-		  ];
-		  break;
-	  };
-	  case "small": {
-		  res.send("Coming soon!");
-		  return;
-	  };
-	  default: {
-		  res.status(400).json({
-			  error: "Unknown option",
-		  });
-		  res.send;
-		  return;
-	  };
-  	}
+    case "dog": {
+      userVals = [
+        req.body.aff_val,
+        req.body.open_val,
+        req.body.play_val,
+        req.body.vigilant_val,
+        req.body.train_val,
+        req.body.energy_val,
+        req.body.bored_val,
+      ];
+      break;
+    }
+    case "cat": {
+      userVals = [
+        req.body.aff_val,
+        req.body.open_val,
+        req.body.play_val,
+        req.body.train_val,
+        req.body.energy_val,
+        req.body.bored_val,
+      ];
+      break;
+    }
+    case "small": {
+      res.send("Coming soon!");
+      return;
+    }
+    default: {
+      res.status(400).json({
+        error: "Unknown option",
+      });
+      res.send;
+      return;
+    }
+  }
 
   console.log(userVals);
   for (i in userVals) {
@@ -292,7 +293,11 @@ app.post("/purrsonality-quiz", (req, res) => {
   }
   console.log(req.body);
   var spawn = require("child_process").spawn;
-  var pythonChild = spawn("python3", ["src/resources/python/Matching_Algo.py", req.body.species, userVals]);
+  var pythonChild = spawn("python3", [
+    "src/resources/python/Matching_Algo.py",
+    req.body.species,
+    userVals,
+  ]);
 
   console.log("Python process spawned");
   pythonChild.stderr.on("data", (err) => {
@@ -301,41 +306,76 @@ app.post("/purrsonality-quiz", (req, res) => {
   });
 
   pythonChild.stdout.on("data", (data) => {
-    const values = data.toString().split(", ").map(Number).filter(val => {
-	    return !isNaN(val) });
-	
+    const values = data
+      .toString()
+      .split(", ")
+      .map(Number)
+      .filter((val) => {
+        return !isNaN(val);
+      });
+
     const query = `UPDATE users SET species_preference = '${req.body.species}', 
-		  quiz_results = '{${values}}' WHERE email = '${req.session.user.email}';` 
-    db.none(query).then( () => {
-	    console.log("Database successfully updated");
-	    res.redirect("/home");
-    }).catch( err => {
-	    console.log(err);
-	    res.status(500).json({
-		    error: "Unexpected error occured",
-	    });
-	    res.send;
-    });
+		  quiz_results = '{${values}}' WHERE email = '${req.session.user.email}';`;
+    db.none(query)
+      .then(() => {
+        console.log("Database successfully updated");
+        res.redirect("/home");
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          error: "Unexpected error occured",
+        });
+        res.send;
+      });
     return;
   });
 
   pythonChild.on("close", (code) => console.log(code));
 });
 //render home helpers
+//x button for search bar
+let filters;
+let breed;
+async function renderHomePage(query, res) {
+  if (query) {
+    if ("breed" in query) {
+      breed = query.breed;
+    } else {
+      filters = query;
+    }
+  }
 
-async function renderHomePage(res) {
-  let data = await callPetApi();
+  let paramObj = {};
+  if (filters) {
+    paramObj = { ...filters };
+  }
+  if (breed) {
+    paramObj.breed = breed;
+  }
+  let data = await callPetApi(paramObj);
+  if (!data) {
+    res.render("pages/home", {
+      error: true,
+      filters: filters,
+      breed: breed,
+    });
+    return;
+  }
   let pages = getPageData(getFormattedAnimalData(data), 12);
 
   let sendingData = {
     pages: pages,
     pageCount: pages.length,
     selectedPage: 0,
+    filters: filters,
+    breed: breed,
   };
 
   res.render("pages/home", {
     ...sendingData,
     data: JSON.stringify(sendingData),
+    error: false,
   });
 }
 
@@ -393,7 +433,15 @@ Handlebars.registerHelper("ifEquals", function (a, b, options) {
   }
 });
 
-async function callPetApi() {
+Handlebars.registerHelper("ifContains", function (ele, arr, options) {
+  if (arr && arr.includes(ele) && !(arr == "female" && ele == "male")) {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+});
+
+async function callPetApi(query) {
   let data;
   await axios({
     url: `https://api.petfinder.com/v2/animals`,
@@ -403,13 +451,21 @@ async function callPetApi() {
       // "Accept-Encoding": "application/json",
       Authorization: `Bearer ${accessTokenPetFinder}`,
     },
+
     params: {
+      ...query,
       page: 1,
       limit: 50,
+
+      status: "adoptable",
     },
-  }).then((results) => {
-    data = results.data.animals.filter((pet) => pet.primary_photo_cropped);
-  });
+  })
+    .then((results) => {
+      data = results.data.animals.filter((pet) => pet.primary_photo_cropped);
+    })
+    .catch((error) => {
+      return false;
+    });
 
   return data;
 }

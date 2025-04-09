@@ -1,3 +1,4 @@
+console.log("yo");
 Handlebars.registerHelper("ifEquals", function (a, b, options) {
   if (a == b) {
     return options.fn(this);
@@ -51,6 +52,7 @@ function initializeModals() {
 initializeModals();
 
 let selectedPageBtn;
+let selectedFilterValues;
 document.addEventListener("DOMContentLoaded", () => {
   const pageNav = document.querySelector(".page-nav");
   if (pageNav) {
@@ -70,6 +72,26 @@ document.addEventListener("DOMContentLoaded", () => {
         let renderPage = Handlebars.compile(template);
         document.getElementById("pet-page").innerHTML = renderPage(newData);
         initializeModals();
+      });
+    });
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const filterBtns = document.querySelectorAll(".filter-form li button");
+  const filterForm = document.querySelector(".filter-form");
+
+  if (filterForm) {
+    filterBtns.forEach((btn) => {
+      btn.classList.add("close-filter-btn");
+      btn.addEventListener("click", () => {
+        if (btn.classList.contains("close-filter-btn")) {
+          btn.classList.remove("close-filter-btn");
+          btn.classList.add("open-filter-btn");
+        } else {
+          btn.classList.remove("open-filter-btn");
+          btn.classList.add("close-filter-btn");
+        }
       });
     });
   }
