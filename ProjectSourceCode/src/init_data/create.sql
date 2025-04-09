@@ -12,3 +12,18 @@ CREATE TABLE IF NOT EXISTS traits (
 	min_extreme VARCHAR(200) NOT NULL,
 	max_extreme VARCHAR(200) NOT NULL
 );
+
+--Any of these values besides id, name, and species may be null based on species
+CREATE TABLE IF NOT EXISTS breeds (
+	breed_id SERIAL PRIMARY KEY,
+	breed_name VARCHAR(60) NOT NULL,
+	species VARCHAR(20),
+	aff_value FLOAT,
+	open_value FLOAT,
+	play_value FLOAT,
+	vigilant_value FLOAT,
+	train_value FLOAT,
+	energy_value FLOAT,
+	bored_value FLOAT,
+	ind_value FLOAT
+);
