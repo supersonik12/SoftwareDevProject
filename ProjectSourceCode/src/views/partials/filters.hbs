@@ -1,0 +1,201 @@
+
+   <form action="/home"  method= 'GET' class="filter-form">
+    <h1>Filter Pets</h1>
+<ul>
+  
+    <li>
+      <button type="button" data-toggle="collapse" data-target="#animal-select">Animal</button>
+        <div class="form-group collapse" id = "animal-select">
+
+          <div class="form-check">
+  <input class="form-check-input" type="radio" name="type" id="cat" value = "cat"
+{{#ifEquals 'cat' filters.type}}
+  checked
+  {{/ifEquals}}
+ >
+  <label class="form-check-label" for="cat" >
+  Cat
+  </label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="type" id="dog" value = "dog"
+  {{#ifEquals 'dog' filters.type}}
+  checked
+  {{/ifEquals}} >
+  <label class="form-check-label" for="dog">
+   Dog
+  </label>
+</div>
+        </div>
+    </li>
+    <li>
+      <button type="button" data-toggle="collapse" data-target="#gender-select">Gender</button>
+        <div class="form-group collapse" id = "gender-select">
+           <div class="form-check">
+            <input class="form-check-input" type="checkbox" name = 'gender' value="male" id="male" 
+             {{#ifContains 'male' filters.gender}}
+  checked
+  {{/ifContains}} >
+            <label class="form-check-label" for="male">
+          Male
+            </label>
+        </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name = 'gender' value="female" id="female"
+             {{#ifContains 'female' filters.gender}}
+  checked
+  {{/ifContains}} >
+            <label class="form-check-label" for="female">
+              Female
+            </label>
+          </div>
+        </div>
+    </li>
+  
+    <li>
+      <button type="button" data-toggle="collapse" data-target="#age-select">Age</button>
+        <div class="form-group collapse" id="age-select">
+           <div class="form-check">
+            <input class="form-check-input" type="checkbox" name = 'age' value="baby" id="baby" 
+             {{#ifContains 'baby' filters.age}}
+  checked
+  {{/ifContains}} >
+            
+            <label class="form-check-label" for="baby">
+          Baby
+            </label>
+        </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name = 'age' value="young" id="young" 
+             {{#ifContains 'young' filters.age}}
+  checked
+  {{/ifContains}}>
+            <label class="form-check-label" for="young">
+              Young
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name = 'age' value="adult" id="adult" 
+             {{#ifContains 'adult' filters.age}}
+  checked
+  {{/ifContains}}>
+            <label class="form-check-label" for="adult">
+          Adult
+            </label>
+        </div>
+         <div class="form-check">
+            <input class="form-check-input" type="checkbox" name = 'age' value="senior" id="senior"
+             {{#ifContains 'senior' filters.age}}
+  checked
+  {{/ifContains}} >
+            <label class="form-check-label" for="senior">
+          Senior
+            </label>
+        </div>
+        </div>
+    </li>
+  
+    <li>
+      <button type="button" data-toggle="collapse" data-target="#size-select">Size</button>
+        <div class="form-group collapse" id="size-select">
+           <div class="form-check">
+            <input class="form-check-input" type="checkbox" name = 'size' value="small" id="small" 
+             {{#ifContains 'small' filters.size}}
+  checked
+  {{/ifContains}}>
+            <label class="form-check-label" for="small">
+          Small
+            </label>
+        </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name = 'size' value="medium" id="medium"
+            {{#ifContains 'medium' filters.size}}
+  checked
+  {{/ifContains}}>
+            <label class="form-check-label" for="medium">
+              Medium
+            </label>
+          </div>
+            <div class="form-check">
+            <input class="form-check-input" type="checkbox" name = 'size' value="large" id="large" 
+             {{#ifContains 'large' filters.size}}
+  checked
+  {{/ifContains}}>
+            <label class="form-check-label" for="large">
+              Large
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name = 'size' value="xlarge" id="xlarge" 
+             {{#ifContains 'xlarge' filters.size}}
+  checked
+  {{/ifContains}}>
+            <label class="form-check-label" for="xlarge">
+              Extra Large
+            </label>
+          </div>
+        </div>
+    </li>
+  
+  
+    <li>
+      <button type="button" data-toggle="collapse" data-target="#other-select">Other</button>
+      <div class="form-group collapse" id="other-select">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name = 'good_with_cats' value="true" id="good_with_cats" 
+             {{#ifEquals 'true' filters.good_with_cats}}
+  checked
+  {{/ifEquals}}>
+            <label class="form-check-label" for="good_with_cats">
+              Good with cats
+            </label>
+          </div>
+         <div class="form-check">
+            <input class="form-check-input" type="checkbox" name='good_with_dogs' value="true" id="good_with_dogs" 
+             {{#ifEquals 'true' filters.good_with_dogs}}
+  checked
+  {{/ifEquals}}>
+            <label class="form-check-label" for="good_with_dogs">
+              Good with dogs
+            </label>
+          </div>
+         <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="good_with_children" value='true'id="good_with_children" 
+             {{#ifEquals 'true' filters.good_with_children}}
+  checked
+  {{/ifEquals}}>
+            <label class="form-check-label" for="good_with_children">
+              Good with children
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="house_trained"  value='true' id="house_trained" 
+            {{#ifEquals 'true' filters.house_trained}}
+  checked
+  {{/ifEquals}}>
+            <label class="form-check-label" for="house_trained">
+              House Trained
+            </label>
+          </div>
+           <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="special_needs" value='true' id="special_needs"
+            {{#ifEquals 'true' filters.special_needs}}
+  checked
+  {{/ifEquals}}>
+            <label class="form-check-label" for="special_needs">
+              Special Needs
+            </label>
+          </div>
+    </li>
+  
+  
+  
+</ul>
+  <button type="submit" class="filter-submit btn btn-primary">Get Pets</button>
+
+
+
+  </div>
+
+
+   </form>
