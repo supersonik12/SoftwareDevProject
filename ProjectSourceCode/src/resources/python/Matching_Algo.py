@@ -1,15 +1,25 @@
 ''' The core matching algorithm. Takes vectors of values (with ids) stored in a CSV file and a user give vector and returns a sorted list
 of ids by vector similarity.'''
 
-import argparse, sys
+import argparse, os 
+import psycopg as pg
 import numpy as np
 from numpy import linalg as LA
 
-def getFromCsv(csv):
-    with open('src/resources/python/' + csv) as dataFile:
-        numCols = len(dataFile.readline().split(','))
-        dataFile.seek(0)
-        return np.genfromtxt(dataFile, dtype=float, skip_header = 1, delimiter = ',', usecols = range(2, numCols)) 
+def getFromDb(species):
+    with pg.connect(host = 'db', port = '5432', dbname = os.environ['POSTGRES_DB'], user = os.environ['POSTGRES_USER'], password = os.environ['POSTGRES_PASSWORD']) as connection:
+        with connection.cursor() as cursor:
+            query = ""
+            #makes sure only populated columns are selected
+            if species == 'dog':
+               query = "SELECT (breed_id, aff_value, open_value, play_value, vigilant_value, train_value, energy_value, bored_value) FROM breeds WHERE species = 'dog';"
+            elif species == 'cat':
+               query = "SELECT (breed_id, aff_value, open_value, play_value, train_value, energy_value, ind_value) FROM breeds WHERE species = 'cat';"
+
+            cursor.execute(query)
+            raw_vectors = cursor.fetchall()
+    
+    return {vec[0][0]: tuple([float(val) for val in vec[0][1:]]) for vec in raw_vectors}
 
 def parse():
     parser = argparse.ArgumentParser(prog='Matching Algorithm')
@@ -22,13 +32,7 @@ def parse():
 
 '''Takes the values the user input represented as a vector and calculates the angle between it and the vectors representing breed traits'''
 def compareVec(inputVec, vectors):
-    similarities = {} 
-    i=0
-    for vec in vectors:
-        i+=1
-        similarity = (np.dot(inputVec, vec)) / (LA.norm(inputVec) * LA.norm(vec))  
-        similarities[i] = similarity
-    return similarities
+    return {key: np.dot(inputVec, vec) / (LA.norm(inputVec) * LA.norm(vec)) for key, vec in vectors.items()} 
 
 def sortIds(inputDict):
     return sorted(inputDict, key=inputDict.get)
@@ -38,11 +42,11 @@ def main():
     vectors = np.array
     match args.species:
         case 'dog':
-            vectors = getFromCsv('dogs.csv')
+            vectors = getFromDb('dog')
         case 'cat':
-            vectors = getFromCsv('cats.csv')
+            vectors = getFromDb('cat')
         case 'small':
-            vectors = getFromCsv('small.csv')
+            vectors = getFromDb('small')
 
     vectorComparisons = compareVec(args.inputVec, vectors)
     print (sortIds(vectorComparisons))
