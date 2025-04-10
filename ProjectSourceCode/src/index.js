@@ -158,7 +158,7 @@ app.post("/login", async (req, res) => {
     }
   } else {
     console.log("User not found");
-    res.render("pages/login", { message: "Account not found.", error: true });
+    res.status(200).json({ message: "Account not found.", error: true });
   }
 });
 
@@ -199,7 +199,7 @@ app.post("/register", async (req, res) => {
   } catch (err) {
     console.log("Failed to add user " + name);
     console.log(err);
-    res.render("pages/register", { message: "Account already exists.", error: true });
+    res.render("pages/register", {message: "Account already exists.", error: true });
   }
 });
 
@@ -573,5 +573,16 @@ async function callPetApi(query) {
 // <!-- Section 5 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
-app.listen(3000);
+
+
+// ***********************************************************
+// added for testing a dummy API
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+// ***********************************************************
+
+
+
+module.exports = app.listen(3000); // changed for testing
 console.log("Server is listening on port 3000");
