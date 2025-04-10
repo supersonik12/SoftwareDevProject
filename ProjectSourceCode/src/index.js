@@ -252,6 +252,17 @@ app.post("/register", async (req, res) => {
 });
 
 // Shop routes
+
+// Mock data for the shop
+const mockItems = [
+  { id: 1, title: "Cat Toy", image: "cat-toy.jpg", description: "A fun toy for cats", category: "cat" },
+  { id: 2, title: "Dog Leash", image: "dog-leash.jpg", description: "A sturdy leash for dogs", category: "dog" },
+  { id: 3, title: "Bird Feeder", image: "bird-feeder.jpg", description: "A feeder for birds", category: "other" },
+  { id: 4, title: "Cat Bed", image: "cat-bed.jpg", description: "A cozy bed for cats", category: "cat" },
+  { id: 5, title: "Dog Toy", image: "dog-toy.jpg", description: "A chew toy for dogs", category: "dog" },
+];
+
+// Helper function to categorize items
 function categorizeItems(items) {
   const sections = {
     cat: { title: "Cat", items: [] },
@@ -270,44 +281,34 @@ function categorizeItems(items) {
   return Object.values(sections);
 }
 
-app.get("/shop", async (req, res) => {
+// GET route for the shop
+app.get("/shop", (req, res) => {
   try {
-    // Fetch categorized data (mocked for now)
-    const items = [
-      { title: "Cat Toy", image: "cat-toy.jpg", description: "A fun toy for cats", category: "cat" },
-      { title: "Dog Leash", image: "dog-leash.jpg", description: "A sturdy leash for dogs", category: "dog" },
-      { title: "Bird Feeder", image: "bird-feeder.jpg", description: "A feeder for birds", category: "other" },
-    ];
-
-    const sections = categorizeItems(items);
+    // Use mock data instead of fetching from an API
+    const sections = categorizeItems(mockItems);
 
     // Render the shop page with categorized data
     res.render("pages/shop", { sections });
+    console.log("Shop page rendered successfully");
   } catch (error) {
-    console.error("Error fetching shop data:", error);
+    console.error("Error rendering shop page:", error);
     res.status(500).send("Error loading shop page.");
   }
 });
 
-
-app.post("/shop", async (req, res) => {
+// POST route for the shop
+app.post("/shop", (req, res) => {
   try {
-    // Replace with actual Amazon API call
-    const response = await axios.get("https://api.example.com/items", {
-      headers: { Authorization: `Bearer ${process.env.AMAZON_API_KEY}` },
-    });
-
-    const items = response.data; // (need to check what the API actually returns) Assume the API returns an array of items
-    const sections = categorizeItems(items);
+    // Use mock data instead of fetching from an API
+    const sections = categorizeItems(mockItems);
 
     // Send the categorized data back to the client
     res.json({ sections });
   } catch (error) {
-    console.error("Error fetching data from Amazon API:", error);
-    res.status(500).json({ error: "Failed to fetch data from Amazon API." });
+    console.error("Error processing shop data:", error);
+    res.status(500).json({ error: "Failed to process shop data." });
   }
 });
-
 
 // Splash routes
 

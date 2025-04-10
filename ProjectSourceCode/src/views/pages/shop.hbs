@@ -1,24 +1,23 @@
 <div id="shop-container"></div>
 
-<script id="Shop" type="text/x-handlebars-template">
-    <div class="shop">
-        {{#each sections}}
-            <div class="section">
-                <h2>{{title}}</h2>
-                <div class="cards">
-                    {{#each items}}
-                        <div class="card">
-                            <img src="{{image}}" alt="{{title}}" />
-                            <h3>{{title}}</h3>
-                            <p>{{description}}</p>
-                            <button class="add-to-cart" data-id="{{id}}">Add to Cart</button>
-                        </div>
-                    {{/each}}
-                </div>
+<div class="shop">
+    {{#each sections}}
+        <div class="section">
+            <h2>{{title}}</h2>
+            <div class="cards">
+                {{#each items}}
+                    <div class="card">
+                        <img src="{{image}}" alt="{{title}}" />
+                        <h3>{{title}}</h3>
+                        <p>{{description}}</p>
+                        <button class="add-to-cart" data-id="{{id}}">Add to Cart</button>
+                    </div>
+                {{/each}}
             </div>
-        {{/each}}
-    </div>
-</script>
+        </div>
+    {{/each}}
+</div>
+
 
 <div id="cart-dropdown" class="cart-dropdown hidden">
     <h3>Shopping Cart</h3>
