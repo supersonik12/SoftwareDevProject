@@ -1,0 +1,49 @@
+
+<head>
+    {{> message}}
+    <title>Welcome, {{name}}!</title>
+</head>
+<body >
+    <div class="container">
+        <h1>Welcome, {{name}}!</h1>
+
+        <h2>My Quiz Results:</h2>
+        <!--Figure this out, ask teammates(probably declan) for help/how the quiz works-->
+        <p>I prefer a: {{species}}</p>
+        <p>I like: </p>
+        <!--This returns a list of numbers because the database isn't finalized-->
+        <ul>
+        {{#each results}}
+        <li>{{this}}</li>
+        {{/each}}
+        </ul>
+        
+
+        <h3>Update Account Information:</h3>
+        <!-- change name and password, not email(username). put in password before allowed to change-->
+        <form action = "/verify" method = "POST">
+        <label for="email"Enter Email:></label>
+        <input type = "text" id = "email" name = "email" placeholder = "email"required>
+        <label for="password"Enter Password:></label>
+            <input type = "text" id = "password" name = "password" placeholder = "password"required>
+            <button type = "submit" >Submit</button>
+        </form>
+
+    </div>
+</body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
