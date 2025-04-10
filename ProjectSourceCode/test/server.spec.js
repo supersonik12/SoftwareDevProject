@@ -27,6 +27,69 @@ describe('Server!', () => {
   });
 });
 
+describe('Test GET method for login page', () =>
+	it('Redirects to login page', done => {
+		chai
+			.request(server)
+			.get('/login')
+			.end((err, res) => {
+				expect(res).to.have.status(302);
+				done();
+			});
+	}));
+
+describe('Test POST method for successful sign in', () =>
+	it('Redirects to home page', done => {
+		chai
+			.request(server)
+			.get('/login')
+			.send({email: 'test@example.com', password: 'testpassword'})
+			.end((err, res) => {
+				expect(res.body.message.to.equals('Success'));
+			});
+			done();
+	})
+);
+
+describe('Test POST method for failed sign in', () =>
+	it('Displays an error message to user', done => {
+		chai
+			.request(server)
+			.get('/login')
+			.send({email: 'invalid@example.com', password: 'invalidpassword'})
+			.end((err, res) => {
+				expect(res.body.message.to.equals('Invalid username or password'));
+			});
+		done();
+	})
+);
+
+
+describe('Test POST method for successful register', () => 
+	it('Redirects to the quiz', done => {
+		chai
+			.request(server)
+			.get('/request')
+			.send({email: 'newuser@example.com', password: 'abc123', name: 'John Doe'})
+			.end((err, res) => {
+				expect(res.body.message.to.equals('Success'));
+			});
+		done();
+	})
+);
+
+describe('Test POST method for unsuccessful register', () =>
+	it('Displays an error', done => {
+		chai
+			.request(server)
+			.get('/request')
+			.send({email: 123, password: 'abc123', name: 'John Doe'})
+			.end((end, res) => {
+				expect(res.body.message.equals('Not a valid email'));
+			});
+		done();
+	})
+);
 // *********************** TODO: WRITE 2 UNIT TESTCASES **************************
 
 // ********************************************************************************
