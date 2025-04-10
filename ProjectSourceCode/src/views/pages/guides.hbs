@@ -25,35 +25,79 @@
   <script>
     const guides = {
       dogs: {
-        title: "Dogs need a balanced diet, regular exercise, and social interaction. They require daily walks, fresh water, and a safe space to rest. Grooming needs vary by breed, and regular vet checkups help keep them healthy. Dogs thrive on companionship and mental stimulation, so training and playtime are essential.",
-        content: ``
+        title: "Dog Care Guide",
+        content: `Dog Care
+        Food: High-quality dog food (based on size and age)
+        Occasional dog-safe treats
+        Avoid chocolate, grapes, and bones that splinter
+        Water: Fresh water available at all times
+        Exercise: Daily walks and playtime
+        Adjust based on breed and energy level
+        Care: Brush regularly and bathe as needed
+        Trim nails and clean ears
+        Provide toys and social interaction
+        Vet visits for checkups and vaccinations`
       },
       cats: {
         title: "Cat Care Guide",
-        content: `Cats are independent but need proper nutrition, hydration, and enrichment. They require fresh water, a clean litter box, and scratching posts. Cats enjoy climbing and exploring, so vertical spaces and toys are great for mental stimulation. Regular vet visits and vaccinations help keep them healthy.`
+        content: `Cat Care
+        Food: High-quality cat food (wet, dry, or both)
+        Occasional treats
+        Avoid onions, garlic, and chocolate
+        Water: Fresh water available at all times
+        Exercise: Play daily with toys or climbing furniture
+        Cats love to stalk, pounce, and jump
+        Care: Scoop litter box daily, change litter weekly
+        Brush fur regularly, especially for long-haired cats
+        Trim nails and provide scratching posts
+        Vet visits for checkups and vaccines`
       },
       rabbits: {
         title: "Rabbit Care Guide",
-        content: `Rabbits need a spacious enclosure, fresh hay, and a diet rich in leafy greens. They require plenty of exercise and social interaction. Their teeth grow continuously, so chew toys are essential. Litter training is possible, and regular vet visits help prevent dental and digestive issues.`
-      },
-      turtles: {
-        title: "Turtle Care Guide",
-        content: `Turtles require a properly maintained tank with a basking area, UVB lighting, and clean water. Their diet includes leafy greens, insects, and specialized turtle pellets. Regular water changes and tank maintenance prevent illness. Turtles can live for decades, so long-term care is important.`
+        content: `Food: Unlimited hay (main food)
+        Daily leafy greens (e.g., romaine, parsley)
+        Small amount of pellets
+        Occasional treats (like fruit)
+        Avoid iceberg lettuce and too many carrots
+        Water: Fresh water available at all times
+        Exercise: Let them out daily to hop and explore
+        Use a safe, rabbit-proofed area
+        Care: Provide chew toys to prevent boredom
+        Trim nails as needed ,Clean their living space regularly, Spend time with them—they’re social!`
       },
       reptiles: {
         title: "Reptile Care Guide",
-        content: `Reptiles have unique needs depending on their species. Most require controlled temperature, humidity, and UVB lighting. Diet varies from insects to vegetables or rodents. Proper enclosures with hiding spots and climbing structures help keep them stress-free. Regular health checks ensure they thrive.`
+        content: `Reptile Care
+        Food: Depends on species (insects, veggies, or frozen mice)
+        Gut-load insects before feeding
+        Dust food with calcium or vitamin supplements
+        Water: Clean water dish or misting (species-specific)
+        Exercise: Climbing, crawling, or basking in an enriched enclosure
+        Care: Provide heat lamps and UVB lighting
+        Maintain proper humidity and temperature
+        Spot clean regularly, full clean as needed
+        Handle gently and infrequently (some reptiles don’t like too much contact)`
       },
       fish: {
         title: "Fish Care Guide",
-        content: `Fish require a clean, properly cycled tank with a filter and temperature control. Overcrowding and overfeeding can lead to health problems. Water quality should be monitored regularly, and tank mates should be compatible. Some fish need specific pH levels and diets to stay healthy.`
+        content: `Fish Care
+        Food: Species-specific fish flakes, pellets, or frozen food
+        Feed small amounts once or twice a day
+        Avoid overfeeding—it dirties the tank
+        Water: Use dechlorinated water
+        Change part of the water weekly (10–25%)
+        Exercise: Provide space to swim and explore
+        Add plants, rocks, or decorations for enrichment
+        Care: Use a filter and heater if needed
+        Monitor water temperature and pH
+        Clean the tank and check for algae regularly`
       }
     };
 
     function showGuide(petType) {
       document.getElementById('care-guide').classList.remove('hidden');
       document.getElementById('guide-title').innerText = guides[petType].title;
-      document.getElementById('guide-text').innerText = guides[petType].content;
+      document.getElementById('guide-text').innerHTML = guides[petType].content.replace(/\n/g, '<br>');
     }
   </script>
 
