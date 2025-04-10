@@ -304,8 +304,61 @@ app.post('/update', async (req, res) => {
 
 // Shop routes
 
+// Mock data for the shop
+const mockItems = [
+  { id: 1, title: "Cat Toy", image: "cat-toy.jpg", description: "A fun toy for cats", category: "cat" },
+  { id: 2, title: "Dog Leash", image: "dog-leash.jpg", description: "A sturdy leash for dogs", category: "dog" },
+  { id: 3, title: "Bird Feeder", image: "bird-feeder.jpg", description: "A feeder for birds", category: "other" },
+  { id: 4, title: "Cat Bed", image: "cat-bed.jpg", description: "A cozy bed for cats", category: "cat" },
+  { id: 5, title: "Dog Toy", image: "dog-toy.jpg", description: "A chew toy for dogs", category: "dog" },
+];
+
+// Helper function to categorize items
+function categorizeItems(items) {
+  const sections = {
+    cat: { title: "Cat", items: [] },
+    dog: { title: "Dog", items: [] },
+    other: { title: "Other", items: [] },
+  };
+
+  items.forEach((item) => {
+    if (sections[item.category]) {
+      sections[item.category].items.push(item);
+    } else {
+      sections.other.items.push(item);
+    }
+  });
+
+  return Object.values(sections);
+}
+
+// GET route for the shop
 app.get("/shop", (req, res) => {
-  res.render("pages/shop");
+  try {
+    // Use mock data instead of fetching from an API
+    const sections = categorizeItems(mockItems);
+
+    // Render the shop page with categorized data
+    res.render("pages/shop", { sections });
+    console.log("Shop page rendered successfully");
+  } catch (error) {
+    console.error("Error rendering shop page:", error);
+    res.status(500).send("Error loading shop page.");
+  }
+});
+
+// POST route for the shop
+app.post("/shop", (req, res) => {
+  try {
+    // Use mock data instead of fetching from an API
+    const sections = categorizeItems(mockItems);
+
+    // Send the categorized data back to the client
+    res.json({ sections });
+  } catch (error) {
+    console.error("Error processing shop data:", error);
+    res.status(500).json({ error: "Failed to process shop data." });
+  }
 });
 
 // Splash routes
