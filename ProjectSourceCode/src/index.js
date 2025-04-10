@@ -199,7 +199,7 @@ app.post("/register", async (req, res) => {
   } catch (err) {
     console.log("Failed to add user " + name);
     console.log(err);
-    res.redirect("/register");
+    res.render("pages/register", { message: "Account already exists.", error: true });
   }
 });
 
