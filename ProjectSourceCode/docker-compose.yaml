@@ -23,6 +23,7 @@ services:
       - ./:/home/node/app/src
       - ./:/var/lib/postgresql/data
       - ./src/init_data:/docker-entrypoint-initdb.d
-    command: "npm start"
+    # Check package.json before changing the following line: 
+    command: "npm run testandrun"
 volumes:
   group-project:
