@@ -1,3 +1,5 @@
+
+
 INSERT INTO traits 
 	(trait_name, min_extreme, max_extreme)
 	VALUES
