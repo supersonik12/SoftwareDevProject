@@ -15,25 +15,25 @@ const { assert, expect } = chai;
 describe('Server!', () => {
 	// Sample test case given to test / endpoint.
 	it('Returns the default welcome message', done => {
-		chai
-			.request(server)
-			.get('/welcome')
-			.end((err, res) => {
-				expect(res).to.have.status(200);
-				expect(res.body.status).to.equals('success');
-				assert.strictEqual(res.body.message, 'Welcome!');
-				done();
-			});
+	  chai
+		.request(server)
+		.get('/welcome')
+		.end((err, res) => {
+		  expect(res).to.have.status(200);
+		  expect(res.body.status).to.equals('success');
+		  assert.strictEqual(res.body.message, 'Welcome!');
+		  done();
+		});
 	});
-});
+  });
 
 describe('Test GET method for login page', () =>
-	it('Redirects to login page', done => {
+	it('Renders login page', done => {
 		chai
 			.request(server)
 			.get('/login')
 			.end((err, res) => {
-				expect(res).to.have.status(302);
+				expect(res).to.have.status(200);
 				done();
 			});
 	}));
@@ -45,9 +45,10 @@ describe('Test POST method for successful sign in', () =>
 			.get('/login')
 			.send({ email: 'test@example.com', password: 'testpassword' })
 			.end((err, res) => {
-				expect(res.body.message.to.equals('Success'));
+				expect(res.body.message).to.equals('Success');
+				expect(res).to.have.status(302);
+				done();
 			});
-		done();
 	})
 );
 
@@ -58,9 +59,10 @@ describe('Test POST method for failed sign in', () =>
 			.get('/login')
 			.send({ email: 'invalid@example.com', password: 'invalidpassword' })
 			.end((err, res) => {
-				expect(res.body.message.to.equals('Invalid username or password'));
+				expect(res.body.message).to.equals('Account not found.');
+				expect(res).to.have.status(200);
+				done();
 			});
-		done();
 	})
 );
 
@@ -69,12 +71,13 @@ describe('Test POST method for successful register', () =>
 	it('Redirects to the quiz', done => {
 		chai
 			.request(server)
-			.get('/request')
+			.get('/register')
 			.send({ email: 'newuser@example.com', password: 'abc123', name: 'John Doe' })
 			.end((err, res) => {
-				expect(res.body.message.to.equals('Success'));
+				expect(res.body.message).to.equals('Success');
+				expect(res).to.have.status(302);
+				done();
 			});
-		done();
 	})
 );
 
@@ -82,10 +85,11 @@ describe('Test POST method for unsuccessful register', () =>
 	it('Displays an error', done => {
 		chai
 			.request(server)
-			.get('/request')
-			.send({ email: 123, password: 'abc123', name: 'John Doe' })
+			.get('/register')
+			.send({ email: 'newuser@example.com', password: 'abc123', name: 'John Doe' })
 			.end((end, res) => {
-				expect(res.body.message.equals('Not a valid email'));
+				expect(res.body.message).to.equals('Account already exists.');
+				expect(res).to.have.status(200);
 			});
 		done();
 	})
@@ -95,7 +99,7 @@ describe('Test POST method for unsuccessful register', () =>
 describe('GET /purrsonality-quiz', () => {
 	it('Renders quiz page', (done) => {
 		chai
-			.request(app)
+			.request(server)
 			.get('/purrsonality-quiz')
 			.end((err, res) => {
 				expect(res).to.have.status(200);
@@ -107,7 +111,7 @@ describe('GET /purrsonality-quiz', () => {
 describe('POST /purrsonality-quiz', () => {
 	it('Test valid input (redirects to home page)', (done) => {
 		chai
-			.request(app)
+			.request(server)
 			.post('/purrsonality-quiz')
 			.send({
 				species: 'dog',
@@ -127,7 +131,7 @@ describe('POST /purrsonality-quiz', () => {
 
 	it('Test invalid input', (done) => {
 		chai
-			.request(app)
+			.request(server)
 			.post('/purrsonality-quiz')
 			.send({
 				species: 'dog',
