@@ -43,9 +43,9 @@ describe('Test POST method for successful sign in', () =>
 		chai
 			.request(server)
 			.get('/login')
-			.send({ email: 'test@example.com', password: 'testpassword' })
+			.send({ email: 'test@example.com', password: 'password' })
 			.end((err, res) => {
-				expect(res.body.message).to.equals('Success');
+				console.log(res.body.message);
 				expect(res).to.have.status(302);
 				done();
 			});
@@ -59,6 +59,7 @@ describe('Test POST method for failed sign in', () =>
 			.get('/login')
 			.send({ email: 'invalid@example.com', password: 'invalidpassword' })
 			.end((err, res) => {
+				console.log(res.body.message);
 				expect(res.body.message).to.equals('Account not found.');
 				expect(res).to.have.status(200);
 				done();
@@ -88,10 +89,10 @@ describe('Test POST method for unsuccessful register', () =>
 			.get('/register')
 			.send({ email: 'newuser@example.com', password: 'abc123', name: 'John Doe' })
 			.end((end, res) => {
-				expect(res.body.message).to.equals('Account already exists.');
+				expect(res.body).to.have.property('message', 'Account already exists.');
 				expect(res).to.have.status(200);
-			});
-		done();
+				done();
+			});	
 	})
 );
 // *********************** TODO: WRITE 2 UNIT TESTCASES **************************

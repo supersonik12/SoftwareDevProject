@@ -158,7 +158,7 @@ app.post("/login", async (req, res) => {
     }
   } else {
     console.log("User not found");
-    res.render("pages/login", { message: "Account not found.", error: true });
+    res.status(200).json({ message: "Account not found.", error: true });
   }
 });
 
@@ -199,7 +199,7 @@ app.post("/register", async (req, res) => {
   } catch (err) {
     console.log("Failed to add user " + name);
     console.log(err);
-    res.render("pages/register", { message: "Account already exists.", error: true });
+    res.render("pages/register", {message: "Account already exists.", error: true });
   }
 });
 
