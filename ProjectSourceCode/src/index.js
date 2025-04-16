@@ -92,6 +92,10 @@ app.use(
     resave: false,
   })
 );
+app.use(function (req, res, next) {
+  res.locals.session = req.session;
+  next();
+});
 
 app.use(
   bodyParser.urlencoded({
@@ -447,7 +451,7 @@ app.get("/logout", (req, res) => {
     console.log("Logged out user " + req.session.user.name);
     req.session.destroy();
   }
-  res.render("pages/splash");
+  res.redirect("/splash");
 });
 
 // Quiz routes
