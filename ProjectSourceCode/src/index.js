@@ -443,8 +443,10 @@ app.get("/splash", (req, res) => {
 // Logout routes
 
 app.get("/logout", (req, res) => {
-  console.log("Logged out user " + req.session.user.name);
-  req.session.destroy();
+  if (req.session.user != undefined) {
+    console.log("Logged out user " + req.session.user.name);
+    req.session.destroy();
+  }
   res.render("pages/splash");
 });
 
