@@ -90,6 +90,10 @@ app.use(
     resave: false,
   })
 );
+app.use(function (req, res, next) {
+  res.locals.session = req.session;
+  next();
+});
 
 app.use(
   bodyParser.urlencoded({
@@ -205,22 +209,21 @@ app.post("/register", async (req, res) => {
 
 //account routes        TODO: ask about authentification middleware & talk to quiz people about db results
 app.get("/account", (req, res) => {
-  if(req.session.user == undefined)
-  {
+  if (req.session.user == undefined) {
     res.redirect("/");
   }
-  else{
-  const user = {
-    name : req.session.user.name,
-    species : req.session.user.species_preference,
-    results : req.session.user.quiz_results // how do you return all the values idk
+  else {
+    const user = {
+      name: req.session.user.name,
+      species: req.session.user.species_preference,
+      results: req.session.user.quiz_results // how do you return all the values idk
 
-  };
-  res.render("pages/account", user);
+    };
+    res.render("pages/account", user);
   };
 });
 
-app.post("/verify", async (req, res) => { 
+app.post("/verify", async (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
 
@@ -263,37 +266,34 @@ app.post('/update', async (req, res) => {
   let email = req.body.email;
 
   try {
-  let user_query = `SELECT * FROM users WHERE email = $1;`;
-  let userResult = await db.any(user_query, [email]);
-  console.log(email);
-    if (userResult.length > 0) 
-    {
+    let user_query = `SELECT * FROM users WHERE email = $1;`;
+    let userResult = await db.any(user_query, [email]);
+    console.log(email);
+    if (userResult.length > 0) {
 
-    const user = userResult[0];
+      const user = userResult[0];
 
-    let updatedName = user.name;
-    if(newName != undefined)
-    {
-      updatedName = newName;
-    };
-    let updatedPassword = user.password;
-    if(newPassword != undefined)
-    {
-      updatedPassword = await bcrypt.hash(newPassword, 10);
-    };
+      let updatedName = user.name;
+      if (newName != undefined) {
+        updatedName = newName;
+      };
+      let updatedPassword = user.password;
+      if (newPassword != undefined) {
+        updatedPassword = await bcrypt.hash(newPassword, 10);
+      };
 
-    await db.none(
-      'UPDATE users SET name = $1, password = $2 WHERE email = $3',
-      [updatedName, updatedPassword, email]
-    );
-    //session doesn't auto update so need to manually do it.   TODO: ask about storing password in session
-    req.session.user.name = updatedName;
-    req.session.user.password = updatedPassword;
-    console.log(req.session.user.name);
-    console.log(req.session.user.password);
+      await db.none(
+        'UPDATE users SET name = $1, password = $2 WHERE email = $3',
+        [updatedName, updatedPassword, email]
+      );
+      //session doesn't auto update so need to manually do it.   TODO: ask about storing password in session
+      req.session.user.name = updatedName;
+      req.session.user.password = updatedPassword;
+      console.log(req.session.user.name);
+      console.log(req.session.user.password);
 
-    res.send(`<p>Information updated successfully! <a href="/account">Back to account</a></p>`);
-  }
+      res.send(`<p>Information updated successfully! <a href="/account">Back to account</a></p>`);
+    }
   } catch (err) {
     console.error(err);
     res.status(500).send('Update failed.');
@@ -321,7 +321,7 @@ app.get("/logout", (req, res) => {
     console.log("Logged out user " + req.session.user.name);
     req.session.destroy();
   }
-  res.render("pages/splash");
+  res.redirect("/splash");
 });
 
 // Quiz routes

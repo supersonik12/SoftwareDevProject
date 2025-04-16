@@ -11,9 +11,11 @@
             <a class="nav-link" href="/home">Home</a>
           </li>
         </ul>
+        {{#unless session.user}}
         <div class="nav-item me-auto">
           <a class="nav-link" href="/login">Login</a>
         </div>
+        {{/unless}}
         <div class="nav-item me-auto">
           <a class="nav-link" href="/guides">Guides</a>
         </div>
@@ -26,9 +28,11 @@
         <div class="nav-item me-auto">
           <a class="nav-link" href="/account">Account</a>
         </div>
+        {{#if session.user}}
         <div class="nav-item me-1">
           <a class="nav-link" href="/logout">Logout</a>
         </div>
+        {{/if}}
       </div>
     </div>
   </nav>
