@@ -449,7 +449,11 @@ app.get("/logout", (req, res) => {
 });
 
 // Quiz routes
-app.get("/purrsonality-quiz", (_, res) => {
+app.get("/purrsonality-quiz", (req, res) => {
+  if (req.session.user == undefined) {
+    res.redirect("/register");
+  }
+
   db.any("SELECT * FROM traits")
     .then((traits) => {
       console.log(traits);
