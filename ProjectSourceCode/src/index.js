@@ -100,7 +100,6 @@ app.use(
 
 //Helper Functions
 
-Handlebars.registerHelper("plusOne", function (value) { return value + 1; });
 
 //TODO: implement function to display individual matches based on matching results
 //Currently just prints to prevent errors when testing quiz endpoint
