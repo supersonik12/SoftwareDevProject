@@ -35,7 +35,7 @@ def compareVec(inputVec, vectors):
     return {key: np.dot(inputVec, vec) / (LA.norm(inputVec) * LA.norm(vec)) for key, vec in vectors.items()} 
 
 def sortIds(inputDict):
-    return sorted(inputDict, key=inputDict.get)
+    return sorted(inputDict, key=inputDict.get, reverse=True)
 
 def main():
     args = parse()
