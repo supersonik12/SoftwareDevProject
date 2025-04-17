@@ -9,11 +9,14 @@ const session = require("express-session"); // To set the session object. To sto
 const bcrypt = require("bcryptjs"); //  To hash passwords
 const axios = require("axios"); // To make HTTP requests from our server. We'll learn more about it in Part C.
 const mime = require("mime");
+const fs = require("fs");
+const csv = require("csv-parser");
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
-app.use(express.static(path.join(__dirname, "resources")));
+app.use(express.static(path.join(__dirname, ".")));
+
 // create `ExpressHandlebars` instance and configure the layouts and partials dir.
 let accessTokenPetFinder;
 async function fetchAccessToken() {
@@ -89,60 +92,16 @@ app.use(
     resave: false,
   })
 );
+app.use(function (req, res, next) {
+  res.locals.session = req.session;
+  next();
+});
 
 app.use(
   bodyParser.urlencoded({
     extended: true,
   })
 );
-
-app.get('/purrsonality-quiz', (_, res) => {
-	db.any('SELECT * FROM traits').then(traits => {
-		console.log(traits);
-		res.render('pages/quiz', {
-			test: 'test',
-			traits
-		})
-	}).catch(err => {
-		console.log(err);
-		res.status(404);
-		res.send;
-	});
-});
-
-app.post("/purrsonality-quiz", (req, res) => {
-	/*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
-	 * using Python for better libraries for performing numerical computation
-	*/
-	userVals = [req.body.aff_val, req.body.play_val, req.body.vigilant_val, req.body.train_val, req.body.energy_val, req.body.bored_val];
-	console.log(userVals);
-	for (i in userVals) {
-		if (userVals[i] <= 0 || userVals[i] > 1) {
-			res.status(423).json({
-				error: "Values outside expected range",
-			});
-			res.send;
-			return;
-		}
-	}
-
-	var spawn = require("child_process").spawn;
-	var pythonChild = spawn("python3", ["src/resources/python/Matching_Algo.py", req.body.species, req.body.aff_val, req.body.play_val, req.body.vigilant_val, req.body.train_val, req.body.energy_val, req.body.bored_val]);
-	
-	console.log("Python process spawned");
-	pythonChild.stderr.on("data", (err) => {
-		console.log(err.toString());	
-		res.send(err.toString());
-		return;
-	});
-
-	pythonChild.stdout.on("data", (data) => {
-		res.send(data.toString());
-		return;
-	});
-
-	pythonChild.on("close", (code) => console.log(code));
-});
 
 //Helper Functions
 
@@ -158,16 +117,15 @@ app.get("/", async (req, res) => {
   if (req.session.user == undefined) {
     res.redirect("/splash");
   } else {
+    renderHomePage(req.query, res);
     console.log("Welcome user " + req.session.user.name);
-    let data = await callPetApi();
-    res.render("pages/home", {
-      animals: getFormattedAnimalData(data) || [],
-    });
   }
 });
 
-app.get("/home", (req, res) => {
-  res.redirect("/");
+app.get("/home", async (req, res) => {
+  if (req.session.user == undefined) {
+    res.redirect("/");
+  } else renderHomePage(req.query, res, req.session.user.email);
 });
 
 // Guides routes
@@ -206,7 +164,7 @@ app.post("/login", async (req, res) => {
     }
   } else {
     console.log("User not found");
-    res.render("pages/login", { message: "Account not found.", error: true });
+    res.status(200).json({ message: "Account not found.", error: true });
   }
 });
 
@@ -247,7 +205,147 @@ app.post("/register", async (req, res) => {
   } catch (err) {
     console.log("Failed to add user " + name);
     console.log(err);
-    res.redirect("/register");
+    res.render("pages/register", {
+      message: "Account already exists.",
+      error: true,
+    });
+  }
+});
+
+//Account Routes
+app.get("/account", async (req, res) => {
+  if (req.session.user == undefined) {
+    res.redirect("/");
+  } else {
+    const user = {
+      name: req.session.user.name,
+      species: req.session.user.species_preference,
+    };
+    console.log(user);
+    const favorites = await db.any(`
+    SELECT * FROM favorites
+    WHERE user_email = '${req.session.user.email}';
+    `);
+    console.log(favorites);
+    res.render("pages/account", { user, favorites });
+  }
+});
+
+app.post("/verify", async (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+
+  let user_query = `SELECT * FROM users WHERE email = $1;`;
+  let response = await db.any(user_query, [email]);
+
+  if (response.length > 0) {
+    let user = response[0];
+    let hash = user.password;
+
+    if (await bcrypt.compare(password, hash)) {
+      res.send(`
+        <h2>Welcome, ${user.name}!</h2>
+        <form action="/update" method="POST">
+          <input type="hidden" name="name" value="${user.name}" />
+          <input type="hidden" name = "email" value = "${user.email}"/>
+          <input type="text" name="newName" placeholder="New name" />
+          <input type="password" name="newPassword" placeholder="New password" />
+          <button type="submit">Update</button>
+        </form>
+      `);
+    } else {
+      console.log("Password incorrect");
+      res.render("pages/account", {
+        message: "Your password was incorrect, try again.",
+        error: true,
+      });
+    }
+  } else {
+    console.log("User not found");
+    res.render("pages/account", { message: "Account not found.", error: true });
+  }
+});
+
+app.post("/update", async (req, res) => {
+  let newName = req.body.newName;
+  console.log("new name is:" + newName);
+  let newPassword = req.body.newPassword;
+  let email = req.body.email;
+
+  try {
+    let user_query = `SELECT * FROM users WHERE email = $1;`;
+    let userResult = await db.any(user_query, [email]);
+    console.log(email);
+    if (userResult.length > 0) {
+      const user = userResult[0];
+      let updatedName = user.name;
+      if (newName != "") {
+        console.log("new name is not undefined");
+        updatedName = newName;
+      }
+      let updatedPassword = user.password;
+      if (newPassword != "") {
+        console.log("new password is not undefined");
+        updatedPassword = await bcrypt.hash(newPassword, 10);
+      }
+      await db.none(
+        "UPDATE users SET name = $1, password = $2 WHERE email = $3",
+        [updatedName, updatedPassword, email]
+      );
+      //session doesn't auto update so need to manually do it.   TODO: ask about storing password in session
+      req.session.user.name = updatedName;
+      //req.session.user.password = updatedPassword;
+      console.log(req.session.user.name);
+      //console.log(req.session.user.password);
+      res.send(
+        `<p>Information updated successfully! <a href="/account">Back to account</a></p>`
+      );
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Update failed.");
+  }
+});
+
+app.post("/favorite", async (req, res) => {
+  const name = req.body.name;
+  const photo = req.body.photo;
+  const description = req.body.description;
+  const email = req.session.user.email;
+  const id = req.body.id;
+  const link = req.body.link;
+  //why are these values all undefined
+  // console.log("alljson: ", alljson);
+  console.log("name: ", name);
+  console.log("photo link: ", photo);
+  console.log("description: ", description);
+
+  try {
+    const query = `
+      INSERT INTO favorites (user_email, pet_id, pet_name, pet_photo, pet_description, pet_link)
+      VALUES ('${email}', ${id}, '${name}', '${photo}', '${description}', '${link}')
+    `;
+    await db.any(query);
+    res.redirect("/home");
+  } catch (err) {
+    console.error("Error favoriting pet:", err);
+    res.status(500).send("Something went wrong");
+  }
+});
+
+app.post("/delete", async (req, res) => {
+  const id = req.body.id;
+  const email = req.session.user.email;
+  try {
+    await db.any(
+      `DELETE FROM favorites WHERE user_email = '${email}' AND pet_id = ${id};`
+    );
+    res.send(
+      '<p> Pet deleted from favorites! <a href="/account">Back to account</a></p>'
+    );
+  } catch (err) {
+    console.error("Error deleting pet");
+    res.status(500).send("Something went wrong");
   }
 });
 
@@ -319,29 +417,75 @@ app.get("/splash", (req, res) => {
 // Logout routes
 
 app.get("/logout", (req, res) => {
-  console.log("Logged out user " + req.session.user.name);
-  req.session.destroy();
-  res.render("pages/splash");
+  if (req.session.user != undefined) {
+    console.log("Logged out user " + req.session.user.name);
+    req.session.destroy();
+  }
+  res.redirect("/splash");
 });
 
 // Quiz routes
-
 app.get("/purrsonality-quiz", (req, res) => {
-  res.render("pages/quiz");
+  if (req.session.user == undefined) {
+    res.redirect("/register");
+  }
+
+  db.any("SELECT * FROM traits")
+    .then((traits) => {
+      console.log(traits);
+      res.render("pages/quiz", {
+        test: "test",
+        traits,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404);
+      res.send;
+    });
 });
 
 app.post("/purrsonality-quiz", (req, res) => {
   /*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
    * using Python for better libraries for performing numerical computation
    */
-  userVals = [
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
-  ];
+  switch (req.body.species) {
+    case "dog": {
+      userVals = [
+        req.body.aff_val,
+        req.body.open_val,
+        req.body.play_val,
+        req.body.vigilant_val,
+        req.body.train_val,
+        req.body.energy_val,
+        req.body.bored_val,
+      ];
+      break;
+    }
+    case "cat": {
+      userVals = [
+        req.body.aff_val,
+        req.body.open_val,
+        req.body.play_val,
+        req.body.train_val,
+        req.body.energy_val,
+        req.body.bored_val,
+      ];
+      break;
+    }
+    case "small": {
+      res.send("Coming soon!");
+      return;
+    }
+    default: {
+      res.status(400).json({
+        error: "Unknown option",
+      });
+      res.send;
+      return;
+    }
+  }
+
   console.log(userVals);
   for (i in userVals) {
     if (userVals[i] < -1 || userVals[i] > 1) {
@@ -352,33 +496,192 @@ app.post("/purrsonality-quiz", (req, res) => {
       return;
     }
   }
-
+  console.log(req.body);
   var spawn = require("child_process").spawn;
   var pythonChild = spawn("python3", [
     "src/resources/python/Matching_Algo.py",
     req.body.species,
-    req.body.aff_val,
-    req.body.play_val,
-    req.body.vigilant_val,
-    req.body.train_val,
-    req.body.energy_val,
-    req.body.bored_val,
+    userVals,
   ]);
 
   console.log("Python process spawned");
   pythonChild.stderr.on("data", (err) => {
     console.log(err.toString());
-    res.send(err.toString());
     return;
   });
 
   pythonChild.stdout.on("data", (data) => {
-    res.send(data.toString());
+    const values = data
+      .toString()
+      .split(", ")
+      .map(Number)
+      .filter((val) => {
+        return !isNaN(val);
+      });
+
+    const query = `UPDATE users SET
+    species_preference = '${req.body.species}', 
+		  quiz_results = '{${values}}' WHERE email = '${req.session.user.email}';`;
+    db.none(query)
+      .then(() => {
+        console.log("Database successfully updated");
+        res.redirect("/home");
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          error: "Unexpected error occured",
+        });
+        res.send;
+      });
     return;
   });
 
   pythonChild.on("close", (code) => console.log(code));
 });
+//render home helpers
+//x button for search bar
+//reset filter button
+//breeds only keep first
+//species_preference
+//petfinder breeds call
+
+async function getIdsToBreeds(type) {
+  let results = [];
+  const csvDir = path.resolve(__dirname, "data");
+
+  const url = path.resolve(csvDir, `${type}s.csv`);
+
+  await new Promise((resolve, reject) => {
+    fs.createReadStream(url)
+      .pipe(csv())
+      .on("data", (data) => results.push(data))
+      .on("end", resolve) // Resolve the Promise when stream ends
+      .on("error", reject); // Reject the Promise if there's an error
+  });
+
+  return results.map((result) => {
+    return {
+      id: result.id,
+      name: result.name,
+    };
+  });
+}
+let dogBreeds;
+let catBreeds;
+async function getUserBreeds(email, num = 10) {
+  let breedIds = `SELECT quiz_results, species_preference FROM users where email = 
+  '${email}'`;
+  let breedType;
+  let topBreeds = [];
+  let breedRank = [];
+  await db
+    .one(breedIds)
+    .then((results) => {
+      breedRank = results.quiz_results;
+      breedType = results.species_preference;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+
+  let breeds = await getIdsToBreeds(breedType);
+  console.log(breeds);
+  console.log(breedRank);
+  for (let i = 0; i < num; i++) {
+    let breed = breeds.find((breed) => {
+      return parseInt(breed.id) == breedRank[i];
+    });
+
+    if (breed && breed.name) {
+      topBreeds.push(breed.name);
+    }
+  }
+  if (breedType == "dog") {
+    if (!dogBreeds) {
+      dogBreeds = await getBreeds(breedType);
+    }
+
+    return filterBreeds(dogBreeds, topBreeds);
+  }
+  if (breedType == "cat") {
+    if (!catBreeds) {
+      catBreeds = await getBreeds(breedType);
+    }
+    console.log(catBreeds);
+    console.log(topBreeds);
+
+    return filterBreeds(catBreeds, topBreeds);
+  }
+}
+
+function filterBreeds(breeds, topBreeds) {
+  return topBreeds.filter((breed) => {
+    return breeds["breeds"].find((ele) => ele.name == breed);
+  });
+}
+
+async function getFilterParameters(query, email) {
+  let paramObj = {};
+  if (query) {
+    if ("breed" in query) {
+      breed = query.breed;
+      compatibility = false;
+    } else if ("compatibility" in query) {
+      breed = undefined;
+      compatibility = parseInt(query["compatibility"]);
+    } else {
+      filters = query;
+    }
+  }
+  if (filters) {
+    paramObj = { ...filters };
+  }
+  if (breed) {
+    paramObj.breed = breed;
+  } else if (compatibility) {
+    let breeds = await getUserBreeds(email);
+    paramObj.breed = breeds;
+    if (breeds.length == 0) {
+      return false;
+    }
+  }
+  console.log(paramObj);
+  return paramObj;
+}
+
+let filters;
+let breed;
+let compatibility;
+async function renderHomePage(query, res, email) {
+  let paramObj = await getFilterParameters(query, email);
+
+  let data = await callPetApi(paramObj);
+  if (!data || !paramObj) {
+    res.render("pages/home", {
+      error: true,
+      filters: filters,
+      breed: breed,
+    });
+    return;
+  }
+  let pages = getPageData(getFormattedAnimalData(data), 12);
+
+  let sendingData = {
+    pages: pages,
+    pageCount: pages.length,
+    selectedPage: 0,
+    filters: filters,
+    breed: breed,
+    compatibility: compatibility,
+  };
+
+  res.render("pages/home", {
+    ...sendingData,
+    data: JSON.stringify(sendingData),
+    error: false,
+  });
+}
 
 function getAttributeData(name, data) {
   return {
@@ -410,7 +713,39 @@ function getFormattedAnimalData(data) {
   });
 }
 
-async function callPetApi() {
+function getPageData(data, elePerPage) {
+  let pages = [];
+  let pageCount = Math.ceil(data.length / elePerPage);
+
+  for (let i = 0; i < pageCount; i++) {
+    pages[i] = [];
+    for (let j = 0; j < elePerPage; j++) {
+      if (data[i * elePerPage + j]) {
+        pages[i].push(data[i * elePerPage + j]);
+      }
+    }
+  }
+
+  return pages;
+}
+
+Handlebars.registerHelper("ifEquals", function (a, b, options) {
+  if (a == b) {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+});
+
+Handlebars.registerHelper("ifContains", function (ele, arr, options) {
+  if (arr && arr.includes(ele) && !(arr == "female" && ele == "male")) {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+});
+
+async function callPetApi(query) {
   let data;
   await axios({
     url: `https://api.petfinder.com/v2/animals`,
@@ -420,12 +755,46 @@ async function callPetApi() {
       // "Accept-Encoding": "application/json",
       Authorization: `Bearer ${accessTokenPetFinder}`,
     },
+
     params: {
-      page: 3,
+      ...query,
+      page: 1,
+      limit: 50,
+
+      status: "adoptable",
     },
-  }).then((results) => {
-    data = results.data.animals.filter((pet) => pet.primary_photo_cropped);
-  });
+  })
+    .then((results) => {
+      data = results.data.animals.filter((pet) => pet.primary_photo_cropped);
+    })
+    .catch((error) => {
+      return false;
+    });
+
+  return data;
+}
+
+async function getBreeds(type) {
+  let data;
+  await axios({
+    url: `https://api.petfinder.com/v2/types/${type}/breeds`,
+    method: "GET",
+    dataType: "json",
+    headers: {
+      // "Accept-Encoding": "application/json",
+      Authorization: `Bearer ${accessTokenPetFinder}`,
+    },
+
+    params: {
+      page: 1,
+    },
+  })
+    .then((results) => {
+      data = results.data;
+    })
+    .catch((error) => {
+      return false;
+    });
 
   return data;
 }
@@ -434,5 +803,13 @@ async function callPetApi() {
 // <!-- Section 5 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
-app.listen(3000);
+
+// ***********************************************************
+// added for testing a dummy API
+app.get("/welcome", (req, res) => {
+  res.json({ status: "success", message: "Welcome!" });
+});
+// ***********************************************************
+
+module.exports = app.listen(3000); // changed for testing
 console.log("Server is listening on port 3000");

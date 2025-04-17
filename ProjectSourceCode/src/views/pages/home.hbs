@@ -1,20 +1,54 @@
-<div class="pet-grid .container-lg">
-  {{#each animals}}
-    <div class="pet">
-      {{>info_modal}}
-      {{>contact_modal}}
-      <div class="card pet-container">
-        <img class="card-img-top" src={{this.photo}} alt="" />
-        <div class="card-body">
-          <h5 class="card-title">{{this.name}}</h5>
-          <p class="card-text">{{this.description}}</p>
+<div class="home-page-container">
+<div class="home-main">
+  <!--add reset filters button-->
+    <div class="top-home-container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="search-container">
+          <form action="/home" method = 'GET'>
+            <input type="text" class="form-control search-input" placeholder="Search Breeds..." name = 'breed' value = {{breed}}>
+            <button type = 'submit' class="search-button"><img class="fas fa-search search-icon" src="/resources/images/search.svg" alt="search"></button>
+          </form>
         </div>
-          <div class = "btn-container">
-            <button class = 'contactBtn'><img src="/images/contact.svg" alt="contact"></img></button>
-             <button class = "infoBtn" ><img  src="/images/pet_info.svg" alt="info"></img></button>
-          </div>
-      
       </div>
+
+       <div class="col-md-6">
+     
+      </div>
+    
     </div>
-  {{/each}}
+      <!--<p>OR</p>-->
+      <form action="/home" method = 'GET'>
+      <button  class = 'compatibility-btn  {{#if compatibility}} selected {{/if}}' type = 'submit' name = 'compatibility' 
+      
+      value = '1'>Get Compatible Breeds</button>
+      </form>
+      <form action="/home" method = 'GET'>
+      <button  class = 'compatibility-btn  {{#ifEquals compatibility false}} selected {{/ifEquals}}'  type = 'submit' name = 'compatibility' value = '0'>Get All Breeds</button>
+      </form>
+  </div>
+
+ {{#if error}}
+ <h1 class = 'no-pets-error'>No Pets Found</h1>
+
+
+ {{else}}
+    <div class="pages-container">
+      <div id = "page-container">
+       {{>petPage}}
+       </div>
+  
+  
+</div>
+{{/if}}
+  
+  
+    <ul data = '{{data}}' selected = '0' class = 'page-nav'>
+      {{#each pages}}
+      <li><button class  = 'page-button'>{{@index}}</button></li>
+      {{/each}}
+  
+    </ul>
+  </div>
+  {{>filters}}
 </div>

@@ -5,7 +5,7 @@ services:
     expose:
       - "5432"
     volumes:
-      - group-project:/var/lib/postgresql/data
+      - ./src/data:/data
       - ./src/init_data:/docker-entrypoint-initdb.d
   web:
     image: node:lts
@@ -23,6 +23,7 @@ services:
       - ./:/home/node/app/src
       - ./:/var/lib/postgresql/data
       - ./src/init_data:/docker-entrypoint-initdb.d
+    # Check package.json before changing the following line: 
     command: "npm start"
 volumes:
   group-project:
