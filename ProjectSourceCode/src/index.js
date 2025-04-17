@@ -255,11 +255,11 @@ app.post("/register", async (req, res) => {
 
 // Mock data for the shop
 const mockItems = [
-  { id: 1, title: "Cat Toy", image: "cat-toy.jpg", description: "A fun toy for cats", category: "cat" },
-  { id: 2, title: "Dog Leash", image: "dog-leash.jpg", description: "A sturdy leash for dogs", category: "dog" },
-  { id: 3, title: "Bird Feeder", image: "bird-feeder.jpg", description: "A feeder for birds", category: "other" },
-  { id: 4, title: "Cat Bed", image: "cat-bed.jpg", description: "A cozy bed for cats", category: "cat" },
-  { id: 5, title: "Dog Toy", image: "dog-toy.jpg", description: "A chew toy for dogs", category: "dog" },
+  { id: 1, title: "Cat Toy", image: "resources/images/cat-toy.jpg", description: "A brain-tickling toy for cats", category: "cat" },
+  { id: 2, title: "Dog Leash", image: "resources/images/dog-leash.jpg", description: "A sturdy leash for dogs", category: "dog" },
+  { id: 3, title: "Bird Feeder", image: "resources/images/bird-feeder.jpg", description: "A feeder for birds", category: "other" },
+  { id: 4, title: "Cat Bed", image: "resources/images/cat-bed.jpg", description: "A cozy bed for cats", category: "cat" },
+  { id: 5, title: "Dog Toy", image: "resources/images/dog-toy.jpg", description: "A chew toy for dogs", category: "dog" },
 ];
 
 // Helper function to categorize items
@@ -277,7 +277,7 @@ function categorizeItems(items) {
       sections.other.items.push(item);
     }
   });
-
+ 
   return Object.values(sections);
 }
 
