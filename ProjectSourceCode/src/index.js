@@ -512,6 +512,10 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
       res.send;
       return;
     }
+    //prevents division by zero errors
+    else if (userVals[i] == 0) {    
+	    userVals[i] = 0.01;
+    }
   }
   console.log(req.body);
   const spawn = require("child_process").spawn;
