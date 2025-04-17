@@ -1,0 +1,27 @@
+
+
+<div id = 'pet-page' class="pet-grid .container-lg">
+  {{#each favorites}}
+   <div class="pet">
+      {{>favorites_contact}}
+      <div class="card pet-container">
+        <img class="card-img-top" src={{pet_photo}} alt="" />
+        <div class="card-body">
+          <h5 class="card-title">{{pet_name}}</h5>
+          
+        </div>
+         <div class = "btn-container">
+            <a href={{pet_link}}><button><img src="/resources/images/contact.svg" alt="contact"></img></button></a>
+             <form action = "/delete" method="POST">
+             <!--delete pet from favorites-->
+              <input type="hidden" name="id" value={{pet_id}}>
+              <input type="hidden" name="email" value="{{user_email}}">
+              <button type = "submit" class = "delete"><img src="/resources/images/trash.svg" alt = "delete"></img></button>
+             </form>
+             
+          </div>
+         
+      </div>
+    </div>
+    {{/each}}
+  </div>

@@ -7,6 +7,16 @@ CREATE TABLE IF NOT EXISTS users (
     quiz_results INT[300]
 );
 
+--Favorited Animals--
+CREATE TABLE IF NOT EXISTS favorites (
+	user_email VARCHAR(50),
+	pet_id INT,
+	pet_name VARCHAR(50),
+	pet_photo VARCHAR(400),
+	pet_description VARCHAR(1000),
+	pet_link VARCHAR(400)
+);
+
 CREATE TABLE IF NOT EXISTS traits (
 	trait_id SERIAL PRIMARY KEY,
 	trait_name VARCHAR(20) NOT NULL,
@@ -38,3 +48,4 @@ CREATE TABLE IF NOT EXISTS breeds (
 	bored_value FLOAT,
 	ind_value FLOAT
 );
+

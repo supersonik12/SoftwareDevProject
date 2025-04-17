@@ -9,6 +9,8 @@ const session = require("express-session"); // To set the session object. To sto
 const bcrypt = require("bcryptjs"); //  To hash passwords
 const axios = require("axios"); // To make HTTP requests from our server. We'll learn more about it in Part C.
 const mime = require("mime");
+const fs = require("fs");
+const csv = require("csv-parser");
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -90,6 +92,10 @@ app.use(
     resave: false,
   })
 );
+app.use(function (req, res, next) {
+  res.locals.session = req.session;
+  next();
+});
 
 app.use(
   bodyParser.urlencoded({
@@ -121,7 +127,7 @@ app.get("/", async (req, res) => {
 app.get("/home", async (req, res) => {
   if (req.session.user == undefined) {
     res.redirect("/");
-  } else renderHomePage(req.query, res);
+  } else renderHomePage(req.query, res, req.session.user.email);
 });
 
 // Guides routes
@@ -201,28 +207,33 @@ app.post("/register", async (req, res) => {
   } catch (err) {
     console.log("Failed to add user " + name);
     console.log(err);
-    res.render("pages/register", {message: "Account already exists.", error: true });
+    res.render("pages/register", {
+      message: "Account already exists.",
+      error: true,
+    });
   }
 });
 
-//account routes        TODO: ask about authentification middleware & talk to quiz people about db results
-app.get("/account", (req, res) => {
-  if(req.session.user == undefined)
-  {
+//Account Routes
+app.get("/account", async (req, res) => {
+  if (req.session.user == undefined) {
     res.redirect("/");
+  } else {
+    const user = {
+      name: req.session.user.name,
+      species: req.session.user.species_preference,
+    };
+    console.log(user);
+    const favorites = await db.any(`
+    SELECT * FROM favorites
+    WHERE user_email = '${req.session.user.email}';
+    `);
+    console.log(favorites);
+    res.render("pages/account", { user, favorites });
   }
-  else{
-  const user = {
-    name : req.session.user.name,
-    species : req.session.user.species_preference,
-    results : req.session.user.quiz_results // how do you return all the values idk
-
-  };
-  res.render("pages/account", user);
-  };
 });
 
-app.post("/verify", async (req, res) => { 
+app.post("/verify", async (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
 
@@ -257,62 +268,98 @@ app.post("/verify", async (req, res) => {
   }
 });
 
-
-app.post('/update', async (req, res) => {
+app.post("/update", async (req, res) => {
   let newName = req.body.newName;
-  console.log(newName);
+  console.log("new name is:" + newName);
   let newPassword = req.body.newPassword;
   let email = req.body.email;
 
   try {
-  let user_query = `SELECT * FROM users WHERE email = $1;`;
-  let userResult = await db.any(user_query, [email]);
-  console.log(email);
-    if (userResult.length > 0) 
-    {
-
-    const user = userResult[0];
-
-    let updatedName = user.name;
-    if(newName != undefined)
-    {
-      updatedName = newName;
-    };
-    let updatedPassword = user.password;
-    if(newPassword != undefined)
-    {
-      updatedPassword = await bcrypt.hash(newPassword, 10);
-    };
-
-    await db.none(
-      'UPDATE users SET name = $1, password = $2 WHERE email = $3',
-      [updatedName, updatedPassword, email]
-    );
-    //session doesn't auto update so need to manually do it.   TODO: ask about storing password in session
-    req.session.user.name = updatedName;
-    req.session.user.password = updatedPassword;
-    console.log(req.session.user.name);
-    console.log(req.session.user.password);
-
-    res.send(`<p>Information updated successfully! <a href="/account">Back to account</a></p>`);
-  }
+    let user_query = `SELECT * FROM users WHERE email = $1;`;
+    let userResult = await db.any(user_query, [email]);
+    console.log(email);
+    if (userResult.length > 0) {
+      const user = userResult[0];
+      let updatedName = user.name;
+      if (newName != "") {
+        console.log("new name is not undefined");
+        updatedName = newName;
+      }
+      let updatedPassword = user.password;
+      if (newPassword != "") {
+        console.log("new password is not undefined");
+        updatedPassword = await bcrypt.hash(newPassword, 10);
+      }
+      await db.none(
+        "UPDATE users SET name = $1, password = $2 WHERE email = $3",
+        [updatedName, updatedPassword, email]
+      );
+      //session doesn't auto update so need to manually do it.   TODO: ask about storing password in session
+      req.session.user.name = updatedName;
+      //req.session.user.password = updatedPassword;
+      console.log(req.session.user.name);
+      //console.log(req.session.user.password);
+      res.send(
+        `<p>Information updated successfully! <a href="/account">Back to account</a></p>`
+      );
+    }
   } catch (err) {
     console.error(err);
-    res.status(500).send('Update failed.');
+    res.status(500).send("Update failed.");
   }
 });
 
+app.post("/favorite", async (req, res) => {
+  const name = req.body.name;
+  const photo = req.body.photo;
+  const description = req.body.description;
+  const email = req.session.user.email;
+  const id = req.body.id;
+  const link = req.body.link;
+  //why are these values all undefined
+  // console.log("alljson: ", alljson);
+  console.log("name: ", name);
+  console.log("photo link: ", photo);
+  console.log("description: ", description);
 
+  try {
+    const query = `
+      INSERT INTO favorites (user_email, pet_id, pet_name, pet_photo, pet_description, pet_link)
+      VALUES ('${email}', ${id}, '${name}', '${photo}', '${description}', '${link}')
+    `;
+    await db.any(query);
+    res.redirect("/home");
+  } catch (err) {
+    console.error("Error favoriting pet:", err);
+    res.status(500).send("Something went wrong");
+  }
+});
+
+app.post("/delete", async (req, res) => {
+  const id = req.body.id;
+  const email = req.session.user.email;
+  try {
+    await db.any(
+      `DELETE FROM favorites WHERE user_email = '${email}' AND pet_id = ${id};`
+    );
+    res.send(
+      '<p> Pet deleted from favorites! <a href="/account">Back to account</a></p>'
+    );
+  } catch (err) {
+    console.error("Error deleting pet");
+    res.status(500).send("Something went wrong");
+  }
+});
 
 // Shop routes
 
 // Mock data for the shop
 const mockItems = [
-  { id: 1, title: "Cat Toy", image: "cat-toy.jpg", description: "A fun toy for cats", category: "cat" },
-  { id: 2, title: "Dog Leash", image: "dog-leash.jpg", description: "A sturdy leash for dogs", category: "dog" },
-  { id: 3, title: "Bird Feeder", image: "bird-feeder.jpg", description: "A feeder for birds", category: "other" },
-  { id: 4, title: "Cat Bed", image: "cat-bed.jpg", description: "A cozy bed for cats", category: "cat" },
-  { id: 5, title: "Dog Toy", image: "dog-toy.jpg", description: "A chew toy for dogs", category: "dog" },
+  { id: 1, title: "Cat Toy", image: "/images/cat-toy.jpg", description: "A brain-tickling toy for cats", category: "cat", link: "https://www.amazon.com/Catstages-Tracks-Interactive-3-Tier-Spinning/dp/B00DT2WL26?crid=34L4AZUGFFT0S&dib=eyJ2IjoiMSJ9.3dMAuv5wUAHv5K_sFtwlVZVP9PwQDJib79z7Geixg_Iq4hpL2U0Fbva9A66jcfqVBrsskSi1hThugGyEoFnCQCKfteYFiFKPxQ7qi94OZRlywYG5x4nBug0fQfPRTH4ckMqT0lwd5-z_B_sq48SFZ3n9Xu-ef1kqNP0jDA7BL4xRDu6ve3EHt_KczQIRZYVuIXbn95UnaorgONlBU9_IesHF524_PBK6X04bZ2WFSUAC2doFya7zu9x--rs81iL3CPo4ZYRwVFcRRekZsOU8UDy0GloUDsb_X3ZT2Jqyl-4.wjVeoJaqFOCjvIKgbbBYCZ5Mv9LA7SbtoUfwTRyeGUI&dib_tag=se&keywords=CAT+TOY%5C&qid=1744862193&sprefix=cat+toy%2Caps%2C167&sr=8-24"},
+  { id: 2, title: "Dog Leash", image: "/images/dog-leash.jpg", description: "A sturdy leash for dogs", category: "dog", link: "https://www.amazon.com/TUG-Patented-Tangle-Free-Retractable-One-Handed/dp/B076F7HM8T?crid=84GB9G2ZSC8G&dib=eyJ2IjoiMSJ9.uGi_sUTnSz1YUXE6ZBCYifWxe8V_NA0pN7ow4TsNhurGTTLeolCJxfI_R-cOGrlFl6NFXHEG8N4iTEo_7ms6pO5ZktYKF1QZdH2QepoNzfEmuSbku7awCLVa_jO48H-z-vFnQDkqd7GLhzOQ7tzjpgSg8hhyGJonDadw4y6-Eh-bEGb0BPr6X3YKzs_6uZLBTsh-6Yn6dtfs9rn1zYihnyyKot7d_hPdCNiOYmktyJS-brVzq5TL2C3-32hOMJ5CY220Ltu0mf6MilrCxKJjfIjFr4BuIC3ywBdgp-0j6Hc.w1xNoYR6Dn9clSGxbRBb4ACOfOG96asT9lMXZ1A8v7k&dib_tag=se&keywords=dog%2Bleash&qid=1744862266&sprefix=dog%2Ble%2Caps%2C200&sr=8-7&th=1"},
+  { id: 3, title: "Bird Feeder", image: "/images/bird-feeder.jpg", description: "A feeder for birds", category: "other", link: "https://www.amazon.com/Youvip-Metal-Roof-Bird-Feeder/dp/B0DK153SH2?crid=1Y55T7LCFMCJ6&dib=eyJ2IjoiMSJ9.-DdaQLQIGzg2kx0QCAKhHs8Nv8kJ8o0Qelrk1aEFNPTqVyRbC9GjQpggr9pdTGvd-dR-Erej3XdI5Tl_AuQRTF1JYFxWiH1cmr3Si9lF9qi4dmdcWLoL-P4Cs0vcc9sWJd7AMCkLDndn0-goda2MxoVXRKGkhJnac02VF9IqgMoNNZxWbn8zacXoSvC4LSZhprA1v_VjyGArhqwjeKk6TGFfTDSSYfrFIbtH9SppzLjgO5cRz-KviA5NqKX0xuza-gugA0Kr-B3HUYe2SO0bP8CGwBVnlRnumTGBkwrt6U8.Q8L_YQ8wsXokM206DzZUf_QvywCEA8tTzqW16VzjD8o&dib_tag=se&keywords=bird%2Bfeeder&qid=1744862305&sprefix=bird%2Bfeede%2Caps%2C262&sr=8-7&th=1"},
+  { id: 4, title: "Cat Bed", image: "/images/cat-bed.jpg", description: "A cozy bed for cats", category: "cat", link: "https://www.amazon.com/Loves-cabin-Anti-Slip-Water-Resistant-Washable/dp/B07MFYSKCL?crid=3LSGMRAQB5DD0&dib=eyJ2IjoiMSJ9.GS1WC57H04g0HTAPP-Tc4pqsQz5Dd64jljHw32PG2P_5SxWuULNNvSL0l352EHV3gJtnZxZjDiPpTcE7YtRQV1Ohu4RKv6mxo2ikikvFbdEGSXRd0H2bd3Y5lCKvqWtUn-W6x5VGxPdiNCTqMlNkhgWzvE5FfrCGAhKw1qui2DvnTm1JemS92jeyAEfT7Lie1yoDg7eDhP_LvWWM3s3_-9BSnCfPmdnq4rwdmANy3qvs1npRPMKLQyTIsPEHL1wGXsaCdbx_wwnoHGcub5pADLc3C8VhcBuF52lTxfRJ1D4.wSok-T9IcpNaeEwXqGrS9KQBQC4JiZyW8rBG3nqbY7U&dib_tag=se&keywords=cat%2Bbed&qid=1744862329&sprefix=cat%2Bbed%2Caps%2C188&sr=8-6&th=1" },
+  { id: 5, title: "Dog Toy", image: "/images/dog-toy.jpg", description: "A chew toy for dogs", category: "dog", link: "https://www.amazon.com/Benebone-Wishbone-Durable-Aggressive-Chewers/dp/B00CPDWT2M?crid=3E0TTR7PP9SST&dib=eyJ2IjoiMSJ9.mctglYej7FnhfBM0WjzsJlQsRvwdXM_9bAJWiHG0DoQ5ppqwbX0k6KUlAUS-Wm8skqHcSFUEAbjIJLmBALcd5FgqcWeDgtVx6iEvXGYIgULPrKTdxofDSWDWXZVaMPYKRZyBDL7zHdSmSWe4nGxyGSJF980U3gykhjLAFQBt27mLHFk6gu_cE3mQJNARh54vvTFFs7Jm8CM0eE58uAgisZw26M8x_ygY1nft6rJzdN5inTZG8ot6HeB1emMl2SpJInJMB6Sj-1IgmZe_ugvlGvZI0T6QDLZQVjhZnDRyNRQ.-KSSw0WY-2V1z0oD1qp2yprtG86_YzzgBDMbKE9UEGw&dib_tag=se&keywords=dog%2Btoy&qid=1744862384&rdc=1&sprefix=dog%2Bto%2Caps%2C332&sr=8-9&th=1"},
 ];
 
 // Helper function to categorize items
@@ -330,7 +377,7 @@ function categorizeItems(items) {
       sections.other.items.push(item);
     }
   });
-
+ 
   return Object.values(sections);
 }
 
@@ -372,9 +419,11 @@ app.get("/splash", (req, res) => {
 // Logout routes
 
 app.get("/logout", (req, res) => {
-  console.log("Logged out user " + req.session.user.name);
-  req.session.destroy();
-  res.render("pages/splash");
+  if (req.session.user != undefined) {
+    console.log("Logged out user " + req.session.user.name);
+    req.session.destroy();
+  }
+  res.redirect("/splash");
 });
 
 // Quiz routes
@@ -488,7 +537,8 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
         return !isNaN(val);
       });
 
-    const query = `UPDATE users SET species_preference = '${req.body.species}', 
+    const query = `UPDATE users SET
+    species_preference = '${req.body.species}', 
 		  quiz_results = '{${values}}' WHERE email = '${req.session.user.email}';`;
     db.none(query)
       .then(() => {
@@ -509,26 +559,123 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
 });
 //render home helpers
 //x button for search bar
-let filters;
-let breed;
-async function renderHomePage(query, res) {
+//reset filter button
+//breeds only keep first
+//species_preference
+//petfinder breeds call
+
+async function getIdsToBreeds(type) {
+  let results = [];
+  const csvDir = path.resolve(__dirname, "data");
+
+  const url = path.resolve(csvDir, `${type}s.csv`);
+
+  await new Promise((resolve, reject) => {
+    fs.createReadStream(url)
+      .pipe(csv())
+      .on("data", (data) => results.push(data))
+      .on("end", resolve) // Resolve the Promise when stream ends
+      .on("error", reject); // Reject the Promise if there's an error
+  });
+
+  return results.map((result) => {
+    return {
+      id: result.id,
+      name: result.name,
+    };
+  });
+}
+let dogBreeds;
+let catBreeds;
+async function getUserBreeds(email, num = 10) {
+  let breedIds = `SELECT quiz_results, species_preference FROM users where email = 
+  '${email}'`;
+  let breedType;
+  let topBreeds = [];
+  let breedRank = [];
+  await db
+    .one(breedIds)
+    .then((results) => {
+      breedRank = results.quiz_results;
+      breedType = results.species_preference;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+
+  let breeds = await getIdsToBreeds(breedType);
+  console.log(breeds);
+  console.log(breedRank);
+  for (let i = 0; i < num; i++) {
+    let breed = breeds.find((breed) => {
+      return parseInt(breed.id) == breedRank[i];
+    });
+
+    if (breed && breed.name) {
+      topBreeds.push(breed.name);
+    }
+  }
+  if (breedType == "dog") {
+    if (!dogBreeds) {
+      dogBreeds = await getBreeds(breedType);
+    }
+
+    return filterBreeds(dogBreeds, topBreeds);
+  }
+  if (breedType == "cat") {
+    if (!catBreeds) {
+      catBreeds = await getBreeds(breedType);
+    }
+    console.log(catBreeds);
+    console.log(topBreeds);
+
+    return filterBreeds(catBreeds, topBreeds);
+  }
+}
+
+function filterBreeds(breeds, topBreeds) {
+  return topBreeds.filter((breed) => {
+    return breeds["breeds"].find((ele) => ele.name == breed);
+  });
+}
+
+async function getFilterParameters(query, email) {
+  let paramObj = {};
   if (query) {
     if ("breed" in query) {
       breed = query.breed;
+      compatibility = false;
+    } else if ("compatibility" in query) {
+      breed = undefined;
+      compatibility = parseInt(query["compatibility"]);
     } else {
       filters = query;
     }
   }
-
-  let paramObj = {};
   if (filters) {
     paramObj = { ...filters };
   }
   if (breed) {
     paramObj.breed = breed;
+  } else if (compatibility) {
+    let breeds = await getUserBreeds(email);
+    paramObj.breed = breeds;
+    if (breeds.length == 0) {
+      return false;
+    }
   }
+  console.log(paramObj);
+  return paramObj;
+}
+
+let filters;
+let breed;
+let compatibility;
+async function renderHomePage(query, res, email) {
+  let paramObj = await getFilterParameters(query, email);
+
   let data = await callPetApi(paramObj);
-  if (!data) {
+  if (!data || !paramObj) {
     res.render("pages/home", {
       error: true,
       filters: filters,
@@ -544,6 +691,7 @@ async function renderHomePage(query, res) {
     selectedPage: 0,
     filters: filters,
     breed: breed,
+    compatibility: compatibility,
   };
 
   res.render("pages/home", {
@@ -644,20 +792,42 @@ async function callPetApi(query) {
   return data;
 }
 
+async function getBreeds(type) {
+  let data;
+  await axios({
+    url: `https://api.petfinder.com/v2/types/${type}/breeds`,
+    method: "GET",
+    dataType: "json",
+    headers: {
+      // "Accept-Encoding": "application/json",
+      Authorization: `Bearer ${accessTokenPetFinder}`,
+    },
+
+    params: {
+      page: 1,
+    },
+  })
+    .then((results) => {
+      data = results.data;
+    })
+    .catch((error) => {
+      return false;
+    });
+
+  return data;
+}
+
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
 
-
 // ***********************************************************
 // added for testing a dummy API
-app.get('/welcome', (req, res) => {
-  res.json({status: 'success', message: 'Welcome!'});
+app.get("/welcome", (req, res) => {
+  res.json({ status: "success", message: "Welcome!" });
 });
 // ***********************************************************
-
-
 
 module.exports = app.listen(3000); // changed for testing
 console.log("Server is listening on port 3000");
