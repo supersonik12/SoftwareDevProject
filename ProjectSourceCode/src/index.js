@@ -92,6 +92,10 @@ app.use(
     resave: false,
   })
 );
+app.use(function (req, res, next) {
+  res.locals.session = req.session;
+  next();
+});
 
 app.use(
   bodyParser.urlencoded({
@@ -443,13 +447,19 @@ app.get("/splash", (req, res) => {
 // Logout routes
 
 app.get("/logout", (req, res) => {
-  console.log("Logged out user " + req.session.user.name);
-  req.session.destroy();
-  res.render("pages/splash");
+  if (req.session.user != undefined) {
+    console.log("Logged out user " + req.session.user.name);
+    req.session.destroy();
+  }
+  res.redirect("/splash");
 });
 
 // Quiz routes
-app.get("/purrsonality-quiz", (_, res) => {
+app.get("/purrsonality-quiz", (req, res) => {
+  if (req.session.user == undefined) {
+    res.redirect("/register");
+  }
+
   db.any("SELECT * FROM traits")
     .then((traits) => {
       console.log(traits);
