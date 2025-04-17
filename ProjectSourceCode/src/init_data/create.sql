@@ -14,6 +14,16 @@ CREATE TABLE IF NOT EXISTS traits (
 	max_extreme VARCHAR(200) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS species (
+	species_id SERIAL PRIMARY KEY,
+	species_name VARCHAR(20)
+);
+
+CREATE TABLE IF NOT EXISTS traits_to_species (
+	trait_id INT NOT NULL,
+	species_id INT NOT NULL
+);
+
 --Any of these values besides id, name, and species may be null based on species
 CREATE TABLE IF NOT EXISTS breeds (
 	breed_id SERIAL PRIMARY KEY,
