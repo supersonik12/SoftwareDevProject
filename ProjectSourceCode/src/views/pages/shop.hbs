@@ -1,4 +1,21 @@
 <div id="shop-container"></div>
+<style>
+button {
+  background-color: #04AA6D; /* Green */
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  height: 50px;
+  width: 150px;
+  padding: 10px 24px;
+}
+
+</style>
 
 <div class="shop">
     {{#each sections}}
@@ -7,7 +24,7 @@
             <div class="cards">
                 {{#each items}}
                     <div class="card">
-                        <img src="{{image}}" alt="{{title}}" />
+                        <img src="{{image}}" alt="{{title}}" style="width:200px;height:150px;" />
                         <h3>{{title}}</h3>
                         <p>{{description}}</p>
                         <button class="add-to-cart" data-id="{{id}}">Add to Cart</button>
