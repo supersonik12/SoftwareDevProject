@@ -317,3 +317,13 @@ body.logout-page {
   height: 60px;
   width: 60px;
 }
+
+/* Argyle background for splash, login, and logout */
+body.splash-page,
+body.login-page,
+body.logout-page {
+  background-color: #fff8f0;
+  background-image: url("/resources/images/argyle-bg.png");
+  background-repeat: repeat;
+  background-size: 150px;
+}
