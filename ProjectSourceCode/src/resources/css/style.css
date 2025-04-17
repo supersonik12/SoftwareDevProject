@@ -224,6 +224,9 @@ li button.selected-page {
 .compatibility-btn:hover {
   background: rgb(158, 136, 11);
 }
+.compatibility-btn.selected {
+  border: 2px solid black;
+}
 .top-home-container p {
   font-size: 2rem;
   display: block;

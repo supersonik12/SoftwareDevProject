@@ -19,10 +19,12 @@
     </div>
       <!--<p>OR</p>-->
       <form action="/home" method = 'GET'>
-      <button  class = 'compatibility-btn'  type = 'submit' name = 'compatibility' value = '1'>Get Compatible Breeds</button>
+      <button  class = 'compatibility-btn  {{#if compatibility}} selected {{/if}}' type = 'submit' name = 'compatibility' 
+      
+      value = '1'>Get Compatible Breeds</button>
       </form>
       <form action="/home" method = 'GET'>
-      <button  class = 'compatibility-btn'  type = 'submit' name = 'compatibility' value = '0'>Get All Breeds</button>
+      <button  class = 'compatibility-btn  {{#ifEquals compatibility false}} selected {{/ifEquals}}'  type = 'submit' name = 'compatibility' value = '0'>Get All Breeds</button>
       </form>
   </div>
 

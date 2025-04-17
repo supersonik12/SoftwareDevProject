@@ -560,6 +560,8 @@ async function getUserBreeds(email, num = 10) {
     });
 
   let breeds = await getIdsToBreeds(breedType);
+  console.log(breeds);
+  console.log(breedRank);
   for (let i = 0; i < num; i++) {
     let breed = breeds.find((breed) => {
       return parseInt(breed.id) == breedRank[i];
@@ -578,8 +580,11 @@ async function getUserBreeds(email, num = 10) {
   }
   if (breedType == "cat") {
     if (!catBreeds) {
-      catBreeds = await getBreeds(breedType).breeds;
+      catBreeds = await getBreeds(breedType);
     }
+    console.log(catBreeds);
+    console.log(topBreeds);
+
     return filterBreeds(catBreeds, topBreeds);
   }
 }
@@ -611,6 +616,9 @@ async function getFilterParameters(query, email) {
   } else if (compatibility) {
     let breeds = await getUserBreeds(email);
     paramObj.breed = breeds;
+    if (breeds.length == 0) {
+      return false;
+    }
   }
   console.log(paramObj);
   return paramObj;
@@ -620,13 +628,10 @@ let filters;
 let breed;
 let compatibility;
 async function renderHomePage(query, res, email) {
-  let breeds = await getBreeds();
-  console.log(breeds);
-  console.log(email);
   let paramObj = await getFilterParameters(query, email);
 
   let data = await callPetApi(paramObj);
-  if (!data) {
+  if (!data || !paramObj) {
     res.render("pages/home", {
       error: true,
       filters: filters,
@@ -642,6 +647,7 @@ async function renderHomePage(query, res, email) {
     selectedPage: 0,
     filters: filters,
     breed: breed,
+    compatibility: compatibility,
   };
 
   res.render("pages/home", {
