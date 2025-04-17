@@ -38,7 +38,31 @@ INSERT INTO traits
 			'train_val',
 			'Strong willed',
 			'Eager to please'
+		),
+		(
+			'ind_val',
+			'Ok on their own',
+			'Always needs their people'
 		);
+
+INSERT INTO species (species_name) VALUES ('cat'), ('dog');
+
+
+INSERT INTO traits_to_species (trait_id, species_id) 
+	VALUES
+		((SELECT trait_id FROM traits WHERE trait_name = 'aff_val'), (SELECT species_id FROM species WHERE species_name = 'dog')),
+		((SELECT trait_id FROM traits WHERE trait_name = 'aff_val'), (SELECT species_id FROM species WHERE species_name = 'cat')),
+		((SELECT trait_id FROM traits WHERE trait_name = 'train_val'), (SELECT species_id FROM species WHERE species_name = 'dog')),
+		((SELECT trait_id FROM traits WHERE trait_name = 'train_val'), (SELECT species_id FROM species WHERE species_name = 'cat')),
+		((SELECT trait_id FROM traits WHERE trait_name = 'open_val'), (SELECT species_id FROM species WHERE species_name = 'dog')),
+		((SELECT trait_id FROM traits WHERE trait_name = 'open_val'), (SELECT species_id FROM species WHERE species_name = 'cat')),
+		((SELECT trait_id FROM traits WHERE trait_name = 'play_val'), (SELECT species_id FROM species WHERE species_name = 'dog')),
+		((SELECT trait_id FROM traits WHERE trait_name = 'play_val'), (SELECT species_id FROM species WHERE species_name = 'cat')),
+		((SELECT trait_id FROM traits WHERE trait_name = 'energy_val'), (SELECT species_id FROM species WHERE species_name = 'dog')),
+		((SELECT trait_id FROM traits WHERE trait_name = 'energy_val'), (SELECT species_id FROM species WHERE species_name = 'cat')),
+		((SELECT trait_id FROM traits WHERE trait_name = 'vigilant_val'), (SELECT species_id FROM species WHERE species_name = 'dog')),
+		((SELECT trait_id FROM traits WHERE trait_name = 'bored_val'), (SELECT species_id FROM species WHERE species_name = 'dog')),
+		((SELECT trait_id FROM traits WHERE trait_name = 'ind_val'), (SELECT species_id FROM species WHERE species_name = 'cat'));
 
 --copy from csv files into breeds table
 DO 

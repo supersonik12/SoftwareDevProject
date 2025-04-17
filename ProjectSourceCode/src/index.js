@@ -103,7 +103,9 @@ app.use(
   })
 );
 
+
 //Helper Functions
+
 
 //TODO: implement function to display individual matches based on matching results
 //Currently just prints to prevent errors when testing quiz endpoint
@@ -201,7 +203,7 @@ app.post("/register", async (req, res) => {
     let get_user_query = `SELECT * FROM users WHERE email = $1;`;
     let user_response = await db.any(get_user_query, [email]);
     req.session.user = user_response[0];
-    res.redirect("/purrsonality-quiz");
+    res.redirect("/purrsonality-quiz-1");
   } catch (err) {
     console.log("Failed to add user " + name);
     console.log(err);
@@ -425,19 +427,31 @@ app.get("/logout", (req, res) => {
 });
 
 // Quiz routes
-app.get("/purrsonality-quiz", (req, res) => {
-  if (req.session.user == undefined) {
-    res.redirect("/register");
-  }
+app.get("/purrsonality-quiz-1", (_, res) => {
+	res.render("pages/quiz-1");
+});
 
-  db.any("SELECT * FROM traits")
+app.post("/purrsonality-quiz-1", (req, res) => {
+	db.none(`UPDATE users SET species_preference = '${req.body.species}';`)
+		.then(res.redirect("/purrsonality-quiz-2"))
+		.catch(err => {
+			res.send(err);
+		});
+});
+
+app.get("/purrsonality-quiz-2", (req, res) => {
+  const query = `SELECT t.trait_name, t.min_extreme, t.max_extreme
+		FROM traits_to_species tts
+		JOIN species s ON tts.species_id = s.species_id
+		JOIN traits t ON tts.trait_id = t.trait_id
+		WHERE s.species_name = (SELECT species_preference FROM users WHERE email = '${req.session.user.email}');`;
+	
+  db.any(query)
     .then((traits) => {
-      console.log(traits);
-      res.render("pages/quiz", {
-        test: "test",
-        traits,
-      });
-    })
+		 res.render("pages/quiz-2", {
+		   traits
+		});
+	 })
     .catch((err) => {
       console.log(err);
       res.status(404);
@@ -445,11 +459,14 @@ app.get("/purrsonality-quiz", (req, res) => {
     });
 });
 
-app.post("/purrsonality-quiz", (req, res) => {
+app.post("/purrsonality-quiz-2", async (req, res) => {
   /*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
    * using Python for better libraries for performing numerical computation
    */
-  switch (req.body.species) {
+  const speciesObj = await db.one(`SELECT species_preference FROM users WHERE email = '${req.session.user.email}'`); 
+  const species = speciesObj.species_preference;
+  console.log(species)
+  switch (species) {
     case "dog": {
       userVals = [
         req.body.aff_val,
@@ -469,7 +486,7 @@ app.post("/purrsonality-quiz", (req, res) => {
         req.body.play_val,
         req.body.train_val,
         req.body.energy_val,
-        req.body.bored_val,
+        req.body.ind_val,
       ];
       break;
     }
@@ -497,10 +514,11 @@ app.post("/purrsonality-quiz", (req, res) => {
     }
   }
   console.log(req.body);
-  var spawn = require("child_process").spawn;
-  var pythonChild = spawn("python3", [
+  const spawn = require("child_process").spawn;
+  console.log(species);
+  const pythonChild = spawn("python3", [
     "src/resources/python/Matching_Algo.py",
-    req.body.species,
+    species,
     userVals,
   ]);
 
