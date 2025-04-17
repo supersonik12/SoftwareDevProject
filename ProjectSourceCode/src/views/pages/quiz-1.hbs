@@ -1,0 +1,85 @@
+<style>
+	
+datalist {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+option {
+  padding: 0;
+}
+
+[type=radio] { 
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+input[type=radio] + div:hover {
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px !important;
+}
+
+input[type=radio] + div {
+  cursor: pointer;
+}
+
+[type=radio]:checked + div {
+  outline: 3px solid #76B947;
+}
+
+body {
+	background-color: #e0efdc;
+}
+
+#form-container {
+	background-color: white;
+}
+</style>
+
+
+
+<div class = "position-absolute top-50 start-50 translate-middle w-75 rounded-3 shadow" id = "form-container">
+	<form id = "form" class = "p-3" action = "/purrsonality-quiz-1" method = "POST">
+		<div class="form-group">
+			<h5> I want to adopt a: </h5> <br>
+			<div class = "form-check form-check-inline">
+				<label class = "form-check-label" for = "dog">
+					<input class = "form-check-input" type = "radio" name = "species" id = "dog" value = "dog" onClick = "document.getElementById('submit').removeAttribute('hidden');"/>
+					<div class = "card text-center shadow">
+						<img class = "card-img-top" src = "/resources/images/corgi.jpg" width = 300 height = 200>
+						<div class = "card-body">
+							<h5 class = "card-title">Dog</h5>
+						</div>
+					</div>
+				</label>
+			</div>
+			<div class = "form-check form-check-inline">
+				<label class = "form-check-label" for = "cat">
+					<input class = "form-check-input" type = "radio" name = "species" id = "cat" value = "cat" onClick = "document.getElementById('submit').removeAttribute('hidden');"/>
+					<div class = "card text-center shadow">
+						<img class = "card-img-top" src = "/resources/images/cat.jpg" width = 300 height = 200>
+						<div class = "card-body">
+							<h5 class = "card-title">Cat</h5>
+						</div>
+					</div>
+				</label>
+			</div>
+			<div class = "form-check form-check-inline">
+				<label class = "form-check-label" for = "small">
+					<input class = "form-check-input" type = "radio" name = "species" id = "small" value = "small" onClick = "document.getElementById('submit').removeAttribute('hidden');"/>
+					<div class = "card text-center shadow">
+						<img class = "card-img-top" src = "/resources/images/hamster.jpg" width = 300 height = 200>
+						<div class = "card-body">
+							<h5 class = "card-title">Something Else</h5>
+						</div>
+					</div>
+				</label>
+			</div><br><br>
+		</div>
+		<div class = "d-flex justify-content-end">
+			<input id = "submit" class = "btn btn-primary" type = "submit" value = "Next >" hidden/>
+		</div>
+	</form>
+</div>
