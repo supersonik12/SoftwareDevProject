@@ -23,6 +23,7 @@
   </div>
 
   <script>
+    console.log('hello');
     const guides = {
       dogs: {
         title: "Dog Care Guide",
@@ -99,6 +100,7 @@
       document.getElementById('guide-title').innerText = guides[petType].title;
       document.getElementById('guide-text').innerHTML = guides[petType].content.replace(/\n/g, '<br>');
     }
+ 
   </script>
 
   <style>
