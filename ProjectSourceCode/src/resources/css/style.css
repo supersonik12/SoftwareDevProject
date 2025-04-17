@@ -231,3 +231,89 @@ li button.selected-page {
   font-size: 2rem;
   display: block;
 }
+
+/* Pet-Themed Login/Logout Styles */
+body.login-page,
+body.logout-page {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fff8f0;
+  background-image: url("/resources/images/paw-bg-light.png"); /* Optional background texture */
+  background-repeat: repeat;
+  background-size: 100px;
+  margin: 0;
+  padding: 0;
+}
+
+.auth-container {
+  max-width: 400px;
+  margin: 80px auto;
+  padding: 40px;
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  border: 3px dashed #ffb6b9;
+  position: relative;
+}
+
+.auth-container h1 {
+  text-align: center;
+  color: #ff6f61;
+  margin-bottom: 20px;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.auth-container form input[type="email"],
+.auth-container form input[type="password"] {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 16px;
+  border: 2px solid #87cefa;
+  border-radius: 12px;
+  font-size: 1rem;
+  background-color: #fefefe;
+}
+
+.auth-container button {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  background-color: #ffb6b9;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.auth-container button:hover {
+  background-color: #ff6f61;
+  transform: translateY(-2px);
+}
+
+.auth-container p {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.95rem;
+}
+
+.auth-container p a {
+  color: #87cefa;
+  text-decoration: none;
+}
+
+.auth-container p a:hover {
+  text-decoration: underline;
+}
+
+/* Optional paw corner */
+.auth-container::after {
+  content: '';
+  position: absolute;
+  top: -25px;
+  right: -25px;
+  background-image: url("/resources/images/paw.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  height: 60px;
+  width: 60px;
+}
