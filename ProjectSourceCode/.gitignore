@@ -2,4 +2,3 @@ node_modules
 package-lock.json
 .env
 *.csv
-init_db.sh
