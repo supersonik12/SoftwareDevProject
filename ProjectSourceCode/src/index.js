@@ -208,17 +208,22 @@ app.post("/register", async (req, res) => {
   }
 });
 
-//account routes        TODO: ask about authentification middleware & talk to quiz people about db results
-app.get("/account", (req, res) => {
+//Account Routes
+app.get("/account", async (req, res) => {
   if (req.session.user == undefined) {
     res.redirect("/");
   } else {
     const user = {
       name: req.session.user.name,
       species: req.session.user.species_preference,
-      results: req.session.user.quiz_results, // how do you return all the values idk
     };
-    res.render("pages/account", user);
+    console.log(user);
+    const favorites = await db.any(`
+    SELECT * FROM favorites
+    WHERE user_email = '${req.session.user.email}';
+    `);
+    console.log(favorites);
+    res.render("pages/account", { user, favorites });
   }
 });
 
@@ -259,7 +264,7 @@ app.post("/verify", async (req, res) => {
 
 app.post("/update", async (req, res) => {
   let newName = req.body.newName;
-  console.log(newName);
+  console.log("new name is:" + newName);
   let newPassword = req.body.newPassword;
   let email = req.body.email;
 
@@ -269,26 +274,25 @@ app.post("/update", async (req, res) => {
     console.log(email);
     if (userResult.length > 0) {
       const user = userResult[0];
-
       let updatedName = user.name;
-      if (newName != undefined) {
+      if (newName != "") {
+        console.log("new name is not undefined");
         updatedName = newName;
       }
       let updatedPassword = user.password;
-      if (newPassword != undefined) {
+      if (newPassword != "") {
+        console.log("new password is not undefined");
         updatedPassword = await bcrypt.hash(newPassword, 10);
       }
-
       await db.none(
         "UPDATE users SET name = $1, password = $2 WHERE email = $3",
         [updatedName, updatedPassword, email]
       );
       //session doesn't auto update so need to manually do it.   TODO: ask about storing password in session
       req.session.user.name = updatedName;
-      req.session.user.password = updatedPassword;
+      //req.session.user.password = updatedPassword;
       console.log(req.session.user.name);
-      console.log(req.session.user.password);
-
+      //console.log(req.session.user.password);
       res.send(
         `<p>Information updated successfully! <a href="/account">Back to account</a></p>`
       );
@@ -296,6 +300,48 @@ app.post("/update", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Update failed.");
+  }
+});
+
+app.post("/favorite", async (req, res) => {
+  const name = req.body.name;
+  const photo = req.body.photo;
+  const description = req.body.description;
+  const email = req.session.user.email;
+  const id = req.body.id;
+  const link = req.body.link;
+  //why are these values all undefined
+  // console.log("alljson: ", alljson);
+  console.log("name: ", name);
+  console.log("photo link: ", photo);
+  console.log("description: ", description);
+
+  try {
+    const query = `
+      INSERT INTO favorites (user_email, pet_id, pet_name, pet_photo, pet_description, pet_link)
+      VALUES ('${email}', ${id}, '${name}', '${photo}', '${description}', '${link}')
+    `;
+    await db.any(query);
+    res.redirect("/home");
+  } catch (err) {
+    console.error("Error favoriting pet:", err);
+    res.status(500).send("Something went wrong");
+  }
+});
+
+app.post("/delete", async (req, res) => {
+  const id = req.body.id;
+  const email = req.session.user.email;
+  try {
+    await db.any(
+      `DELETE FROM favorites WHERE user_email = '${email}' AND pet_id = ${id};`
+    );
+    res.send(
+      '<p> Pet deleted from favorites! <a href="/account">Back to account</a></p>'
+    );
+  } catch (err) {
+    console.error("Error deleting pet");
+    res.status(500).send("Something went wrong");
   }
 });
 
