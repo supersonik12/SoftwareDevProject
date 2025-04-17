@@ -9,6 +9,8 @@ const session = require("express-session"); // To set the session object. To sto
 const bcrypt = require("bcryptjs"); //  To hash passwords
 const axios = require("axios"); // To make HTTP requests from our server. We'll learn more about it in Part C.
 const mime = require("mime");
+const fs = require("fs");
+const csv = require("csv-parser");
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -119,7 +121,7 @@ app.get("/", async (req, res) => {
 app.get("/home", async (req, res) => {
   if (req.session.user == undefined) {
     res.redirect("/");
-  } else renderHomePage(req.query, res);
+  } else renderHomePage(req.query, res, req.session.user.email);
 });
 
 // Guides routes
@@ -199,28 +201,28 @@ app.post("/register", async (req, res) => {
   } catch (err) {
     console.log("Failed to add user " + name);
     console.log(err);
-    res.render("pages/register", {message: "Account already exists.", error: true });
+    res.render("pages/register", {
+      message: "Account already exists.",
+      error: true,
+    });
   }
 });
 
 //account routes        TODO: ask about authentification middleware & talk to quiz people about db results
 app.get("/account", (req, res) => {
-  if(req.session.user == undefined)
-  {
+  if (req.session.user == undefined) {
     res.redirect("/");
+  } else {
+    const user = {
+      name: req.session.user.name,
+      species: req.session.user.species_preference,
+      results: req.session.user.quiz_results, // how do you return all the values idk
+    };
+    res.render("pages/account", user);
   }
-  else{
-  const user = {
-    name : req.session.user.name,
-    species : req.session.user.species_preference,
-    results : req.session.user.quiz_results // how do you return all the values idk
-
-  };
-  res.render("pages/account", user);
-  };
 });
 
-app.post("/verify", async (req, res) => { 
+app.post("/verify", async (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
 
@@ -255,62 +257,87 @@ app.post("/verify", async (req, res) => {
   }
 });
 
-
-app.post('/update', async (req, res) => {
+app.post("/update", async (req, res) => {
   let newName = req.body.newName;
   console.log(newName);
   let newPassword = req.body.newPassword;
   let email = req.body.email;
 
   try {
-  let user_query = `SELECT * FROM users WHERE email = $1;`;
-  let userResult = await db.any(user_query, [email]);
-  console.log(email);
-    if (userResult.length > 0) 
-    {
+    let user_query = `SELECT * FROM users WHERE email = $1;`;
+    let userResult = await db.any(user_query, [email]);
+    console.log(email);
+    if (userResult.length > 0) {
+      const user = userResult[0];
 
-    const user = userResult[0];
+      let updatedName = user.name;
+      if (newName != undefined) {
+        updatedName = newName;
+      }
+      let updatedPassword = user.password;
+      if (newPassword != undefined) {
+        updatedPassword = await bcrypt.hash(newPassword, 10);
+      }
 
-    let updatedName = user.name;
-    if(newName != undefined)
-    {
-      updatedName = newName;
-    };
-    let updatedPassword = user.password;
-    if(newPassword != undefined)
-    {
-      updatedPassword = await bcrypt.hash(newPassword, 10);
-    };
+      await db.none(
+        "UPDATE users SET name = $1, password = $2 WHERE email = $3",
+        [updatedName, updatedPassword, email]
+      );
+      //session doesn't auto update so need to manually do it.   TODO: ask about storing password in session
+      req.session.user.name = updatedName;
+      req.session.user.password = updatedPassword;
+      console.log(req.session.user.name);
+      console.log(req.session.user.password);
 
-    await db.none(
-      'UPDATE users SET name = $1, password = $2 WHERE email = $3',
-      [updatedName, updatedPassword, email]
-    );
-    //session doesn't auto update so need to manually do it.   TODO: ask about storing password in session
-    req.session.user.name = updatedName;
-    req.session.user.password = updatedPassword;
-    console.log(req.session.user.name);
-    console.log(req.session.user.password);
-
-    res.send(`<p>Information updated successfully! <a href="/account">Back to account</a></p>`);
-  }
+      res.send(
+        `<p>Information updated successfully! <a href="/account">Back to account</a></p>`
+      );
+    }
   } catch (err) {
     console.error(err);
-    res.status(500).send('Update failed.');
+    res.status(500).send("Update failed.");
   }
 });
-
-
 
 // Shop routes
 
 // Mock data for the shop
 const mockItems = [
-  { id: 1, title: "Cat Toy", image: "cat-toy.jpg", description: "A fun toy for cats", category: "cat" },
-  { id: 2, title: "Dog Leash", image: "dog-leash.jpg", description: "A sturdy leash for dogs", category: "dog" },
-  { id: 3, title: "Bird Feeder", image: "bird-feeder.jpg", description: "A feeder for birds", category: "other" },
-  { id: 4, title: "Cat Bed", image: "cat-bed.jpg", description: "A cozy bed for cats", category: "cat" },
-  { id: 5, title: "Dog Toy", image: "dog-toy.jpg", description: "A chew toy for dogs", category: "dog" },
+  {
+    id: 1,
+    title: "Cat Toy",
+    image: "cat-toy.jpg",
+    description: "A fun toy for cats",
+    category: "cat",
+  },
+  {
+    id: 2,
+    title: "Dog Leash",
+    image: "dog-leash.jpg",
+    description: "A sturdy leash for dogs",
+    category: "dog",
+  },
+  {
+    id: 3,
+    title: "Bird Feeder",
+    image: "bird-feeder.jpg",
+    description: "A feeder for birds",
+    category: "other",
+  },
+  {
+    id: 4,
+    title: "Cat Bed",
+    image: "cat-bed.jpg",
+    description: "A cozy bed for cats",
+    category: "cat",
+  },
+  {
+    id: 5,
+    title: "Dog Toy",
+    image: "dog-toy.jpg",
+    description: "A chew toy for dogs",
+    category: "dog",
+  },
 ];
 
 // Helper function to categorize items
@@ -466,7 +493,8 @@ app.post("/purrsonality-quiz", (req, res) => {
         return !isNaN(val);
       });
 
-    const query = `UPDATE users SET species_preference = '${req.body.species}', 
+    const query = `UPDATE users SET
+    species_preference = '${req.body.species}', 
 		  quiz_results = '{${values}}' WHERE email = '${req.session.user.email}';`;
     db.none(query)
       .then(() => {
@@ -487,24 +515,116 @@ app.post("/purrsonality-quiz", (req, res) => {
 });
 //render home helpers
 //x button for search bar
-let filters;
-let breed;
-async function renderHomePage(query, res) {
+//reset filter button
+//breeds only keep first
+//species_preference
+//petfinder breeds call
+
+async function getIdsToBreeds(type) {
+  let results = [];
+  const csvDir = path.resolve(__dirname, "data");
+
+  const url = path.resolve(csvDir, `${type}s.csv`);
+
+  await new Promise((resolve, reject) => {
+    fs.createReadStream(url)
+      .pipe(csv())
+      .on("data", (data) => results.push(data))
+      .on("end", resolve) // Resolve the Promise when stream ends
+      .on("error", reject); // Reject the Promise if there's an error
+  });
+
+  return results.map((result) => {
+    return {
+      id: result.id,
+      name: result.name,
+    };
+  });
+}
+let dogBreeds;
+let catBreeds;
+async function getUserBreeds(email, num = 10) {
+  let breedIds = `SELECT quiz_results, species_preference FROM users where email = 
+  '${email}'`;
+  let breedType;
+  let topBreeds = [];
+  let breedRank = [];
+  await db
+    .one(breedIds)
+    .then((results) => {
+      breedRank = results.quiz_results;
+      breedType = results.species_preference;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+
+  let breeds = await getIdsToBreeds(breedType);
+  for (let i = 0; i < num; i++) {
+    let breed = breeds.find((breed) => {
+      return parseInt(breed.id) == breedRank[i];
+    });
+
+    if (breed && breed.name) {
+      topBreeds.push(breed.name);
+    }
+  }
+  if (breedType == "dog") {
+    if (!dogBreeds) {
+      dogBreeds = await getBreeds(breedType);
+    }
+
+    return filterBreeds(dogBreeds, topBreeds);
+  }
+  if (breedType == "cat") {
+    if (!catBreeds) {
+      catBreeds = await getBreeds(breedType).breeds;
+    }
+    return filterBreeds(catBreeds, topBreeds);
+  }
+}
+
+function filterBreeds(breeds, topBreeds) {
+  return topBreeds.filter((breed) => {
+    return breeds["breeds"].find((ele) => ele.name == breed);
+  });
+}
+
+async function getFilterParameters(query, email) {
+  let paramObj = {};
   if (query) {
     if ("breed" in query) {
       breed = query.breed;
+      compatibility = false;
+    } else if ("compatibility" in query) {
+      breed = undefined;
+      compatibility = parseInt(query["compatibility"]);
     } else {
       filters = query;
     }
   }
-
-  let paramObj = {};
   if (filters) {
     paramObj = { ...filters };
   }
   if (breed) {
     paramObj.breed = breed;
+  } else if (compatibility) {
+    let breeds = await getUserBreeds(email);
+    paramObj.breed = breeds;
   }
+  console.log(paramObj);
+  return paramObj;
+}
+
+let filters;
+let breed;
+let compatibility;
+async function renderHomePage(query, res, email) {
+  let breeds = await getBreeds();
+  console.log(breeds);
+  console.log(email);
+  let paramObj = await getFilterParameters(query, email);
+
   let data = await callPetApi(paramObj);
   if (!data) {
     res.render("pages/home", {
@@ -622,20 +742,42 @@ async function callPetApi(query) {
   return data;
 }
 
+async function getBreeds(type) {
+  let data;
+  await axios({
+    url: `https://api.petfinder.com/v2/types/${type}/breeds`,
+    method: "GET",
+    dataType: "json",
+    headers: {
+      // "Accept-Encoding": "application/json",
+      Authorization: `Bearer ${accessTokenPetFinder}`,
+    },
+
+    params: {
+      page: 1,
+    },
+  })
+    .then((results) => {
+      data = results.data;
+    })
+    .catch((error) => {
+      return false;
+    });
+
+  return data;
+}
+
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
 
-
 // ***********************************************************
 // added for testing a dummy API
-app.get('/welcome', (req, res) => {
-  res.json({status: 'success', message: 'Welcome!'});
+app.get("/welcome", (req, res) => {
+  res.json({ status: "success", message: "Welcome!" });
 });
 // ***********************************************************
-
-
 
 module.exports = app.listen(3000); // changed for testing
 console.log("Server is listening on port 3000");

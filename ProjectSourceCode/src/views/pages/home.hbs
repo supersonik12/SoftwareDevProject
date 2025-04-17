@@ -1,7 +1,7 @@
 <div class="home-page-container">
 <div class="home-main">
-  
-    <div class="container">
+  <!--add reset filters button-->
+    <div class="top-home-container">
     <div class="row justify-content-center">
       <div class="col-md-6">
         <div class="search-container">
@@ -11,7 +11,19 @@
           </form>
         </div>
       </div>
+
+       <div class="col-md-6">
+     
+      </div>
+    
     </div>
+      <!--<p>OR</p>-->
+      <form action="/home" method = 'GET'>
+      <button  class = 'compatibility-btn'  type = 'submit' name = 'compatibility' value = '1'>Get Compatible Breeds</button>
+      </form>
+      <form action="/home" method = 'GET'>
+      <button  class = 'compatibility-btn'  type = 'submit' name = 'compatibility' value = '0'>Get All Breeds</button>
+      </form>
   </div>
 
  {{#if error}}
