@@ -1,23 +1,15 @@
 
 <head>
     {{> message}}
-    <title>Welcome, {{name}}!</title>
+    <title>Welcome, {{user.name}}!</title>
 </head>
 <body >
     <div class="container">
-        <h1>Welcome, {{name}}!</h1>
+        <h1>Welcome, {{user.name}}!</h1>
 
-        <h2>My Quiz Results:</h2>
-        <!--Figure this out, ask teammates(probably declan) for help/how the quiz works-->
-        <p>I prefer a: {{species}}</p>
-        <p>I like: </p>
-        <!--This returns a list of numbers because the database isn't finalized-->
-        <ul>
-        {{#each results}}
-        <li>{{this}}</li>
-        {{/each}}
-        </ul>
+        <h2>My Favorite Pets:</h2>
         
+        {{>favorites}}
 
         <h3>Update Account Information:</h3>
         <!-- change name and password, not email(username). put in password before allowed to change-->
