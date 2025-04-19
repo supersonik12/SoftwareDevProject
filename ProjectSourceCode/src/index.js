@@ -162,8 +162,10 @@ app.post("/login", async (req, res) => {
     }
   } else {
     console.log("User not found");
-    res.status(200).json({ message: "Account not found.", error: true });
-  }
+    res.render("pages/login", {
+      message: "Account not found.",
+      error: true,
+    });  }
 });
 
 // Register routes
