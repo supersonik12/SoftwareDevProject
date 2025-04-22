@@ -107,12 +107,6 @@ app.use(
 //Helper Functions
 
 
-//TODO: implement function to display individual matches based on matching results
-//Currently just prints to prevent errors when testing quiz endpoint
-function getMatches(matchList) {
-  console.log(matchList);
-}
-
 // Home routes
 
 app.get("/", async (req, res) => {
