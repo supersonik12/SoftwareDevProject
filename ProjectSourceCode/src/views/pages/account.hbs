@@ -6,10 +6,26 @@
 <body >
     <div class="container">
         <h1>Welcome, {{user.name}}!</h1>
+        <br>
 
         <h2>My Favorite Pets:</h2>
-        
+    
+        {{#if favorites}}
         {{>favorites}}
+        {{else}}
+        <p>Pets you've favorited will show up here!</p>
+        {{/if}}
+
+        <br>
+
+        <h2>Rescues you follow:</h2>
+
+        {{#if following}}
+        {{>following}}
+        {{else}}
+        <p>Follow a rescue to see contact information.</p>
+        {{/if}}
+        <br>
 
         <h3>Update Account Information:</h3>
         <!-- change name and password, not email(username). put in password before allowed to change-->
@@ -23,19 +39,3 @@
 
     </div>
 </body>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
