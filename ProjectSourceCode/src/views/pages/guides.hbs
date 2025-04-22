@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{!-- <!DOCTYPE html>
 <html lang="en" class="h-100">
 
 {{> header }}  {{!-- This inserts the header partial --}}
@@ -117,4 +117,63 @@
   </style>
 </body>
 
-</html>
+</html> --}}
+
+
+<!-- views/guide.hbs -->
+
+<div class="guide-container" style="padding: 2rem; max-width: 1200px; margin: auto;">
+  <h1 style="text-align: center; margin-bottom: 2rem;">Pet Care Guide</h1>
+  
+  <div class="icon-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+    
+    {{!-- Dog Guide --}}
+    <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
+      <img src="/resources/icons/dog.png" alt="Dog Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem;">Dog Care</h2>
+      <p style="margin: 1rem 0;">Learn how to care for puppies and adult dogs, including feeding, grooming, and exercise needs.</p>
+      <a href="/guides/dog" style="color: #007BFF; text-decoration: none;">Read More →</a>
+    </div>
+
+    {{!-- Cat Guide --}}
+    <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
+      <img src="/resources/icons/cat.png" alt="Cat Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem;">Cat Care</h2>
+      <p style="margin: 1rem 0;">Everything you need to know about caring for kittens and adult cats, including litter training and nutrition.</p>
+      <a href="/guides/cat" style="color: #007BFF; text-decoration: none;">Read More →</a>
+    </div>
+
+    {{!-- Rabbit Guide --}}
+    <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
+      <img src="/resources/icons/rabbit.png" alt="Rabbit Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem;">Rabbit Care</h2>
+      <p style="margin: 1rem 0;">Discover how to create a safe and healthy environment for your bunny at home.</p>
+      <a href="/guides/rabbit" style="color: #007BFF; text-decoration: none;">Read More →</a>
+    </div>
+
+    {{!-- Turtle Guide --}}
+    <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
+      <img src="/resources/icons/turtle.png" alt="Turtle Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem;">Turtle Care</h2>
+      <p style="margin: 1rem 0;">Tips for housing, feeding, and maintaining the right habitat for turtles of all sizes.</p>
+      <a href="/guides/turtle" style="color: #007BFF; text-decoration: none;">Read More →</a>
+    </div>
+
+    {{!-- Reptile Guide --}}
+    <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
+      <img src="/resources/icons/reptile.png" alt="Reptile Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem;">Reptile Care</h2>
+      <p style="margin: 1rem 0;">Learn about caring for lizards, snakes, and other reptiles including habitat temperature and humidity.</p>
+      <a href="/guides/reptile" style="color: #007BFF; text-decoration: none;">Read More →</a>
+    </div>
+
+    {{!-- Fish Guide --}}
+    <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
+      <img src="/resources/icons/fish.png" alt="Fish Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem;">Fish Care</h2>
+      <p style="margin: 1rem 0;">Proper aquarium setup, feeding schedules, and maintenance tips for freshwater and saltwater fish.</p>
+      <a href="/guides/fish" style="color: #007BFF; text-decoration: none;">Read More →</a>
+    </div>
+
+  </div>
+</div>
