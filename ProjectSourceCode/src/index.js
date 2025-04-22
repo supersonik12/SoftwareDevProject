@@ -104,7 +104,22 @@ app.use(
 );
 
 
-//Helper Functions
+const errorMessages = {
+	404: {errMsg: "Looks like there's nothing here.",
+		errHint: "The page you are trying to access does not exist. You may have entered the wrong address.",
+		errImg: "resources/images/404-cat.jpg",
+		hideNavbar: true}, 
+
+	401: {errMsg: "Stop right there!",
+		errHint: "You don't have permission to do that. You might be seeing this page because you are not signed in.",
+		errImg: "resources/images/401-dog.jpg",
+		hideNavbar: true},
+
+	500: {errMsg: "Looks like something went wrong",
+		errHint: "We are unable to process your request right now. This is likely due to a temporary issue. Please try again later.",
+		errImg: "resources/images/500-dog.jpg",
+		hideNavbar: true}
+}
 
 
 //TODO: implement function to display individual matches based on matching results
@@ -395,6 +410,12 @@ app.post("/update", async (req, res) => {
   let newPassword = req.body.newPassword;
   let email = req.body.email;
 
+  if(!email) {
+	  res.status(401);
+	  res.render("pages/error", errorMessages[401]);
+	  return;
+  }
+
   try {
     let user_query = `SELECT * FROM users WHERE email = $1;`;
     let userResult = await db.any(user_query, [email]);
@@ -441,6 +462,12 @@ app.post("/favorite", async (req, res) => {
   const link = req.body.link;
   //why are these values all undefined
   // console.log("alljson: ", alljson);
+
+  if (!email) {
+	  res.status(401);
+	  res.redirect("/", {message: "You need to be logged in to do that.", error: true});
+  }
+
   console.log("name: ", name);
   console.log("photo link: ", photo);
   console.log("description: ", description);
@@ -455,13 +482,19 @@ app.post("/favorite", async (req, res) => {
   } catch (err) {
     console.error("Error favoriting pet:", err);
     res.status(500);
-    res.render("pages/account", {message: "Something went wrong. Please try again.", error: true});
+    res.render("pages/account", {message: "Something went wrong, please try again later.", error: true});
   }
 });
 
 app.post("/delete", async (req, res) => {
   const id = req.body.id;
   const email = req.session.user.email;
+  if (!email) {
+	  res.status(401);
+	  res.render("pages/error", errorMessages[401]);
+	  return;
+  }
+
   try {
     await db.any(
       `DELETE FROM favorites WHERE user_email = '${email}' AND pet_id = ${id};`
@@ -470,9 +503,9 @@ app.post("/delete", async (req, res) => {
       '<p> Pet deleted from favorites! <a href="/account">Back to account</a></p>'
     );
   } catch (err) {
-    console.error("Error deleting pet");
+    console.error("Error deleting pet", err);
     res.status(500);
-    res.render("pages/account", {message: "Something went wrong. Please try again.", error: true}); 
+    res.render("pages/account", {message: "Something went wrong, please try again later.", error: true});
   }
 });
 
@@ -518,7 +551,7 @@ app.get("/shop", (req, res) => {
   } catch (error) {
     console.error("Error rendering shop page:", error);
     res.status(500);
-    res.render("pages/shop", {message: "Unable to process your request. Please try again later.", error: true});
+    res.render("pages/shop", {message: "Something went wrong, please try again later.", error: true});
   }
 });
 
@@ -533,7 +566,7 @@ app.post("/shop", (req, res) => {
   } catch (error) {
     console.error("Error processing shop data:", error);
     res.status(500);
-    res.render("pages/shop", {message: "Unable to process your request. Please try again later.", error: true});
+    res.render("pages/shop", {message: "Something went wrong, please try again later.", error: true});
   }
 });
 
@@ -550,16 +583,34 @@ app.get("/logout", (req, res) => {
     console.log("Logged out user " + req.session.user.name);
     req.session.destroy();
   }
+
+  else {
+	  res.render("pages/error", errorMessages[401]);
+	  return;
+  }
+
   res.redirect("/splash");
 });
 
 // Quiz routes
-app.get("/purrsonality-quiz-1", (_, res) => {
+app.get("/purrsonality-quiz-1", (req, res) => {
+	if (!req.session.user) {
+		res.status(401);
+		res.render("pages/error", errorMessages[401]);
+		return;
+	}
+
 	res.render("pages/quiz-1");
 });
 
 app.post("/purrsonality-quiz-1", (req, res) => {
-	db.none(`UPDATE users SET species_preference = '${req.body.species}';`)
+	if (!req.session.user.email) {
+		res.status(401);
+		res.render("pages/error", errorMessages[401]);
+		return;
+	}
+
+	db.none(`UPDATE users SET species_preference = '${req.body.species}' WHERE email = '${req.session.user.email}';`)
 		.then(res.redirect("/purrsonality-quiz-2"))
 		.catch(err => {
 			console.log(err);
@@ -569,6 +620,11 @@ app.post("/purrsonality-quiz-1", (req, res) => {
 });
 
 app.get("/purrsonality-quiz-2", (req, res) => {
+  if (!req.session.user.email) {
+	  res.status(401);
+	  res.render("pages/error", errorMessages[401]);
+	  return;
+  }
   const query = `SELECT t.trait_name, t.min_extreme, t.max_extreme
 		FROM traits_to_species tts
 		JOIN species s ON tts.species_id = s.species_id
@@ -592,6 +648,12 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
   /*Script input: user quiz responses (Floats), Script output: List of breeds sorted by best match.
    * using Python for better libraries for performing numerical computation
    */
+  if (!req.session.user.email) {
+	  res.status(401);
+	  res.render("pages/error", errorMessages[401]);
+	  return;
+  }
+
   const speciesObj = await db.one(`SELECT species_preference FROM users WHERE email = '${req.session.user.email}'`); 
   const species = speciesObj.species_preference;
   console.log(species)
@@ -621,7 +683,7 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
     }
     default: {
       res.status(400);
-      res.render("pages/quiz-2", {message: "Not a valid option.", error: true});
+      res.redirect("/purrsonality-quiz-1");
       return;
     }
   }
@@ -656,7 +718,7 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
     errEncountered = true;
     console.log(err.toString());
     res.status(500);
-    res.redirect("pages/quiz-2", {message: "Something went wrong. Please try again.", error: true});
+    res.render("pages/error", errorMessages[500]);
   });
 
   pythonChild.stdout.on("data", (data) => {
@@ -664,6 +726,7 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
     if (errEncountered) {
 	    return;
     }
+
     const values = data
       .toString()
       .split(", ")
@@ -682,7 +745,7 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
       .catch((err) => {
         console.log(err);
 	   res.status(500);
-	   res.render("pages/quiz-2", {messsage: "Something went wrong, please try again!", error: true});
+	   res.render("pages/error", errorMessages[500]);
       });
     return;
   });
@@ -954,7 +1017,7 @@ async function getBreeds(type) {
 
 app.get("*", (_, res) => {
 	res.status(404);
-	res.render("pages/404", {hideNavbar: true});
+	res.render("pages/error", errorMessages[404]);
 });
 
 // *****************************************************
