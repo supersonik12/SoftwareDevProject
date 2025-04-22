@@ -111,7 +111,7 @@ const errorMessages = {
 		hideNavbar: true}, 
 
 	401: {errMsg: "Stop right there!",
-		errHint: "You don't have permission to do that. You might be seeing this page because you are not signed in.",
+		errHint: "You don't have permission to do that. You might be seeing this because you are not signed in.",
 		errImg: "resources/images/401-dog.jpg",
 		hideNavbar: true},
 
@@ -120,7 +120,6 @@ const errorMessages = {
 		errImg: "resources/images/500-dog.jpg",
 		hideNavbar: true}
 }
-
 // Home routes
 
 app.get("/", async (req, res) => {
@@ -154,30 +153,38 @@ app.post("/login", async (req, res) => {
   let password = req.body.password;
 
   let user_query = `SELECT * FROM users WHERE email = $1;`;
-  let response = await db.any(user_query, [email]);
+  try {
+  	let response = await db.any(user_query, [email]);
 
-  console.log("login POST");
+  	console.log("login POST");
 
-  if (response.length > 0) {
-    let user = response[0];
-    let hash = user.password;
+  	if (response.length > 0) {
+       let user = response[0];
+       let hash = user.password;
 
-    if (await bcrypt.compare(password, hash)) {
-      req.session.user = user;
-      res.redirect("/");
+       if (await bcrypt.compare(password, hash)) {
+         req.session.user = user;
+         res.redirect("/");
+       } else {
+         console.log("Password incorrect");
+         res.render("pages/login", {
+           message: "Your password was incorrect, try again.",
+           error: true,
+        });
+      }
     } else {
-      console.log("Password incorrect");
+      console.log("User not found");
       res.render("pages/login", {
-        message: "Your password was incorrect, try again.",
+        message: "Account not found.",
         error: true,
       });
     }
-  } else {
-    console.log("User not found");
-    res.render("pages/login", {
-      message: "Account not found.",
-      error: true,
-    });
+  }
+
+  catch (err) {
+	  console.log(err);
+	  res.status(500); 
+	  res.render("pages/login", {message: "Something went wrong, please try again later.", error: true});
   }
 });
 
@@ -219,7 +226,7 @@ app.post("/register", async (req, res) => {
     console.log("Failed to add user " + name);
     console.log(err);
     res.render("pages/register", {
-      message: "Account already exists.",
+      message: "Unable to create account. Account may already exist. Please sign in or try again later.",
       error: true,
     });
   }
@@ -467,7 +474,8 @@ app.post("/favorite", async (req, res) => {
 
   if (!email) {
 	  res.status(401);
-	  res.redirect("/", {message: "You need to be logged in to do that.", error: true});
+	  res.render("pages/error", errorMessages[401]);
+	  return;
   }
 
   console.log("name: ", name);
