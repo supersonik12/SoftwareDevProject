@@ -715,81 +715,37 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
 //breeds only keep first
 //species_preference
 //petfinder breeds call
-
-async function getIdsToBreeds(type) {
-  let results = [];
-  const csvDir = path.resolve(__dirname, "data");
-
-  const url = path.resolve(csvDir, `${type}s.csv`);
-
-  await new Promise((resolve, reject) => {
-    fs.createReadStream(url)
-      .pipe(csv())
-      .on("data", (data) => results.push(data))
-      .on("end", resolve) // Resolve the Promise when stream ends
-      .on("error", reject); // Reject the Promise if there's an error
-  });
-
-  return results.map((result) => {
-    return {
-      id: result.id,
-      name: result.name,
-    };
-  });
-}
 let dogBreeds;
 let catBreeds;
 async function getUserBreeds(email, num = 10) {
   let breedIds = `SELECT quiz_results FROM users where email = 
   '${email}'`;
-  let breedType;
-  let topBreeds = [];
   let breedRank = [];
+  let isCat;
   await db
     .one(breedIds)
     .then((results) => {
       breedRank = results.quiz_results;
-
-      if (results.quiz_results[0] > 273) {
-        breedType = "cat";
-      } else if (results.quiz_results[0] < 273) {
-        breedType = "dog";
+      if (breedRank[0] > 273) {
+        isCat = true;
       }
     })
     .catch((error) => {
       console.log(error);
     });
 
-  let breeds = await getIdsToBreeds(breedType);
-
-  for (let i = 0; i < num; i++) {
-    let breed = breeds.find((breed) => {
-      if (breedType == "dog") {
-        {
-          return parseInt(breed.id) == breedRank[i];
-        }
-      } else if (breedType == "cat") {
-        return parseInt(breed.id) == breedRank[i] - 273;
-      }
-    });
-
-    if (breed && breed.name) {
-      topBreeds.push(breed.name);
-    }
-  }
-  if (breedType == "dog") {
-    if (!dogBreeds) {
-      dogBreeds = await getBreeds(breedType);
+  let topBreeds = await getSpecies(breedRank, num);
+  if (isCat) {
+    if (!catBreeds) {
+      catBreeds = await getBreeds("cat");
     }
 
     return filterBreeds(dogBreeds, topBreeds);
-  }
-  if (breedType == "cat") {
-    if (!catBreeds) {
-      catBreeds = await getBreeds(breedType);
+  } else {
+    if (!dogBreeds) {
+      dogBreeds = await getBreeds("dog");
     }
-
-    return filterBreeds(catBreeds, topBreeds);
+    return filterBreeds(dogBreeds, topBreeds);
   }
 }
 
@@ -797,6 +753,31 @@ function filterBreeds(breeds, topBreeds) {
   return topBreeds.filter((breed) => {
     return breeds["breeds"].find((ele) => ele.name == breed);
   });
+}
+
+async function getSpecies(breedRank, num) {
+  let res = [];
+  let query = `SELECT breed_name FROM breeds where `;
+  let i;
+  for (i = 0; i < num - 1; i++) {
+    query += `breed_id = ${breedRank[i]} OR `;
+  }
+  query += `breed_id = ${breedRank[i]}`;
+  let result;
+  await db
+    .many(query)
+    .then((results) => {
+      result = results;
+      console.log(result);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+
+  result.forEach((breed) => {
+    res.push(breed.breed_name);
+  });
+  return res;
 }
 
 async function getFilterParameters(query, email) {
