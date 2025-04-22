@@ -427,7 +427,8 @@ app.post("/update", async (req, res) => {
     }
   } catch (err) {
     console.error(err);
-    res.status(500).send("Update failed.");
+    res.status(500);
+    res.render("pages/account", {message: "Something went wrong. Please try again.", error: true});
   }
 });
 
@@ -453,7 +454,8 @@ app.post("/favorite", async (req, res) => {
     res.redirect("/home");
   } catch (err) {
     console.error("Error favoriting pet:", err);
-    res.status(500).send("Something went wrong");
+    res.status(500);
+    res.render("pages/account", {message: "Something went wrong. Please try again.", error: true});
   }
 });
 
@@ -469,7 +471,8 @@ app.post("/delete", async (req, res) => {
     );
   } catch (err) {
     console.error("Error deleting pet");
-    res.status(500).send("Something went wrong");
+    res.status(500);
+    res.render("pages/account", {message: "Something went wrong. Please try again.", error: true}); 
   }
 });
 
@@ -514,7 +517,8 @@ app.get("/shop", (req, res) => {
     console.log("Shop page rendered successfully");
   } catch (error) {
     console.error("Error rendering shop page:", error);
-    res.status(500).send("Error loading shop page.");
+    res.status(500);
+    res.render("pages/shop", {message: "Unable to process your request. Please try again later.", error: true});
   }
 });
 
@@ -528,7 +532,8 @@ app.post("/shop", (req, res) => {
     res.json({ sections });
   } catch (error) {
     console.error("Error processing shop data:", error);
-    res.status(500).json({ error: "Failed to process shop data." });
+    res.status(500);
+    res.render("pages/shop", {message: "Unable to process your request. Please try again later.", error: true});
   }
 });
 
@@ -557,7 +562,9 @@ app.post("/purrsonality-quiz-1", (req, res) => {
 	db.none(`UPDATE users SET species_preference = '${req.body.species}';`)
 		.then(res.redirect("/purrsonality-quiz-2"))
 		.catch(err => {
-			res.send(err);
+			console.log(err);
+			res.status(500);
+			res.render("pages/quiz-1", {message: "Something went wrong. Please try again.", error: true});
 		});
 });
 
@@ -576,8 +583,8 @@ app.get("/purrsonality-quiz-2", (req, res) => {
 	 })
     .catch((err) => {
       console.log(err);
-      res.status(404);
-      res.send;
+      res.status(500);
+	 res.render("pages/quiz-1", {message: "Something went wrong, please try again", error: true});
     });
 });
 
@@ -613,21 +620,19 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
       break;
     }
     default: {
-      res.status(400).json({
-        error: "Unknown option",
-      });
-      res.send;
+      res.status(400);
+      res.render("pages/quiz-2", {message: "Not a valid option.", error: true});
       return;
     }
   }
 
   console.log(userVals);
+  //User values should not be outside this range under normal operations. Should only happen if user manually creates
+	//POST request.
   for (i in userVals) {
     if (userVals[i] < -1 || userVals[i] > 1) {
-      res.status(423).json({
-        error: "Values outside expected range",
-      });
-      res.send;
+      res.status(400);
+	 res.render("pages/quiz-2", {message: "Value outside expected range.", error: true}); 
       return;
     }
     //prevents division by zero errors
@@ -645,12 +650,20 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
   ]);
 
   console.log("Python process spawned");
+  
+  let errEncountered = false;
   pythonChild.stderr.on("data", (err) => {
+    errEncountered = true;
     console.log(err.toString());
-    return;
+    res.status(500);
+    res.redirect("pages/quiz-2", {message: "Something went wrong. Please try again.", error: true});
   });
 
   pythonChild.stdout.on("data", (data) => {
+    //We don't want to use this data if an error occurred since it may not be valid
+    if (errEncountered) {
+	    return;
+    }
     const values = data
       .toString()
       .split(", ")
@@ -659,9 +672,8 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
         return !isNaN(val);
       });
 
-    const query = `UPDATE users SET
-    species_preference = '${req.body.species}', 
-		  quiz_results = '{${values}}' WHERE email = '${req.session.user.email}';`;
+    const query = `UPDATE users SET 
+    quiz_results = '{${values}}' WHERE email = '${req.session.user.email}';`;
     db.none(query)
       .then(() => {
         console.log("Database successfully updated");
@@ -669,15 +681,13 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
       })
       .catch((err) => {
         console.log(err);
-        res.status(500).json({
-          error: "Unexpected error occured",
-        });
-        res.send;
+	   res.status(500);
+	   res.render("pages/quiz-2", {messsage: "Something went wrong, please try again!", error: true});
       });
     return;
   });
 
-  pythonChild.on("close", (code) => console.log(code));
+  pythonChild.on("close", (code) => console.log(`Child exited with code: ${code}`));
 });
 //render home helpers
 //x button for search bar
@@ -799,6 +809,7 @@ async function renderHomePage(query, res, email) {
   let data = await callPetApi(paramObj);
   if (!data || !paramObj) {
     res.render("pages/home", {
+	 message: "We are unable to process your request at this time, please try again later.",
       error: true,
       filters: filters,
       breed: breed,
@@ -908,7 +919,8 @@ async function callPetApi(query) {
       data = results.data.animals.filter((pet) => pet.primary_photo_cropped);
     })
     .catch((error) => {
-      return false;
+      console.log(error);
+	 return false;
     });
 
   return data;
@@ -933,11 +945,17 @@ async function getBreeds(type) {
       data = results.data;
     })
     .catch((error) => {
+	 console.log(error);
       return false;
     });
 
   return data;
 }
+
+app.get("*", (_, res) => {
+	res.status(404);
+	res.render("pages/404", {hideNavbar: true});
+});
 
 // *****************************************************
 // <!-- Section 5 : Start Server-->
