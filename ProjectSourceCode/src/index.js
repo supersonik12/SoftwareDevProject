@@ -229,7 +229,14 @@ app.get("/account", async (req, res) => {
     WHERE user_email = '${req.session.user.email}';
     `);
     console.log(favorites);
-    res.render("pages/account", { user, favorites });
+
+    const following = await db.any(`
+      SELECT * FROM following
+      WHERE user_email = '${req.session.user.email}';
+      `);
+    console.log(following);
+
+    res.render("pages/account", { user, favorites, following });
   }
 });
 
