@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{!-- <!DOCTYPE html>
 <html lang="en" class="h-100">
 
 {{> header }}  {{!-- This inserts the header partial --}}
@@ -119,4 +119,63 @@
   </style>
 </body>
 
-</html>
+</html> --}}
+
+
+<!-- views/guide.hbs -->
+
+<div class="guide-container" style="padding: 2rem; max-width: 1200px; margin: auto;">
+  <h1 style="text-align: center; margin-bottom: 2rem;">Pet Care Guide</h1>
+  
+  <div class="icon-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+    
+    {{!-- Kitten Guide --}}
+    <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
+      <img src="/resources/images/kitten.jpg" alt="Dog Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem;">Kitten Care</h2>
+      <p style="margin: 1rem 0;">Kittens under a year old need kitten-specific wet and dry food, access to a clean litter box from an early age, and plenty of toys and scratching posts for play. It’s important to start vaccinations and deworming early, and socialization should begin as soon as possible.</p>
+      <a href="https://www.aspcapro.org/resource/kitten-care-cheat-sheets-foster-families-and-adopters" style="color: #007BFF; text-decoration: none;">Read More →</a>
+    </div>
+
+    {{!-- Puppy Guide --}}
+    <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
+      <img src="/resources/images/puppy.jpg" alt="Cat Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem;">Puppy Care</h2>
+      <p style="margin: 1rem 0;">Puppies need food formulated specifically for their growing bodies, fed three to four times a day. Early training, including socialization and crate training, is key to building good behavior. Regular vet visits for vaccinations and parasite prevention are also essential during this stage.</p>
+      <a href="https://www.banfield.com/products/optimum-wellness-plan/Puppy-plans" style="color: #007BFF; text-decoration: none;">Read More →</a>
+    </div>
+
+    {{!-- Cat Guide --}}
+    <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
+      <img src="/resources/images/Cat.jpg" alt="Rabbit Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem;">Cat Care</h2>
+      <p style="margin: 1rem 0;">Cats older than one year do best on high-protein adult cat food and benefit from regular grooming, especially if they have long hair. Daily playtime helps keep them active and prevents obesity, and they should see a vet annually for checkups and vaccinations.</p>
+      <a href="https://vcahospitals.com/" style="color: #007BFF; text-decoration: none;">Read More →</a>
+    </div>
+
+    {{!-- Dog Guide --}}
+    <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
+      <img src="/resources/images/Dog.jpg" alt="Turtle Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem;">Dog Care</h2>
+      <p style="margin: 1rem 0;">Dogs one year and older should be fed balanced adult dog food and exercised daily through walks and play. They need regular grooming, depending on the breed, and should visit the vet yearly for checkups, dental care, and ongoing preventive treatments like flea and tick medication.</p>
+      <a href="https://www.vetstreet.com/dogs" style="color: #007BFF; text-decoration: none;">Read More →</a>
+    </div>
+
+    {{!-- Reptile Guide --}}
+    <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
+      <img src="/resources/images/Reptile.jpg" alt="Reptile Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem;">Reptile Care</h2>
+      <p style="margin: 1rem 0;">Reptiles such as lizards, snakes, and geckos require a terrarium with controlled temperature and humidity, as well as UVB lighting to support healthy vitamin D3 production. Their diets vary by species, ranging from insects and leafy greens to frozen rodents, and they should be handled gently and only when necessary to reduce stress.</p>
+      <a href="https://www.thesprucepets.com/reptiles-and-amphibians-4162044" style="color: #007BFF; text-decoration: none;">Read More →</a>
+    </div>
+
+    {{!-- Rodent Guide --}}
+    <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
+      <img src="/resources/images/Rodent.jpg" alt="Fish Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem;">Rodent Care</h2>
+      <p style="margin: 1rem 0;">Rodents like hamsters, mice, and gerbils need a secure cage with good ventilation and a solid floor, along with a diet of fresh pellets, seeds, and occasional fruits or vegetables. They thrive with enrichment like tunnels, wheels, and chew toys, and their habitats should be spot-cleaned daily with a full cleaning once a week.</p>
+      <a href="https://www.rspca.org.uk/adviceandwelfare/pets/rodents" style="color: #007BFF; text-decoration: none;">Read More →</a>
+    </div>
+
+  </div>
+</div>

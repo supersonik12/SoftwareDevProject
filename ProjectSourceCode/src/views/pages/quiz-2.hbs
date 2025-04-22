@@ -1,43 +1,29 @@
-<style>
-
-	datalist {
-	  display: flex;
-	  flex-direction: row;
-	  justify-content: space-between;
-	}
-
-	option {
-	  padding: 0;
-	}
-</style>
-
-
 <body>
-	<div class = "position-absolute top-50 start-50 translate-middle w-75 rounded-3 shadow" id = "form-container">
+	<div class = "auth-container-2" id = "form-container">
 		<form class = "p-3" action = "/purrsonality-quiz-2" method = "POST">
 			{{#each traits}}
 			{{#if @first}}
-			<div class="form-group" id = "slider-{{@index}}">
+			<div class="slider-container" id = "slider-{{@index}}">
 			{{else}}
-			<div class="form-group" id = "slider-{{@index}}" hidden>
+			<div class="slider-container" id = "slider-{{@index}}" hidden>
 			{{/if}}
 				<label> <h5> My ideal pet is: </h5> </label><br> 
-				<input type = "range" class = "form-range w-50" min = -1 max = 1 step = "0.01" name = "{{this.trait_name}}" list="trait_values"/>
+				<input type = "range" class = "slider" min = -1 max = 1 step = "0.01" name = "{{this.trait_name}}" list="trait_values"/>
 
-				<datalist id = "trait_values" class="w-50">
+				<datalist id = "trait_values"  >
 					<option value = -1 label = "{{this.min_extreme}}"></option>
 					<option value = 1 label = "{{this.max_extreme}}"></option>
 				</datalist><br><br>
-				<div class = "d-flex justify-content-between">
+				<div class = "data-button-container">
 					{{#if @first}}
-					<div class = "w-25"></div>
+					<div style="width: 25%;"></div>
 					{{else}}
-					<button class = "btn btn-primary" type = "button" value = "Prev" onClick = "revealPrevious({{@index}})">&lt; Prev</button>
+					<button  style="width:25%;"type = "button" value = "Prev" onClick = "revealPrevious({{@index}})">&lt; Prev</button>
 					{{/if}}
 					{{#if @last}}
-					<input class = "btn btn-primary" type = "submit" value = "Submit"/>
+					<input style="width:25%;"class = "button"type = "submit" value = "Submit"/>
 					{{else}}
-					<button class = "btn btn-primary" value = "Next" type = "button" onClick = "revealNext({{@index}})">Next &gt;</button>
+					<button  style="width:25%;"value = "Next" type = "button" onClick = "revealNext({{@index}})">Next &gt;</button>
 					{{/if}}
 				</div>
 			</div>

@@ -3,11 +3,13 @@
     {{> message}}
     <title>Welcome, {{user.name}}!</title>
 </head>
-<body >
-    <div class="container">
+<body class = "account-page">
+    <div class="auth-container-2">
         <h1>Welcome, {{user.name}}!</h1>
         <br>
 
+        </div>
+        <div class = "auth-container-2">
         <h2>My Favorite Pets:</h2>
     
         {{#if favorites}}
@@ -27,6 +29,8 @@
         {{/if}}
         <br>
 
+        </div>
+        <div class = "auth-container">
         <h3>Update Account Information:</h3>
         <!-- change name and password, not email(username). put in password before allowed to change-->
         <form action = "/verify" method = "POST">
