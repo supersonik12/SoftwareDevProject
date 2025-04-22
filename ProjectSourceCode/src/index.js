@@ -612,10 +612,6 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
       ];
       break;
     }
-    case "small": {
-      res.send("Coming soon!");
-      return;
-    }
     default: {
       res.status(400).json({
         error: "Unknown option",
