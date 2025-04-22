@@ -105,6 +105,12 @@ app.use(
 
 //Helper Functions
 
+//TODO: implement function to display individual matches based on matching results
+//Currently just prints to prevent errors when testing quiz endpoint
+function getMatches(matchList) {
+  console.log(matchList);
+}
+
 // Home routes
 
 app.get("/", async (req, res) => {
@@ -241,123 +247,6 @@ app.post("/verify", async (req, res) => {
 
     if (await bcrypt.compare(password, hash)) {
       res.send(`
-               <style>
-
-         
-
-            body {
-
-            font-family: 'Segoe UI', sans-serif;
-
-            background-size: 100px;
-
-            margin: 0;
-
-            padding: 0;
-
-            background-color: #fff8f0;
-
-            }
-
-            .container{
-
-            max-width: 400px;
-
-  margin: 80px auto;
-
-  padding: 40px;
-
-  background-color: white;
-
-  border-radius: 20px;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-
-  border: 3px dashed #ffb6b9;
-
-  position: relative;
-
-            }
-
-            header {
-
-              text-align: center;
-
-  color: #ff6f61;
-
-  margin-bottom: 20px;
-
-  font-family: 'Quicksand', sans-serif;
-
-            }
-
-
-
-
-
-            form input{
-
-            width: 100%;
-
-  padding: 14px;
-
-  margin-bottom: 16px;
-
-  border: 2px solid #87cefa;
-
-  border-radius: 12px;
-
-  font-size: 1rem;
-
-  background-color: #fefefe;
-
-            }
-
-
-
-
-
-            button {
-
-            width: 100%;
-
-  padding: 14px;
-
-  font-size: 1rem;
-
-  background-color: #ffb6b9;
-
-  color: white;
-
-  border: none;
-
-  border-radius: 12px;
-
-  cursor: pointer;
-
-  transition: background 0.3s ease, transform 0.2s ease;
-
-            }
-
-
-
-
-
-            button:hover {
-
-            background-color: #ff6f61;
-
-            transform: translateY(-2px);
-
-            }
-
- 
-
-        </style>
-
-        <body>
-
-        <div class = "container">
         <h2>Welcome, ${user.name}!</h2>
         <form action="/update" method="POST">
           <input type="hidden" name="name" value="${user.name}" />
@@ -366,8 +255,6 @@ app.post("/verify", async (req, res) => {
           <input type="password" name="newPassword" placeholder="New password" />
           <button type="submit">Update</button>
         </form>
-        </div>
-        </body>
       `);
     } else {
       console.log("Password incorrect");
@@ -416,7 +303,6 @@ app.post("/update", async (req, res) => {
       res.send(
         `<p>Information updated successfully! <a href="/account">Back to account</a></p>`
       );
-      res.redirect("/account");
     }
   } catch (err) {
     console.error(err);
@@ -563,7 +449,7 @@ app.post("/shop", (req, res) => {
 // Splash routes
 
 app.get("/splash", (req, res) => {
-  res.render("pages/splash", { hideNavbar: true });
+  res.render("pages/splash");
 });
 
 // Logout routes
@@ -642,6 +528,10 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
       ];
       break;
     }
+    case "small": {
+      res.send("Coming soon!");
+      return;
+    }
     default: {
       res.status(400).json({
         error: "Unknown option",
@@ -711,10 +601,10 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
 });
 //render home helpers
 //x button for search bar
+//add type all button
 //reset filter button
-//breeds only keep first
-//species_preference
-//petfinder breeds call
+//style
+//add responsivity
 
 async function getIdsToBreeds(type) {
   let results = [];
