@@ -121,13 +121,6 @@ const errorMessages = {
 		hideNavbar: true}
 }
 
-
-//TODO: implement function to display individual matches based on matching results
-//Currently just prints to prevent errors when testing quiz endpoint
-function getMatches(matchList) {
-  console.log(matchList);
-}
-
 // Home routes
 
 app.get("/", async (req, res) => {
@@ -184,7 +177,8 @@ app.post("/login", async (req, res) => {
     res.render("pages/login", {
       message: "Account not found.",
       error: true,
-    });  }
+    });
+  }
 });
 
 // Register routes
@@ -246,7 +240,14 @@ app.get("/account", async (req, res) => {
     WHERE user_email = '${req.session.user.email}';
     `);
     console.log(favorites);
-    res.render("pages/account", { user, favorites });
+
+    const following = await db.any(`
+      SELECT * FROM following
+      WHERE user_email = '${req.session.user.email}';
+      `);
+    console.log(following);
+
+    res.render("pages/account", { user, favorites, following });
   }
 });
 
@@ -513,11 +514,46 @@ app.post("/delete", async (req, res) => {
 
 // Mock data for the shop
 const mockItems = [
-  { id: 1, title: "Cat Toy", image: "/images/cat-toy.jpg", description: "A brain-tickling toy for cats", category: "cat", link: "https://www.amazon.com/Catstages-Tracks-Interactive-3-Tier-Spinning/dp/B00DT2WL26?crid=34L4AZUGFFT0S&dib=eyJ2IjoiMSJ9.3dMAuv5wUAHv5K_sFtwlVZVP9PwQDJib79z7Geixg_Iq4hpL2U0Fbva9A66jcfqVBrsskSi1hThugGyEoFnCQCKfteYFiFKPxQ7qi94OZRlywYG5x4nBug0fQfPRTH4ckMqT0lwd5-z_B_sq48SFZ3n9Xu-ef1kqNP0jDA7BL4xRDu6ve3EHt_KczQIRZYVuIXbn95UnaorgONlBU9_IesHF524_PBK6X04bZ2WFSUAC2doFya7zu9x--rs81iL3CPo4ZYRwVFcRRekZsOU8UDy0GloUDsb_X3ZT2Jqyl-4.wjVeoJaqFOCjvIKgbbBYCZ5Mv9LA7SbtoUfwTRyeGUI&dib_tag=se&keywords=CAT+TOY%5C&qid=1744862193&sprefix=cat+toy%2Caps%2C167&sr=8-24"},
-  { id: 2, title: "Dog Leash", image: "/images/dog-leash.jpg", description: "A sturdy leash for dogs", category: "dog", link: "https://www.amazon.com/TUG-Patented-Tangle-Free-Retractable-One-Handed/dp/B076F7HM8T?crid=84GB9G2ZSC8G&dib=eyJ2IjoiMSJ9.uGi_sUTnSz1YUXE6ZBCYifWxe8V_NA0pN7ow4TsNhurGTTLeolCJxfI_R-cOGrlFl6NFXHEG8N4iTEo_7ms6pO5ZktYKF1QZdH2QepoNzfEmuSbku7awCLVa_jO48H-z-vFnQDkqd7GLhzOQ7tzjpgSg8hhyGJonDadw4y6-Eh-bEGb0BPr6X3YKzs_6uZLBTsh-6Yn6dtfs9rn1zYihnyyKot7d_hPdCNiOYmktyJS-brVzq5TL2C3-32hOMJ5CY220Ltu0mf6MilrCxKJjfIjFr4BuIC3ywBdgp-0j6Hc.w1xNoYR6Dn9clSGxbRBb4ACOfOG96asT9lMXZ1A8v7k&dib_tag=se&keywords=dog%2Bleash&qid=1744862266&sprefix=dog%2Ble%2Caps%2C200&sr=8-7&th=1"},
-  { id: 3, title: "Bird Feeder", image: "/images/bird-feeder.jpg", description: "A feeder for birds", category: "other", link: "https://www.amazon.com/Youvip-Metal-Roof-Bird-Feeder/dp/B0DK153SH2?crid=1Y55T7LCFMCJ6&dib=eyJ2IjoiMSJ9.-DdaQLQIGzg2kx0QCAKhHs8Nv8kJ8o0Qelrk1aEFNPTqVyRbC9GjQpggr9pdTGvd-dR-Erej3XdI5Tl_AuQRTF1JYFxWiH1cmr3Si9lF9qi4dmdcWLoL-P4Cs0vcc9sWJd7AMCkLDndn0-goda2MxoVXRKGkhJnac02VF9IqgMoNNZxWbn8zacXoSvC4LSZhprA1v_VjyGArhqwjeKk6TGFfTDSSYfrFIbtH9SppzLjgO5cRz-KviA5NqKX0xuza-gugA0Kr-B3HUYe2SO0bP8CGwBVnlRnumTGBkwrt6U8.Q8L_YQ8wsXokM206DzZUf_QvywCEA8tTzqW16VzjD8o&dib_tag=se&keywords=bird%2Bfeeder&qid=1744862305&sprefix=bird%2Bfeede%2Caps%2C262&sr=8-7&th=1"},
-  { id: 4, title: "Cat Bed", image: "/images/cat-bed.jpg", description: "A cozy bed for cats", category: "cat", link: "https://www.amazon.com/Loves-cabin-Anti-Slip-Water-Resistant-Washable/dp/B07MFYSKCL?crid=3LSGMRAQB5DD0&dib=eyJ2IjoiMSJ9.GS1WC57H04g0HTAPP-Tc4pqsQz5Dd64jljHw32PG2P_5SxWuULNNvSL0l352EHV3gJtnZxZjDiPpTcE7YtRQV1Ohu4RKv6mxo2ikikvFbdEGSXRd0H2bd3Y5lCKvqWtUn-W6x5VGxPdiNCTqMlNkhgWzvE5FfrCGAhKw1qui2DvnTm1JemS92jeyAEfT7Lie1yoDg7eDhP_LvWWM3s3_-9BSnCfPmdnq4rwdmANy3qvs1npRPMKLQyTIsPEHL1wGXsaCdbx_wwnoHGcub5pADLc3C8VhcBuF52lTxfRJ1D4.wSok-T9IcpNaeEwXqGrS9KQBQC4JiZyW8rBG3nqbY7U&dib_tag=se&keywords=cat%2Bbed&qid=1744862329&sprefix=cat%2Bbed%2Caps%2C188&sr=8-6&th=1" },
-  { id: 5, title: "Dog Toy", image: "/images/dog-toy.jpg", description: "A chew toy for dogs", category: "dog", link: "https://www.amazon.com/Benebone-Wishbone-Durable-Aggressive-Chewers/dp/B00CPDWT2M?crid=3E0TTR7PP9SST&dib=eyJ2IjoiMSJ9.mctglYej7FnhfBM0WjzsJlQsRvwdXM_9bAJWiHG0DoQ5ppqwbX0k6KUlAUS-Wm8skqHcSFUEAbjIJLmBALcd5FgqcWeDgtVx6iEvXGYIgULPrKTdxofDSWDWXZVaMPYKRZyBDL7zHdSmSWe4nGxyGSJF980U3gykhjLAFQBt27mLHFk6gu_cE3mQJNARh54vvTFFs7Jm8CM0eE58uAgisZw26M8x_ygY1nft6rJzdN5inTZG8ot6HeB1emMl2SpJInJMB6Sj-1IgmZe_ugvlGvZI0T6QDLZQVjhZnDRyNRQ.-KSSw0WY-2V1z0oD1qp2yprtG86_YzzgBDMbKE9UEGw&dib_tag=se&keywords=dog%2Btoy&qid=1744862384&rdc=1&sprefix=dog%2Bto%2Caps%2C332&sr=8-9&th=1"},
+  {
+    id: 1,
+    title: "Cat Toy",
+    image: "/images/cat-toy.jpg",
+    description: "A brain-tickling toy for cats",
+    category: "cat",
+    link: "https://www.amazon.com/Catstages-Tracks-Interactive-3-Tier-Spinning/dp/B00DT2WL26?crid=34L4AZUGFFT0S&dib=eyJ2IjoiMSJ9.3dMAuv5wUAHv5K_sFtwlVZVP9PwQDJib79z7Geixg_Iq4hpL2U0Fbva9A66jcfqVBrsskSi1hThugGyEoFnCQCKfteYFiFKPxQ7qi94OZRlywYG5x4nBug0fQfPRTH4ckMqT0lwd5-z_B_sq48SFZ3n9Xu-ef1kqNP0jDA7BL4xRDu6ve3EHt_KczQIRZYVuIXbn95UnaorgONlBU9_IesHF524_PBK6X04bZ2WFSUAC2doFya7zu9x--rs81iL3CPo4ZYRwVFcRRekZsOU8UDy0GloUDsb_X3ZT2Jqyl-4.wjVeoJaqFOCjvIKgbbBYCZ5Mv9LA7SbtoUfwTRyeGUI&dib_tag=se&keywords=CAT+TOY%5C&qid=1744862193&sprefix=cat+toy%2Caps%2C167&sr=8-24",
+  },
+  {
+    id: 2,
+    title: "Dog Leash",
+    image: "/images/dog-leash.jpg",
+    description: "A sturdy leash for dogs",
+    category: "dog",
+    link: "https://www.amazon.com/TUG-Patented-Tangle-Free-Retractable-One-Handed/dp/B076F7HM8T?crid=84GB9G2ZSC8G&dib=eyJ2IjoiMSJ9.uGi_sUTnSz1YUXE6ZBCYifWxe8V_NA0pN7ow4TsNhurGTTLeolCJxfI_R-cOGrlFl6NFXHEG8N4iTEo_7ms6pO5ZktYKF1QZdH2QepoNzfEmuSbku7awCLVa_jO48H-z-vFnQDkqd7GLhzOQ7tzjpgSg8hhyGJonDadw4y6-Eh-bEGb0BPr6X3YKzs_6uZLBTsh-6Yn6dtfs9rn1zYihnyyKot7d_hPdCNiOYmktyJS-brVzq5TL2C3-32hOMJ5CY220Ltu0mf6MilrCxKJjfIjFr4BuIC3ywBdgp-0j6Hc.w1xNoYR6Dn9clSGxbRBb4ACOfOG96asT9lMXZ1A8v7k&dib_tag=se&keywords=dog%2Bleash&qid=1744862266&sprefix=dog%2Ble%2Caps%2C200&sr=8-7&th=1",
+  },
+  {
+    id: 3,
+    title: "Bird Feeder",
+    image: "/images/bird-feeder.jpg",
+    description: "A feeder for birds",
+    category: "other",
+    link: "https://www.amazon.com/Youvip-Metal-Roof-Bird-Feeder/dp/B0DK153SH2?crid=1Y55T7LCFMCJ6&dib=eyJ2IjoiMSJ9.-DdaQLQIGzg2kx0QCAKhHs8Nv8kJ8o0Qelrk1aEFNPTqVyRbC9GjQpggr9pdTGvd-dR-Erej3XdI5Tl_AuQRTF1JYFxWiH1cmr3Si9lF9qi4dmdcWLoL-P4Cs0vcc9sWJd7AMCkLDndn0-goda2MxoVXRKGkhJnac02VF9IqgMoNNZxWbn8zacXoSvC4LSZhprA1v_VjyGArhqwjeKk6TGFfTDSSYfrFIbtH9SppzLjgO5cRz-KviA5NqKX0xuza-gugA0Kr-B3HUYe2SO0bP8CGwBVnlRnumTGBkwrt6U8.Q8L_YQ8wsXokM206DzZUf_QvywCEA8tTzqW16VzjD8o&dib_tag=se&keywords=bird%2Bfeeder&qid=1744862305&sprefix=bird%2Bfeede%2Caps%2C262&sr=8-7&th=1",
+  },
+  {
+    id: 4,
+    title: "Cat Bed",
+    image: "/images/cat-bed.jpg",
+    description: "A cozy bed for cats",
+    category: "cat",
+    link: "https://www.amazon.com/Loves-cabin-Anti-Slip-Water-Resistant-Washable/dp/B07MFYSKCL?crid=3LSGMRAQB5DD0&dib=eyJ2IjoiMSJ9.GS1WC57H04g0HTAPP-Tc4pqsQz5Dd64jljHw32PG2P_5SxWuULNNvSL0l352EHV3gJtnZxZjDiPpTcE7YtRQV1Ohu4RKv6mxo2ikikvFbdEGSXRd0H2bd3Y5lCKvqWtUn-W6x5VGxPdiNCTqMlNkhgWzvE5FfrCGAhKw1qui2DvnTm1JemS92jeyAEfT7Lie1yoDg7eDhP_LvWWM3s3_-9BSnCfPmdnq4rwdmANy3qvs1npRPMKLQyTIsPEHL1wGXsaCdbx_wwnoHGcub5pADLc3C8VhcBuF52lTxfRJ1D4.wSok-T9IcpNaeEwXqGrS9KQBQC4JiZyW8rBG3nqbY7U&dib_tag=se&keywords=cat%2Bbed&qid=1744862329&sprefix=cat%2Bbed%2Caps%2C188&sr=8-6&th=1",
+  },
+  {
+    id: 5,
+    title: "Dog Toy",
+    image: "/images/dog-toy.jpg",
+    description: "A chew toy for dogs",
+    category: "dog",
+    link: "https://www.amazon.com/Benebone-Wishbone-Durable-Aggressive-Chewers/dp/B00CPDWT2M?crid=3E0TTR7PP9SST&dib=eyJ2IjoiMSJ9.mctglYej7FnhfBM0WjzsJlQsRvwdXM_9bAJWiHG0DoQ5ppqwbX0k6KUlAUS-Wm8skqHcSFUEAbjIJLmBALcd5FgqcWeDgtVx6iEvXGYIgULPrKTdxofDSWDWXZVaMPYKRZyBDL7zHdSmSWe4nGxyGSJF980U3gykhjLAFQBt27mLHFk6gu_cE3mQJNARh54vvTFFs7Jm8CM0eE58uAgisZw26M8x_ygY1nft6rJzdN5inTZG8ot6HeB1emMl2SpJInJMB6Sj-1IgmZe_ugvlGvZI0T6QDLZQVjhZnDRyNRQ.-KSSw0WY-2V1z0oD1qp2yprtG86_YzzgBDMbKE9UEGw&dib_tag=se&keywords=dog%2Btoy&qid=1744862384&rdc=1&sprefix=dog%2Bto%2Caps%2C332&sr=8-9&th=1",
+  },
 ];
 
 // Helper function to categorize items
@@ -535,7 +571,7 @@ function categorizeItems(items) {
       sections.other.items.push(item);
     }
   });
- 
+
   return Object.values(sections);
 }
 
@@ -573,7 +609,7 @@ app.post("/shop", (req, res) => {
 // Splash routes
 
 app.get("/splash", (req, res) => {
-  res.render("pages/splash", {hideNavbar: true});
+  res.render("pages/splash", { hideNavbar: true });
 });
 
 // Logout routes
@@ -630,13 +666,13 @@ app.get("/purrsonality-quiz-2", (req, res) => {
 		JOIN species s ON tts.species_id = s.species_id
 		JOIN traits t ON tts.trait_id = t.trait_id
 		WHERE s.species_name = (SELECT species_preference FROM users WHERE email = '${req.session.user.email}');`;
-	
+
   db.any(query)
     .then((traits) => {
-		 res.render("pages/quiz-2", {
-		   traits
-		});
-	 })
+      res.render("pages/quiz-2", {
+        traits,
+      });
+    })
     .catch((err) => {
       console.log(err);
       res.status(500);
@@ -656,7 +692,7 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
 
   const speciesObj = await db.one(`SELECT species_preference FROM users WHERE email = '${req.session.user.email}'`); 
   const species = speciesObj.species_preference;
-  console.log(species)
+  console.log(species);
   switch (species) {
     case "dog": {
       userVals = [
@@ -698,8 +734,8 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
       return;
     }
     //prevents division by zero errors
-    else if (userVals[i] == 0) {    
-	    userVals[i] = 0.01;
+    else if (userVals[i] == 0) {
+      userVals[i] = 0.01;
     }
   }
   console.log(req.body);
@@ -758,73 +794,39 @@ app.post("/purrsonality-quiz-2", async (req, res) => {
 //breeds only keep first
 //species_preference
 //petfinder breeds call
-
-async function getIdsToBreeds(type) {
-  let results = [];
-  const csvDir = path.resolve(__dirname, "data");
-
-  const url = path.resolve(csvDir, `${type}s.csv`);
-
-  await new Promise((resolve, reject) => {
-    fs.createReadStream(url)
-      .pipe(csv())
-      .on("data", (data) => results.push(data))
-      .on("end", resolve) // Resolve the Promise when stream ends
-      .on("error", reject); // Reject the Promise if there's an error
-  });
-
-  return results.map((result) => {
-    return {
-      id: result.id,
-      name: result.name,
-    };
-  });
-}
 let dogBreeds;
 let catBreeds;
 async function getUserBreeds(email, num = 10) {
-  let breedIds = `SELECT quiz_results, species_preference FROM users where email = 
+  let breedIds = `SELECT quiz_results FROM users where email = 
   '${email}'`;
-  let breedType;
-  let topBreeds = [];
   let breedRank = [];
+  let isCat;
   await db
     .one(breedIds)
     .then((results) => {
       breedRank = results.quiz_results;
-      breedType = results.species_preference;
+      if (breedRank[0] > 273) {
+        isCat = true;
+      }
     })
     .catch((error) => {
       console.log(error);
     });
 
-  let breeds = await getIdsToBreeds(breedType);
-  console.log(breeds);
-  console.log(breedRank);
-  for (let i = 0; i < num; i++) {
-    let breed = breeds.find((breed) => {
-      return parseInt(breed.id) == breedRank[i];
-    });
-
-    if (breed && breed.name) {
-      topBreeds.push(breed.name);
-    }
-  }
-  if (breedType == "dog") {
-    if (!dogBreeds) {
-      dogBreeds = await getBreeds(breedType);
-    }
-
-    return filterBreeds(dogBreeds, topBreeds);
-  }
-  if (breedType == "cat") {
+  let topBreeds = await getSpecies(breedRank, num);
+  console.log(topBreeds);
+  if (isCat) {
     if (!catBreeds) {
-      catBreeds = await getBreeds(breedType);
+      catBreeds = await getBreeds("cat");
+      console.log(catBreeds);
     }
-    console.log(catBreeds);
-    console.log(topBreeds);
 
     return filterBreeds(catBreeds, topBreeds);
+  } else {
+    if (!dogBreeds) {
+      dogBreeds = await getBreeds("dog");
+    }
+    return filterBreeds(dogBreeds, topBreeds);
   }
 }
 
@@ -832,6 +834,31 @@ function filterBreeds(breeds, topBreeds) {
   return topBreeds.filter((breed) => {
     return breeds["breeds"].find((ele) => ele.name == breed);
   });
+}
+
+async function getSpecies(breedRank, num) {
+  let res = [];
+  let query = `SELECT breed_name FROM breeds where `;
+  let i;
+  for (i = 0; i < num - 1; i++) {
+    query += `breed_id = ${breedRank[i]} OR `;
+  }
+  query += `breed_id = ${breedRank[i]}`;
+  let result;
+  await db
+    .many(query)
+    .then((results) => {
+      result = results;
+      console.log(result);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+
+  result.forEach((breed) => {
+    res.push(breed.breed_name);
+  });
+  return res;
 }
 
 async function getFilterParameters(query, email) {
