@@ -735,12 +735,14 @@ async function getUserBreeds(email, num = 10) {
     });
 
   let topBreeds = await getSpecies(breedRank, num);
+  console.log(topBreeds);
   if (isCat) {
     if (!catBreeds) {
       catBreeds = await getBreeds("cat");
+      console.log(catBreeds);
     }
 
-    return filterBreeds(dogBreeds, topBreeds);
+    return filterBreeds(catBreeds, topBreeds);
   } else {
     if (!dogBreeds) {
       dogBreeds = await getBreeds("dog");
