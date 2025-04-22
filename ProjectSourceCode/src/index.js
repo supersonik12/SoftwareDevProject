@@ -228,7 +228,8 @@ app.post("/register", async (req, res) => {
 //Account Routes
 app.get("/account", async (req, res) => {
   if (req.session.user == undefined) {
-    res.redirect("/");
+    res.status(401);
+    res.render("pages/error", errorMessages[401]);
   } else {
     const user = {
       name: req.session.user.name,
