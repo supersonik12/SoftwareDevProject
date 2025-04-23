@@ -57,10 +57,10 @@ body {
   justify-content: center;
 }
 .compatibility-btn {
-  height: 50px;
+  height: 60px;
   color: white;
   background: var(--button-color) !important;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   border-radius: 10px;
   padding: 5px 10px;
   border: 0;
@@ -267,7 +267,7 @@ li button.selected-page {
   background: var(--button-hover);
 }
 .compatibility-btn.selected {
-  border: 2px solid black;
+  border: 2px solid var(--button-hover);
 }
 .top-home-container p {
   font-size: 2rem;
