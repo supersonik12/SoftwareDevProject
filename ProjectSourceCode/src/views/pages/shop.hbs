@@ -7,7 +7,7 @@ button {
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 2px;
+  margin: 0 auto; /* Center the button horizontally */
   cursor: pointer;
   height: 50px;
   width: 150px;
@@ -29,6 +29,10 @@ button {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow for better appearance */
   border-radius: 8px; /* Add rounded corners */
   overflow: hidden; /* Ensure content stays within the card */
+  display: flex; /* Use flexbox for card layout */
+  flex-direction: column; /* Stack content vertically */
+  justify-content: space-between; /* Distribute space between elements */
+  align-items: center; /* Center-align content horizontally */
 }
 
 .card img {
@@ -62,10 +66,3 @@ button {
     {{/each}}
 </div>
 
-<div id="cart-dropdown" class="cart-dropdown hidden">
-    <h3>Shopping Cart</h3>
-    <ul id="cart-items">
-        <!-- Cart items will be dynamically added here -->
-    </ul>
-    <button id="checkout-button">Checkout</button>
-</div>
