@@ -60,6 +60,11 @@ body {
   padding: 5px 10px;
   border: 0;
 }
+
+.compatibility-btn:hover {
+  background: var(--button-hover) !important;
+}
+
 .pet-container .btn-container button,
 .card-top-content button {
   border: 0;
