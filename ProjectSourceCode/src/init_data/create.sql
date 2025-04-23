@@ -17,11 +17,28 @@ CREATE TABLE IF NOT EXISTS favorites (
 	pet_link VARCHAR(400)
 );
 
+CREATE TABLE IF NOT EXISTS following (
+	user_email VARCHAR(50),
+	rescue_email VARCHAR(50),
+	rescue_phone VARCHAR(50),
+	location VARCHAR(50)
+);
+
 CREATE TABLE IF NOT EXISTS traits (
 	trait_id SERIAL PRIMARY KEY,
 	trait_name VARCHAR(20) NOT NULL,
 	min_extreme VARCHAR(200) NOT NULL,
 	max_extreme VARCHAR(200) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS species (
+	species_id SERIAL PRIMARY KEY,
+	species_name VARCHAR(20)
+);
+
+CREATE TABLE IF NOT EXISTS traits_to_species (
+	trait_id INT NOT NULL,
+	species_id INT NOT NULL
 );
 
 --Any of these values besides id, name, and species may be null based on species

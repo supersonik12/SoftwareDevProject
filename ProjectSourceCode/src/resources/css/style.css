@@ -1,16 +1,49 @@
 /*Home page*/
+:root {
+  --button-color: #ffb6b9;
+  --button-hover: #ff6f61;
+  font-family: "Segoe UI", sans-serif;
+}
 body {
   padding-bottom: 10px;
 }
 .pet-container {
   width: 360px;
   height: 500px !important;
+  padding-top: 20px;
+  border-radius: 20px;
+  border: 5px solid var(--button-color) !important;
 }
 .pet-container img {
   object-fit: cover;
 }
 .pet-container .card-img-top {
   height: 250px;
+  width: 250px;
+  margin: auto;
+  border: 8px dashed #ffb6b9;
+  border-radius: 50%;
+}
+.loading-modal {
+  text-align: center;
+
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -20%);
+  width: 300px !important;
+}
+.filter-submit {
+  background: var(--button-color) !important;
+  border: 0 !important;
+}
+.filter-submit:hover {
+  background: var(--button-hover) !important;
+}
+.filter-form {
+  border-left: 3px dashed #ffb6b9;
+}
+.modal-content {
+  border: 3px dashed #ffb6b9 !important;
 }
 .pet-grid {
   display: flex;
@@ -18,7 +51,17 @@ body {
   flex-flow: wrap;
   justify-content: center;
 }
-.pet-container .btn-container button {
+.compatibility-btn {
+  height: 50px;
+  color: white;
+  background: var(--button-color) !important;
+  font-size: 1.1rem;
+  border-radius: 10px;
+  padding: 5px 10px;
+  border: 0;
+}
+.pet-container .btn-container button,
+.card-top-content button {
   border: 0;
   background: white;
   height: 50px;
@@ -30,6 +73,8 @@ body {
   width: 100%;
   padding: 0px 20px 10px;
   display: flex;
+  position: absolute;
+  bottom: -30px;
   justify-content: space-between;
 }
 .gender-icon {
@@ -212,17 +257,9 @@ li button.selected-page {
   padding: 50px 0;
   align-items: center;
 }
-.compatibility-btn {
-  height: 50px;
-  color: white;
-  background: rgb(220, 188, 5);
-  font-size: 1.1rem;
-  border-radius: 10px;
-  padding: 5px 10px;
-  border: 0;
-}
+
 .compatibility-btn:hover {
-  background: rgb(158, 136, 11);
+  background: var(--button-hover);
 }
 .compatibility-btn.selected {
   border: 2px solid black;
@@ -234,8 +271,10 @@ li button.selected-page {
 
 /* Pet-Themed Login/Logout Styles */
 body.login-page,
-body.logout-page {
-  font-family: 'Segoe UI', sans-serif;
+body.logout-page,
+body.account-page,
+body.guide-page {
+  font-family: "Segoe UI", sans-serif;
   background-color: #fff8f0;
   background-image: url("/resources/images/paw-bg-light.png"); /* Optional background texture */
   background-repeat: repeat;
@@ -254,15 +293,96 @@ body.logout-page {
   border: 3px dashed #ffb6b9;
   position: relative;
 }
-
+/* 
 .auth-container h1 {
   text-align: center;
   color: #ff6f61;
   margin-bottom: 20px;
   font-family: 'Quicksand', sans-serif;
+} */
+
+.auth-container-2 {
+  max-width: 1000px;
+
+  margin: 80px auto;
+
+  padding: 40px;
+
+  background-color: white;
+
+  border-radius: 20px;
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+
+  border: 3px dashed #ffb6b9;
+
+  position: relative;
+}
+
+.auth-container-3 {
+  max-width: 1200px;
+
+  margin: 80px auto;
+
+  padding: 40px;
+
+  background-color: white;
+
+  border-radius: 20px;
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+
+  border: 3px dashed #ffb6b9;
+
+  position: relative;
+}
+
+.auth-container h1,
+.auth-container-2 h1 {
+  text-align: center;
+
+  color: #ff6f61;
+
+  margin-bottom: 20px;
+
+  font-family: "Quicksand", sans-serif;
+}
+
+.auth-container-3 h5,
+.auth-container-2 h5 {
+  text-align: left;
+
+  color: #ff6f61;
+
+  margin-bottom: 20px;
+
+  font-family: "Quicksand", sans-serif;
+}
+
+.auth-container h2,
+.auth-container-2 h2 {
+  text-align: center;
+
+  color: #ff6f61;
+
+  margin-bottom: 20px;
+
+  font-family: "Quicksand", sans-serif;
+}
+
+.auth-container h3,
+.auth-container-2 h3 {
+  text-align: center;
+
+  color: #ff6f61;
+
+  margin-bottom: 20px;
+
+  font-family: "Quicksand", sans-serif;
 }
 
 .auth-container form input[type="email"],
+.auth-container form input[type="text"],
 .auth-container form input[type="password"] {
   width: 100%;
   padding: 14px;
@@ -273,7 +393,150 @@ body.logout-page {
   background-color: #fefefe;
 }
 
-.auth-container button {
+.auth-container-2 input {
+  width: 100%;
+
+  padding: 14px;
+
+  margin-bottom: 16px;
+
+  border: 2px solid #87cefa;
+
+  border-radius: 12px;
+
+  font-size: 1rem;
+
+  background-color: #fefefe;
+}
+
+.auth-container-2 datalist {
+  font-size: 1rem;
+  color: #ff6f61;
+  font-family: "Quicksand", sans-serif;
+}
+
+.auth-container-2 option {
+  font-family: "Quicksand", sans-serif;
+}
+
+.auth-container-2 datalist {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 50;
+}
+
+.data-button-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.data-button-container button[type="button"],
+.data-button-container input[type="submit"] {
+  width: 25%;
+  padding: 5px 10px;
+  font-size: 1rem;
+  height: 40px;
+  margin: 0;
+  background-color: #ffb6b9;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition:
+    background 0.3s ease,
+    transform 0.2s ease;
+}
+
+.data-button-container button[type="button"]:hover,
+.data-button-container input[type="submit"]:hover {
+  background-color: #ff6f61;
+  transform: translateY(-2px);
+}
+
+.auth-container-2 option {
+  padding: 0;
+}
+
+.slider-container {
+  width: 100%;
+  border: none;
+}
+
+.slider:focus {
+  outline: none;
+}
+
+.slider[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  outline: none;
+  background: transparent;
+  margin: 20px 0;
+  border: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+
+  height: 20px;
+  width: 20px;
+  background: #c4696c;
+  cursor: pointer;
+  border-radius: 50%;
+  margin-top: -6px;
+  border: none;
+}
+
+.slider::-webkit-slider-runnable-track {
+  background: #ffb6b9;
+  height: 8px;
+  border-radius: 5px;
+}
+
+
+.slider::-moz-range-thumb {
+  
+  height: 20px;
+  width: 20px;
+  background: #c4696c;
+  cursor: pointer;
+  border-radius: 50%;
+  margin-top: -6px;
+  border: none;
+}
+
+.slider::-moz-range-track {
+  background: #ffb6b9;
+  height: 8px;
+  border-radius: 5px;
+}
+
+
+
+
+.slider:hover {
+  opacity: 1;
+}
+
+.form-check-input:checked + .card {
+  outline: 4px solid#ff6f61;
+  outline-offset: 0px;
+  border-radius: 12px;
+}
+
+.card:hover {
+  transform: scale(1.02);
+  transition: transform 0.2s ease;
+}
+
+.auth-container button,
+.auth-container form input[type="submit"] {
   width: 100%;
   padding: 14px;
   font-size: 1rem;
@@ -282,10 +545,13 @@ body.logout-page {
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition:
+    background 0.3s ease,
+    transform 0.2s ease;
 }
 
-.auth-container button:hover {
+.auth-container button:hover,
+.auth-container form input[type="submit"]:hover {
   background-color: #ff6f61;
   transform: translateY(-2px);
 }
@@ -306,8 +572,9 @@ body.logout-page {
 }
 
 /* Optional paw corner */
-.auth-container::after {
-  content: '';
+.auth-container::after,
+.auth-container-2::after {
+  content: "";
   position: absolute;
   top: -25px;
   right: -25px;
@@ -316,4 +583,19 @@ body.logout-page {
   background-repeat: no-repeat;
   height: 60px;
   width: 60px;
+}
+
+/* Argyle background for splash, login, and logout */
+body.splash-page,
+body.login-page,
+body.logout-page {
+  background-color: #fff8f0;
+  background-image: url("/resources/images/argyle-bg.png");
+  background-repeat: repeat;
+  background-size: 150px;
+}
+.card-top-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }

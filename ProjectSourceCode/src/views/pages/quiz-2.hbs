@@ -1,0 +1,35 @@
+<body class = "guide-page">
+	<div class = "auth-container-2" id = "form-container">
+		<form class = "p-3" action = "/purrsonality-quiz-2" method = "POST">
+			{{#each traits}}
+			{{#if @first}}
+			<div class="slider-container" id = "slider-{{@index}}">
+			{{else}}
+			<div class="slider-container" id = "slider-{{@index}}" hidden>
+			{{/if}}
+				<label> <h5> My ideal pet is: </h5> </label><br> 
+				<input type = "range" class = "slider" min = -1 max = 1 step = "0.01" name = "{{this.trait_name}}" list="trait_values"/>
+
+				<datalist id = "trait_values"  >
+					<option value = -1 label = "{{this.min_extreme}}"></option>
+					<option value = 1 label = "{{this.max_extreme}}"></option>
+				</datalist><br><br>
+				<div class = "data-button-container">
+					{{#if @first}}
+					<div style="width: 25%;"></div>
+					{{else}}
+					<button  style="width:25%;"type = "button" value = "Prev" onClick = "revealPrevious({{@index}})">&lt; Prev</button>
+					{{/if}}
+					{{#if @last}}
+					<input style="width:25%;"class = "button"type = "submit" value = "Submit"/>
+					{{else}}
+					<button  style="width:25%;"value = "Next" type = "button" onClick = "revealNext({{@index}})">Next &gt;</button>
+					{{/if}}
+				</div>
+			</div>
+			{{/each}}
+		</form>
+	</div>
+</body>
+
+<script src = "resources/js/quiz.js"></script>

@@ -10,22 +10,26 @@
       <div class="card pet-container">
         <img class="card-img-top" src={{this.photo}} alt="" />
         <div class="card-body">
-          <h5 class="card-title">{{this.name}}</h5>
+               <div class="card-top-content">
+            <h5 class="card-title">{{this.name}}</h5>
+                <form action = "/favorite" method="POST">
+               <!--Values sent to the favorites database-->
+                <input type="hidden" name="id" value="{{this.id}}">
+                <input type="hidden" name="name" value="{{this.name}}">
+                <input type="hidden" name="photo" value="{{this.photo}}">
+                <input type="hidden" name="description" value="{{this.description}}">
+                <input type="hidden" name = "link"value = "{{this.url}}">
+                <button type = "submit" class = "favorite"><img src="/resources/images/heart.svg" alt = "favorite"></img></button>
+               </form>
+          </div>
+          
           <p class="card-text">{{this.description}}</p>
           
         </div>
          <div class = "btn-container">
             <button class = 'contactBtn'><img src="/resources/images/contact.svg" alt="contact"></img></button>
              <button class = "infoBtn" ><img  src="/resources/images/pet_info.svg" alt="info"></img></button>
-             <form action = "/favorite" method="POST">
-             <!--Values sent to the favorites database-->
-              <input type="hidden" name="id" value="{{this.id}}">
-              <input type="hidden" name="name" value="{{this.name}}">
-              <input type="hidden" name="photo" value="{{this.photo}}">
-              <input type="hidden" name="description" value="{{this.description}}">
-              <input type="hidden" name = "link"value = "{{this.url}}">
-              <button type = "submit" class = "favorite"><img src="/resources/images/heart.png" alt = "favorite"></img></button>
-             </form>
+           
              
           </div>
          
