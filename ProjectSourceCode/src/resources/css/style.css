@@ -51,6 +51,26 @@ body {
   flex-flow: wrap;
   justify-content: center;
 }
+
+
+
+.loading-modal {
+  text-align: center;
+
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -20%);
+  width: 300px !important;
+}
+.modal-content {
+  border: 10px dashed #ffb6b9 !important;
+}
+.loading-modal .modal-content {
+  padding: 100px 30px;
+}
+.pet-container .btn-container button,
+.card-top-content button  {
+
 .compatibility-btn {
   height: 50px;
   color: white;
@@ -67,6 +87,7 @@ body {
 
 .pet-container .btn-container button,
 .card-top-content button {
+
   border: 0;
   background: white;
   height: 50px;
