@@ -1,6 +1,8 @@
 -- password is 'password' bcrypt-hashed w 10 rounds
 INSERT INTO users (email, password, name) VALUES ('test@example.com', '$2a$10$ea8SY2OkzG9H79u8pqAhwOHvtDp6kSPVZL/m2G/Qeow/nVdU3J3P2', 'Test User');
 
+INSERT INTO following (user_email, rescue_email, rescue_phone, location) VALUES ('test@example.com', 'rescue1@example.com', '555-123-4567', 'Boulder, CO');
+
 INSERT INTO traits 
 	(trait_name, min_extreme, max_extreme)
 	VALUES

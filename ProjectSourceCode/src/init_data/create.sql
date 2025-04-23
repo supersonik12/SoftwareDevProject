@@ -17,6 +17,13 @@ CREATE TABLE IF NOT EXISTS favorites (
 	pet_link VARCHAR(400)
 );
 
+CREATE TABLE IF NOT EXISTS following (
+	user_email VARCHAR(50),
+	rescue_email VARCHAR(50),
+	rescue_phone VARCHAR(50),
+	location VARCHAR(50)
+);
+
 CREATE TABLE IF NOT EXISTS traits (
 	trait_id SERIAL PRIMARY KEY,
 	trait_name VARCHAR(20) NOT NULL,

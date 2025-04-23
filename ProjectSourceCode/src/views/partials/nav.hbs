@@ -1,41 +1,39 @@
 <header>
- <nav class="navbar navbar-expand-sm border-bottom">
-   <div class="container">
-     <button
-       class="navbar-toggler ms-auto"
-       type="button"
-       data-bs-toggle="collapse"
-       data-bs-target="#navbar-collapse"
-       aria-controls="navbar"
-       aria-expanded="false"
-       aria-label="Toggle navigation">
-       <span class="navbar-toggler-icon"></span>
-     </button>
-     <div class="collapse navbar-collapse" id="navbar-collapse">
-       <ul class="navbar-nav me-auto">
-         <li class="nav-item">
-           <a class="nav-link"href = "/home">Home</a>
-         </li>
-       </ul>
-       <div class="nav-item me-auto">
-         <a class="nav-link"href = "/login">Login</a>
-       </div>
-       <div class="nav-item me-auto">
-         <a class="nav-link"href = "/guides">Guides</a>
-       </div>
-       <div class="nav-item me-auto">
-         <a class="nav-link"href = "/purrsonality-quiz-1">Purrsonality Quiz</a>
-       </div>
-       <div class="nav-item me-auto">
-         <a class="nav-link"href = "/shop">Shop</a>
-       </div>
-       <div class="nav-item me-auto">
-         <a class="nav-link"href = "/account">Account</a>
-       </div>
-       <div class="nav-item me-1">
-         <a class="nav-link"href = "/logout">Logout</a>
-       </div>
-     </div>
-   </div>
- </nav>
+  <nav class="navbar navbar-expand-sm border-bottom">
+    <div class="container">
+      <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-collapse"
+        aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbar-collapse">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a style="color: #a5287c;"class="nav-link" href="/home">Home</a>
+          </li>
+        </ul>
+        {{#unless session.user}}
+        <div class="nav-item me-auto">
+          <a style="color: #a5287c;"class="nav-link" href="/login">Login</a>
+        </div>
+        {{/unless}}
+        <div class="nav-item me-auto">
+          <a style="color: #a5287c;"class="nav-link" href="/guides">Guides</a>
+        </div>
+        <div class="nav-item me-auto">
+          <a style="color: #a5287c;"class="nav-link" href="/purrsonality-quiz-1">Purr-sonality Quiz</a>
+        </div>
+        <div class="nav-item me-auto">
+          <a style="color: #a5287c;"class="nav-link" href="/shop">Shop</a>
+        </div>
+        <div class="nav-item me-auto">
+          <a style="color: #a5287c;"class="nav-link" href="/account">Account</a>
+        </div>
+        {{#if session.user}}
+        <div class="nav-item me-1">
+          <a style="color: #a5287c;"class="nav-link" href="/logout">Logout</a>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+  </nav>
 </header>

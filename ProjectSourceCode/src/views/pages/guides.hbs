@@ -1,138 +1,17 @@
-{{!-- <!DOCTYPE html>
-<html lang="en" class="h-100">
 
-{{> header }}  {{!-- This inserts the header partial --}}
-
-<body>
-  <div class="container">
-    <h1>Pet Care Guide</h1>
-
-    <div class="icon-grid">
-      {{#each pets}}
-        <div class="pet-icon" onclick="showGuide('{{this.type}}')">
-          <img src="{{this.image}}" alt="{{this.type}}">
-          <p>{{this.type}}</p>
-        </div>
-      {{/each}}
-    </div>
-
-    <div id="care-guide" class="care-guide hidden">
-      <h2 id="guide-title"></h2>
-      <p id="guide-text"></p>
-    </div>
-  </div>
-
-  <script>
-    console.log('hello');
-    const guides = {
-      dogs: {
-        title: "Dog Care Guide",
-        content: `Dog Care <br> <br>
-        Food: High-quality dog food (based on size and age)
-        Occasional dog-safe treats
-        Avoid chocolate, grapes, and bones that splinter <br>
-        Water: Fresh water available at all times <br>
-        Exercise: Daily walks and playtime
-        Adjust based on breed and energy level <br>
-        Care: Brush regularly and bathe as needed
-        Trim nails and clean ears
-        Provide toys and social interaction
-        Vet visits for checkups and vaccinations <br><br>
-        Learn more at <a href="https://www.vetstreet.com/dogs" target="_blank"> Dog Care</a>`
-      },
-      cats: {
-        title: "Cat Care Guide",
-        content: `Cat Care <br>
-        Food: High-quality cat food (wet, dry, or both)
-        Occasional treats
-        Avoid onions, garlic, and chocolate <br>
-        Water: Fresh water available at all times <br>
-        Exercise: Play daily with toys or climbing furniture
-        Cats love to stalk, pounce, and jump <br>
-        Care: Scoop litter box daily, change litter weekly
-        Brush fur regularly, especially for long-haired cats
-        Trim nails and provide scratching posts
-        Vet visits for checkups and vaccines  <br> <br>
-        Learn more at <a href="https://vcahospitals.com/" target="_blank"> Cat Care</a>`
-      },
-      rabbits: {
-        title: "Rabbit Care Guide",
-        content: `Rabbit care  <br>
-        Food: Unlimited hay (main food)
-        Daily leafy greens (e.g., romaine, parsley)
-        Small amount of pellets
-        Occasional treats (like fruit)
-        Avoid iceberg lettuce and too many carrots <br>
-        Water: Fresh water available at all times <br>
-        Exercise: Let them out daily to hop and explore
-        Use a safe, rabbit-proofed area <br>
-        Care: Provide chew toys to prevent boredom
-        Trim nails as needed ,Clean their living space regularly, Spend time with them—they’re social! <br><br>
-        Learn more at <a href="https://www.vetstreet.com/dogs" target="_blank"> Dog Care</a>`
-      },
-      reptiles: {
-        title: "Reptile Care Guide",
-        content: `Reptile Care <br>
-        Food: Depends on species (insects, veggies, or frozen mice)
-        Gut-load insects before feeding
-        Dust food with calcium or vitamin supplements <br>
-        Water: Clean water dish or misting (species-specific) <br>
-        Exercise: Climbing, crawling, or basking in an enriched enclosure <br>
-        Care: Provide heat lamps and UVB lighting
-        Maintain proper humidity and temperature
-        Spot clean regularly, full clean as needed
-        Handle gently and infrequently (some reptiles don’t like too much contact)<br><br>
-        Learn more at <a href="https://www.thesprucepets.com/reptiles-and-amphibians-4162044" target="_blank"> Reptile Care</a>`
-      },
-      fish: {
-        title: "Fish Care Guide",
-        content: `Fish Care <br>
-        Food: Species-specific fish flakes, pellets, or frozen food
-        Feed small amounts once or twice a day
-        Avoid overfeeding—it dirties the tank <br>
-        Water: Use dechlorinated water
-        Change part of the water weekly (10–25%) <br>
-        Exercise: Provide space to swim and explore
-        Add plants, rocks, or decorations for enrichment <br>
-        Care: Use a filter and heater if needed
-        Monitor water temperature and pH
-        Clean the tank and check for algae regularly<br><br>
-        Learn more at <a href="https://www.thesprucepets.com/fish-and-aquariums-4162060" target="_blank"> Fish  Care</a>`
-      }
-    };
-
-    function showGuide(petType) {
-      document.getElementById('care-guide').classList.remove('hidden');
-      document.getElementById('guide-title').innerText = guides[petType].title;
-      document.getElementById('guide-text').innerHTML = guides[petType].content.replace(/\n/g, '<br>');
-    }
- 
-  </script>
-
-  <style>
-    .container { text-align: center; }
-    .icon-grid { display: flex; justify-content: center; gap: 20px; margin: 20px; }
-    .pet-icon { cursor: pointer; text-align: center; }
-    .pet-icon img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; }
-    .hidden { display: none; }
-    .care-guide { margin-top: 30px; text-align: left; max-width: 600px; }
-  </style>
-</body>
-
-</html> --}}
 
 
 <!-- views/guide.hbs -->
-
+<body class = "guide-page">
 <div class="guide-container" style="padding: 2rem; max-width: 1200px; margin: auto;">
-  <h1 style="text-align: center; margin-bottom: 2rem;">Pet Care Guide</h1>
+  <h1 style="color: #ff6f61;text-align: center; margin-bottom: 2rem;">Pet Care Guide</h1>
   
   <div class="icon-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
     
     {{!-- Kitten Guide --}}
     <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
       <img src="/resources/images/kitten.jpg" alt="Dog Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
-      <h2 style="font-size: 1.5rem;">Kitten Care</h2>
+      <h2 style="color: #ff6f61;font-size: 1.5rem;">Kitten Care</h2>
       <p style="margin: 1rem 0;">Kittens under a year old need kitten-specific wet and dry food, access to a clean litter box from an early age, and plenty of toys and scratching posts for play. It’s important to start vaccinations and deworming early, and socialization should begin as soon as possible.</p>
       <a href="https://www.aspcapro.org/resource/kitten-care-cheat-sheets-foster-families-and-adopters" style="color: #007BFF; text-decoration: none;">Read More →</a>
     </div>
@@ -140,15 +19,15 @@
     {{!-- Puppy Guide --}}
     <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
       <img src="/resources/images/puppy.jpg" alt="Cat Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
-      <h2 style="font-size: 1.5rem;">Puppy Care</h2>
+      <h2 style="color: #ff6f61;font-size: 1.5rem;">Puppy Care</h2>
       <p style="margin: 1rem 0;">Puppies need food formulated specifically for their growing bodies, fed three to four times a day. Early training, including socialization and crate training, is key to building good behavior. Regular vet visits for vaccinations and parasite prevention are also essential during this stage.</p>
       <a href="https://www.banfield.com/products/optimum-wellness-plan/Puppy-plans" style="color: #007BFF; text-decoration: none;">Read More →</a>
     </div>
 
     {{!-- Cat Guide --}}
     <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
-      <img src="/resources/images/Cat.jpg" alt="Rabbit Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
-      <h2 style="font-size: 1.5rem;">Cat Care</h2>
+      <img src="/resources/images/cat1.jpg" alt="Rabbit Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+      <h2 style="color: #ff6f61;font-size: 1.5rem;">Cat Care</h2>
       <p style="margin: 1rem 0;">Cats older than one year do best on high-protein adult cat food and benefit from regular grooming, especially if they have long hair. Daily playtime helps keep them active and prevents obesity, and they should see a vet annually for checkups and vaccinations.</p>
       <a href="https://vcahospitals.com/" style="color: #007BFF; text-decoration: none;">Read More →</a>
     </div>
@@ -156,7 +35,7 @@
     {{!-- Dog Guide --}}
     <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
       <img src="/resources/images/Dog.jpg" alt="Turtle Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
-      <h2 style="font-size: 1.5rem;">Dog Care</h2>
+      <h2 style="color: #ff6f61;font-size: 1.5rem;">Dog Care</h2>
       <p style="margin: 1rem 0;">Dogs one year and older should be fed balanced adult dog food and exercised daily through walks and play. They need regular grooming, depending on the breed, and should visit the vet yearly for checkups, dental care, and ongoing preventive treatments like flea and tick medication.</p>
       <a href="https://www.vetstreet.com/dogs" style="color: #007BFF; text-decoration: none;">Read More →</a>
     </div>
@@ -164,7 +43,7 @@
     {{!-- Reptile Guide --}}
     <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
       <img src="/resources/images/Reptile.jpg" alt="Reptile Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
-      <h2 style="font-size: 1.5rem;">Reptile Care</h2>
+      <h2 style="color: #ff6f61;font-size: 1.5rem;">Reptile Care</h2>
       <p style="margin: 1rem 0;">Reptiles such as lizards, snakes, and geckos require a terrarium with controlled temperature and humidity, as well as UVB lighting to support healthy vitamin D3 production. Their diets vary by species, ranging from insects and leafy greens to frozen rodents, and they should be handled gently and only when necessary to reduce stress.</p>
       <a href="https://www.thesprucepets.com/reptiles-and-amphibians-4162044" style="color: #007BFF; text-decoration: none;">Read More →</a>
     </div>
@@ -172,10 +51,11 @@
     {{!-- Rodent Guide --}}
     <div class="guide-item" style="border: 1px solid #ccc; border-radius: 12px; padding: 1.5rem; text-align: center;">
       <img src="/resources/images/Rodent.jpg" alt="Fish Icon" style="width: 80px; height: 80px; margin-bottom: 1rem;">
-      <h2 style="font-size: 1.5rem;">Rodent Care</h2>
+      <h2 style="color: #ff6f61;font-size: 1.5rem;">Rodent Care</h2>
       <p style="margin: 1rem 0;">Rodents like hamsters, mice, and gerbils need a secure cage with good ventilation and a solid floor, along with a diet of fresh pellets, seeds, and occasional fruits or vegetables. They thrive with enrichment like tunnels, wheels, and chew toys, and their habitats should be spot-cleaned daily with a full cleaning once a week.</p>
       <a href="https://www.rspca.org.uk/adviceandwelfare/pets/rodents" style="color: #007BFF; text-decoration: none;">Read More →</a>
     </div>
 
   </div>
 </div>
+</body>
