@@ -44,9 +44,11 @@ function initializeModals() {
   const modals = document.querySelectorAll(".modal");
   modals.forEach((modal) => {
     const closeButton = modal.querySelector(".closeModal");
-    closeButton.addEventListener("click", () => {
-      $(modal).modal("hide");
-    });
+    if (closeButton) {
+      closeButton.addEventListener("click", () => {
+        $(modal).modal("hide");
+      });
+    }
   });
 }
 initializeModals();
@@ -92,6 +94,15 @@ document.addEventListener("DOMContentLoaded", () => {
           btn.classList.remove("open-filter-btn");
           btn.classList.add("close-filter-btn");
         }
+      });
+    });
+    const homeContainer = document.querySelector(".home-page-container");
+    const getPetForms = homeContainer.querySelectorAll('form[method="GET"]');
+    console.log(getPetForms);
+    getPetForms.forEach((form) => {
+      form.addEventListener("submit", () => {
+        console.log("hello");
+        $(document.querySelector(".loading-modal")).modal("show");
       });
     });
   }
