@@ -4,6 +4,10 @@
   --button-hover: #ff6f61;
   font-family: "Segoe UI", sans-serif;
 }
+.form-check-input:checked {
+  background-color: #ff6f61 !important;
+  border-color: #ff6f61 !important;
+}
 body {
   padding-bottom: 10px;
 }
