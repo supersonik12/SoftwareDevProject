@@ -450,9 +450,9 @@ app.post("/update", async (req, res) => {
       //req.session.user.password = updatedPassword;
       console.log(req.session.user.name);
       //console.log(req.session.user.password);
-      res.send(
-        `<p>Information updated successfully! <a href="/account">Back to account</a></p>`
-      );
+      // res.send(
+      //   `<p>Information updated successfully! <a href="/account">Back to account</a></p>`
+      // );
       res.redirect("/account");
     }
   } catch (err) {
