@@ -87,15 +87,17 @@ $$
 				csv_energy FLOAT,
 				csv_bored FLOAT
 			);
-
-			COPY dog_temp FROM '/data/dogs.csv' DELIMITER ',' CSV HEADER;
-			INSERT INTO breeds(breed_name, species, aff_value, open_value, play_value, vigilant_value, train_value, energy_value, bored_value)
-				SELECT csv_name, 'dog', csv_aff, csv_open, csv_play, csv_vigilant, csv_train, csv_energy, csv_bored
-				FROM dog_temp;
-
-			DROP TABLE dog_temp;	
-		END IF;
+	END IF;
 END $$;
+
+\COPY dog_temp FROM 'src/data/dogs.csv' DELIMITER ',' CSV HEADER;
+
+INSERT INTO breeds(breed_name, species, aff_value, open_value, play_value, vigilant_value, train_value, energy_value, bored_value)
+	SELECT csv_name, 'dog', csv_aff, csv_open, csv_play, csv_vigilant, csv_train, csv_energy, csv_bored
+	FROM dog_temp;
+
+DROP TABLE dog_temp;	
+
 DO
 $$
 	BEGIN 
@@ -112,12 +114,13 @@ $$
 				csv_energy FLOAT,
 				csv_ind FLOAT 
 			);
-
-			COPY cat_temp FROM '/data/cats.csv' DELIMITER ',' CSV HEADER;
-
-			INSERT INTO breeds(breed_name, species, aff_value, open_value, play_value, train_value, energy_value, ind_value)
-				SELECT csv_name, 'cat', csv_aff, csv_open, csv_play, csv_train, csv_energy, csv_ind
-				FROM cat_temp;
-			DROP TABLE cat_temp;
-		END IF;
+	END IF;
 END $$;
+
+\COPY cat_temp FROM 'src/data/cats.csv' DELIMITER ',' CSV HEADER;
+
+INSERT INTO breeds(breed_name, species, aff_value, open_value, play_value, train_value, energy_value, ind_value)
+	SELECT csv_name, 'cat', csv_aff, csv_open, csv_play, csv_train, csv_energy, csv_ind
+	FROM cat_temp;
+DROP TABLE cat_temp;
+
