@@ -7,7 +7,7 @@ import numpy as np
 from numpy import linalg as LA
 
 def getFromDb(species):
-    with pg.connect(host = 'db', port = '5432', dbname = os.environ['POSTGRES_DB'], user = os.environ['POSTGRES_USER'], password = os.environ['POSTGRES_PASSWORD']) as connection:
+    with pg.connect(host = os.environ['POSTGRES_HOST'], port = '5432', dbname = os.environ['POSTGRES_DB'], user = os.environ['POSTGRES_USER'], password = os.environ['POSTGRES_PASSWORD']) as connection:
         with connection.cursor() as cursor:
             query = ""
             #makes sure only populated columns are selected
